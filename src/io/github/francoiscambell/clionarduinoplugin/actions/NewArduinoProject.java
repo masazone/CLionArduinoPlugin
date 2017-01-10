@@ -3,7 +3,7 @@ package io.github.francoiscambell.clionarduinoplugin.actions;
 import com.intellij.icons.*;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.wm.impl.welcomeScreen.*;
-import io.github.francoiscambell.clionarduinoplugin.wizards.*;
+import io.github.francoiscambell.clionarduinoplugin.wizards.NewArduinoProjectWizard;
 
 /**
  * Created by francois on 15-08-14.

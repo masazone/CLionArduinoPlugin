@@ -7,12 +7,17 @@ import com.intellij.openapi.ui.*;
 import com.intellij.openapi.util.io.*;
 import com.intellij.openapi.vfs.*;
 import com.jetbrains.cidr.cpp.*;
+import com.jetbrains.cidr.cpp.cmake.CMakeEnvironment;
+import com.jetbrains.cidr.cpp.cmake.CMakeProjectOpenProcessor;
 import com.jetbrains.cidr.cpp.cmake.projectWizard.*;
 import com.jetbrains.cidr.cpp.cmake.workspace.*;
+import com.jetbrains.cidr.cpp.projectView.CMakeProjectView;
+import com.jetbrains.cidr.cpp.toolchains.CMake;
 import io.github.francoiscambell.clionarduinoplugin.*;
 import io.github.francoiscambell.clionarduinoplugin.resources.*;
 
 import java.io.*;
+
 
 /**
  * Created by francois on 15-08-14.
@@ -90,6 +95,9 @@ public class NewArduinoProjectWizard extends CMakeProjectWizard {
                 cMakeListsEditor.project("${PROJECT_NAME}");
                 cMakeListsEditor.blankLine();
                 cMakeListsEditor.set("${CMAKE_PROJECT_NAME}_SKETCH", projectName + ".ino");
+                cMakeListsEditor.set("${CMAKE_PROJECT_NAME}_BOARD", "mega");
+                cMakeListsEditor.set("${CMAKE_PROJECT_NAME}_PORT", "/dev/ttyACM0");
+
                 cMakeListsEditor.method("generate_arduino_firmware", "${CMAKE_PROJECT_NAME}");
 
                 ArduinoToolchainFiles.copyToDirectory(VfsUtil.findFileByIoFile(projectRoot, true));
@@ -114,16 +122,23 @@ public class NewArduinoProjectWizard extends CMakeProjectWizard {
         if (mainSketchFile == null) {
             return;
         }
-        final Project project = CMakeWorkspace.openProject(cMakeLists, null, false);
+
+        final Project project = new CMakeProjectOpenProcessor().doOpenProject(cMakeLists, null,false);
+        CMakeProjectOpenProcessor.OpenProjectSpec projectSpec = CMakeProjectOpenProcessor.getHelper()
+                .getAndClearFileToOpenData(project);
+
         if (project == null) {
             return;
         }
-        deleteBuildOutputDir(project);
+
+        deleteBuildOutputDir(projectSpec);
         (new OpenFileDescriptor(project, cMakeLists)).navigate(false);
         (new OpenFileDescriptor(project, mainSketchFile)).navigate(true);
     }
 
-    private void deleteBuildOutputDir(Project project) {
-        FileUtil.delete(CMakeWorkspace.getInstance(project).getProjectGeneratedDir());
+    private void deleteBuildOutputDir(CMakeProjectOpenProcessor.OpenProjectSpec projectSpec) {
+        if (projectSpec != null && projectSpec.generationDir != null) {
+            FileUtil.delete(projectSpec.generationDir);
+        }
     }
 }
