@@ -25,6 +25,7 @@ import org.jdom.JDOMException;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.Optional;
 
 import static com.jetbrains.cidr.cpp.cmake.projectWizard.CLionProjectWizardUtils.refreshProjectDir;
 
@@ -33,9 +34,13 @@ import static com.jetbrains.cidr.cpp.cmake.projectWizard.CLionProjectWizardUtils
  * Created by francois on 15-08-14.
  */
 public class NewArduinoProjectWizard extends CMakeProjectWizard {
+
+    private String lastDir = Optional.ofNullable(RecentProjectsManager.getInstance().getLastProjectCreationLocation())
+            .orElse("");
+
     private NewArduinoProjectForm adapter = new NewArduinoProjectForm(
             "untitled-0",
-            new File(RecentDirectoryProjectsManager.getInstance().getLastProjectPath()).getParent());
+            new File(lastDir).getPath());
 
     public NewArduinoProjectWizard() {
         super("New Arduino Sketch Project", "NewArduinoSketchProject");
