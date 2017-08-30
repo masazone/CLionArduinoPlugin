@@ -36,16 +36,18 @@
         group-id CDATA #REQUIRED>
     ]>
 <idea-plugin version="2">
-    <id>io.github.francoiscambell.clionarduinoplugin</id>
+    <id>io.github.francoiscambell.clionarduinoplugin2017</id>
     <name>Arduino</name>
     <version>1.2.3</version>
     <vendor email="" url="https://github.com/francoiscampbell/CLionArduinoPlugin">Francois Campbell</vendor>
 
     <description><![CDATA[
-        <h1>CLion Arduino Plugin</h1>
+        <h1>CLion Arduino Plugin v2</h1>
         <br>
-
-        <a href="https://github.com/francoiscampbell/CLionArduinoPlugin">GitHub</a> |
+        This is a branch of the original CLionArduinoPlugin written by Francois Cambell to resolve crash issues.
+        <br>
+        <a href="https://github.com/rjuang/CLionArduinoPlugin">Branched Repo</a> |
+        <a href="https://github.com/francoiscampbell/CLionArduinoPlugin">Original Repo</a> |
         <a href="https://github.com/francoiscampbell/CLionArduinoPlugin/issues">Issues</a>
         <br>
         <br>
@@ -61,7 +63,8 @@
     <change-notes><![CDATA[
         <b>1.2.3</b>
         <ul>
-            <li>Fixed to run on CLion 2016.3.2</li>
+            <li>Fixed to run on CLion 2016.3.2 and 2017.2.1</li>
+            <li>Updating plugin xml to create a branch that can be uploaded to Jetbrains plugin repo.</li>
         </ul>
         <b>1.2.2</b>
         <ul>
