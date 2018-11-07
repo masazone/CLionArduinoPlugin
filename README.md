@@ -23,7 +23,8 @@ existing Arduino projects, etc.
 Forked to fix CLion 2018 issues and decided that I will add a few creature comforts, soon.
 
 To Do:
-* [ ] Convert to project wizzard in new project as Arduino Sketch Project, instead of file menu item.
+* [ ] Convert to project wizard in new project as Arduino Sketch Project, instead of file menu
+      item.
 * [ ] Add Configuration options:
   * [ ] Board selection
   * [ ] CPU selection
