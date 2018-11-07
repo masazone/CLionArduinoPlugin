@@ -1,19 +1,22 @@
 package io.github.francoiscambell.clionarduinoplugin.actions;
 
-import com.intellij.ide.*;
-import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.application.*;
-import com.intellij.openapi.fileEditor.*;
-import com.intellij.openapi.project.*;
-import com.intellij.openapi.ui.*;
-import com.intellij.openapi.vfs.*;
-import com.intellij.psi.*;
-import io.github.francoiscambell.clionarduinoplugin.*;
-import io.github.francoiscambell.clionarduinoplugin.resources.*;
-import io.github.francoiscambell.clionarduinoplugin.resources.icons.*;
-import org.jetbrains.annotations.*;
+import com.intellij.ide.IdeView;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.actionSystem.LangDataKeys;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiDirectory;
+import icons.PluginIcons;
+import io.github.francoiscambell.clionarduinoplugin.ArduinoSketchFileCreator;
+import io.github.francoiscambell.clionarduinoplugin.resources.Strings;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.IOException;
 
 /**
  * Created by francois on 15-08-02.
@@ -60,7 +63,7 @@ public class NewSketchFile extends AnAction {
             }
             VirtualFile sketch = ArduinoSketchFileCreator
                     .createSketchFileWithName(project, directoryVirtualFile, filename);
-//            ArduinoSketchFileCreator.addFileToCMakeLists(project, sketch); //not sure if i need to do this or not
+            //            ArduinoSketchFileCreator.addFileToCMakeLists(project, sketch); //not sure if i need to do this or not
             FileEditorManager.getInstance(project).openFile(sketch, true, true); //open in editor
         } while (loop);
     }
@@ -71,12 +74,12 @@ public class NewSketchFile extends AnAction {
 
     private int getOverwriteChoice(Project project) {
         return Messages
-                .showYesNoCancelDialog(project, Strings.QUESTION_OVERWRITE, Strings.FILE_ALREADY_EXISTS, ArduinoIcon.ARDUINO_ICON);
+                .showYesNoCancelDialog(project, Strings.QUESTION_OVERWRITE, Strings.FILE_ALREADY_EXISTS, PluginIcons.ARDUINO_ICON);
     }
 
     private String getDesiredFilename(Project project) {
         return Messages
-                .showInputDialog(project, Strings.ENTER_FILENAME, Strings.SKETCH_NAME, ArduinoIcon.ARDUINO_ICON);
+                .showInputDialog(project, Strings.ENTER_FILENAME, Strings.SKETCH_NAME, PluginIcons.ARDUINO_ICON);
     }
 
     @NotNull
@@ -86,7 +89,6 @@ public class NewSketchFile extends AnAction {
         }
         return filename;
     }
-
 
     private void deleteVirtualFile(final VirtualFile virtualFile) {
         if (virtualFile == null) {
@@ -102,6 +104,5 @@ public class NewSketchFile extends AnAction {
                 }
             }
         });
-
     }
 }

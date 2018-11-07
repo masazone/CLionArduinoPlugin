@@ -9,7 +9,7 @@ import org.jetbrains.annotations.*;
 /**
  * Created by francois on 15-08-03.
  */
-public class ArduinoFileTypeRegistration implements ApplicationComponent {
+public class ArduinoFileTypeRegistration implements BaseComponent {
 
     public void initComponent() {
         ApplicationManager.getApplication().invokeLater(new Runnable() {

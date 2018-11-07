@@ -1,24 +1,22 @@
 package io.github.francoiscambell.clionarduinoplugin.wizards;
 
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
-import com.intellij.openapi.ui.TextBrowseFolderListener;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.ui.components.JBCheckBox;
 import com.jetbrains.cidr.cpp.cmake.projectWizard.CMakeProjectStepAdapter;
-import com.jetbrains.cidr.cpp.cmake.workspace.CMakeWorkspace;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import java.awt.*;
-import java.awt.event.*;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-import static java.awt.GridBagConstraints.HORIZONTAL;
-import static java.awt.GridBagConstraints.LINE_END;
-import static java.awt.GridBagConstraints.LINE_START;
+import static java.awt.GridBagConstraints.*;
 
 /**
  * Created by radford on 1/9/17.
@@ -77,7 +75,6 @@ public class NewArduinoProjectForm extends CMakeProjectStepAdapter {
                         false,
                         false,
                         false));
-
 
         projectNameTextField.getDocument().addDocumentListener(
                 new DocumentListener() {

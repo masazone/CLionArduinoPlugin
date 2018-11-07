@@ -12,11 +12,11 @@ import java.util.*;
  * Created by francois on 15-08-04.
  */
 public class CMakeListsEditor {
-    private static Map<VirtualFile, CMakeListsEditor> INSTANCES = new WeakHashMap<VirtualFile, CMakeListsEditor>();
-    private VirtualFile cMakeListsVirtualFile;
+    private static final Map<VirtualFile, CMakeListsEditor> INSTANCES = new WeakHashMap<VirtualFile, CMakeListsEditor>();
+    private final VirtualFile cMakeListsVirtualFile;
 
     private CMakeListsEditor(VirtualFile cMakeLists) {
-        this.cMakeListsVirtualFile = cMakeLists;
+        cMakeListsVirtualFile = cMakeLists;
     }
 
     public static CMakeListsEditor getInstance(VirtualFile cMakeLists) {
@@ -31,7 +31,7 @@ public class CMakeListsEditor {
     }
 
     private Document getCMakeListsDocument() {
-        return FileDocumentManager.getInstance().getDocument(getCMakeListsVirtualFile());
+        return FileDocumentManager.getInstance().getDocument(cMakeListsVirtualFile);
     }
 
     public void clear() {

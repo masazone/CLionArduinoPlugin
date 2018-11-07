@@ -1,44 +1,8 @@
-<!DOCTYPE idea-plugin [
-    <!ELEMENT idea-plugin (id|name|version|vendor|description|change-notes|idea-version|depends|extensions|application-components|project-components|actions)*>
-    <!ATTLIST idea-plugin
-        version CDATA #REQUIRED>
-    <!ELEMENT id (#PCDATA)>
-    <!ELEMENT name (#PCDATA)>
-    <!ELEMENT version (#PCDATA)>
-    <!ELEMENT vendor (#PCDATA)>
-    <!ATTLIST vendor
-        email CDATA #REQUIRED
-        url CDATA #REQUIRED>
-    <!ELEMENT description (#PCDATA)>
-    <!ELEMENT change-notes (#PCDATA)>
-    <!ELEMENT idea-version (#PCDATA)>
-    <!ATTLIST idea-version
-        since-build CDATA #REQUIRED>
-    <!ELEMENT depends (#PCDATA)>
-    <!ELEMENT extensions (#PCDATA)>
-    <!ATTLIST extensions
-        defaultExtensionNs CDATA #REQUIRED>
-    <!ELEMENT application-components (component)*>
-    <!ELEMENT component (implementation-class)*>
-    <!ELEMENT implementation-class (#PCDATA)>
-    <!ELEMENT project-components (#PCDATA)>
-    <!ELEMENT actions (action)*>
-    <!ELEMENT action (add-to-group)*>
-    <!ATTLIST action
-        class CDATA #REQUIRED
-        description CDATA #REQUIRED
-        icon CDATA #REQUIRED
-        id CDATA #REQUIRED
-        text CDATA #REQUIRED>
-    <!ELEMENT add-to-group (#PCDATA)>
-    <!ATTLIST add-to-group
-        anchor CDATA #REQUIRED
-        group-id CDATA #REQUIRED>
-    ]>
-<idea-plugin version="2">
+<?xml version="1.0" encoding="UTF-8"?>
+<idea-plugin>
     <id>io.github.francoiscambell.clionarduinoplugin2017</id>
     <name>Arduino</name>
-    <version>1.2.3</version>
+    <version>1.2.4</version>
     <vendor email="" url="https://github.com/francoiscampbell/CLionArduinoPlugin">Francois Campbell</vendor>
 
     <description><![CDATA[
@@ -46,6 +10,7 @@
         <br>
         This is a branch of the original CLionArduinoPlugin written by Francois Cambell to resolve crash issues.
         <br>
+        <a href="https://github.com/vsch/CLionArduinoPlugin">This plugin version Repo</a> |
         <a href="https://github.com/rjuang/CLionArduinoPlugin">Branched Repo</a> |
         <a href="https://github.com/francoiscampbell/CLionArduinoPlugin">Original Repo</a> |
         <a href="https://github.com/francoiscampbell/CLionArduinoPlugin/issues">Issues</a>
@@ -61,43 +26,56 @@
         ]]></description>
 
     <change-notes><![CDATA[
-        <b>1.2.3</b>
+        <h3>1.2.4</h3>
+        <ul>
+            <li>Fix: exceptions when run on CLion 2018.3</li>
+            <li>Add: <code>CMakeList.txt</code> reloading on creation (for 2018 or above)</li>
+            <li>Add: comments to CMakeList.txt to help startup with non-mega boards</li>
+            <li>Fix: change directory layout and plugin.xml to be more compatible with IntelliJ plugins for
+                error checking.
+            </li>
+            <li>Add: IntelliJ project files to git</li>
+        </ul>
+        <h3>1.2.3</h3>
         <ul>
             <li>Fixed to run on CLion 2016.3.2 and 2017.2.1</li>
             <li>Updating plugin xml to create a branch that can be uploaded to Jetbrains plugin repo.</li>
         </ul>
-        <b>1.2.2</b>
+        <h3>1.2.2</h3>
         <ul>
             <li>Fixed .ino and .pde files not refactorable. Increased compatibility for Servo library</li>
         </ul>
-        <b>1.2.1</b>
+        <h3>1.2.1</h3>
         <ul>
             <li>Re-compiled for Java 6</li>
         </ul>
-        <b>1.2.0</b>
+        <h3>1.2.0</h3>
         <ul>
             <li>Added new project creation to Welcome Screen and File menu</li>
         </ul>
-        <b>1.1.0</b>
+        <h3>1.1.0</h3>
         <ul>
             <li>Compatiblity with Arduino SDK 1.6 on Mac OS X</li>
         </ul>
-        <b>1.0.2</b>
+        <h3>1.0.2</h3>
         <ul>
             <li>Removed Groovy runtime, no longer necessary</li>
         </ul>
-        <b>1.0.1</b>
+        <h3>1.0.1</h3>
         <ul>
             <li>Fixed organization</li>
         </ul>
-        <b>1.0</b>
+        <h3>1.0</h3>
         <ul>
-            <li>Convert a project to Arduino CMake. This replaces CMakeLists.txt with a default one, deletes the default
-                main.cpp file, copies in the Arduino CMake toolchain files, and deletes the build direcory to start
-                fresh
+            <li>Convert a project to Arduino CMake. This replaces CMakeLists.txt with a default one, deletes
+                the default main.cpp file, copies in the Arduino CMake toolchain files, and deletes the build
+                direcory to start fresh
             </li>
-            <li>Associates .ino and .pde files as C++ source, so you get syntax highlighting and prediction, etc.</li>
-            <li>Create a new sketch file in any directory. If you omit the extension, it will add .ino automatically
+            <li>Associates .ino and .pde files as C++ source, so you get syntax highlighting and prediction,
+                etc.
+            </li>
+            <li>Create a new sketch file in any directory. If you omit the extension, it will add .ino
+                automatically
             </li>
             <li>Adds import for Arduino.h to all newly created sketch files to enable code completion</li>
             <li>Compiled with Java 6 for compatibility with OS X out of the box</li>
@@ -112,7 +90,6 @@
          on how to target different products -->
     <depends>com.intellij.modules.clion</depends>
 
-
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
         <!--<moduleType id="ARDUINO" implementationClass="io.github.francoiscambell.clionarduinoplugin.module.ArduinoModuleType"/>-->
@@ -122,8 +99,7 @@
     <application-components>
         <!-- Add your application components here -->
         <component>
-            <implementation-class>io.github.francoiscambell.clionarduinoplugin.components.ArduinoFileTypeRegistration
-            </implementation-class>
+            <implementation-class>io.github.francoiscambell.clionarduinoplugin.components.ArduinoFileTypeRegistration</implementation-class>
         </component>
     </application-components>
 
@@ -131,21 +107,20 @@
         <!-- Add your project components here -->
     </project-components>
 
-
     <actions>
         <!-- Add your actions here -->
-        <action id="Sketch.New" class="io.github.francoiscambell.clionarduinoplugin.actions.NewSketchFile"
+        <action id="io.github.francoiscambell.clionarduinoplugin.actions.NewSketchFile"
+                class="io.github.francoiscambell.clionarduinoplugin.actions.NewSketchFile"
                 text="Arduino Sketch" description="New Arduino Sketch File"
-                icon="/io/github/francoiscambell/clionarduinoplugin/resources/icons/Arduino_Logo.png">
-            <add-to-group group-id="NewGroup" anchor="last"/>
+                icon="PluginIcons.ARDUINO_ICON">
+            <add-to-group group-id="NewGroup" anchor="first"/>
         </action>
-        <action id="SketchProject.New"
+        <action id="io.github.francoiscambell.clionarduinoplugin.actions.NewArduinoProject"
                 class="io.github.francoiscambell.clionarduinoplugin.actions.NewArduinoProject"
                 text="New Arduino Sketch Project" description="Creates a new Arduino sketch project"
-                icon="/io/github/francoiscambell/clionarduinoplugin/resources/icons/Arduino_Logo.png">
+                icon="PluginIcons.ARDUINO_ICON">
             <add-to-group group-id="FileMenu" anchor="first"/>
             <add-to-group group-id="WelcomeScreen.QuickStart" anchor="first"/>
         </action>
     </actions>
-
 </idea-plugin>
