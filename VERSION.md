@@ -16,7 +16,7 @@
 
 ### 1.2.4
 
-* Fix: exceptions when run on CLion 2018.3.2 and 2017.2.1
+* Fix: exceptions when run on CLion 2018.
 * Add: `CMakeList.txt` reloading on creation (for 2018 or above)
 * Add: comments to CMakeList.txt to help startup with non-mega boards
 * Fix: change directory layout and plugin.xml to be more compatible with IntelliJ plugins for
