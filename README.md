@@ -5,8 +5,7 @@ This is a JetBrains CLion plugin that integrates
 
 [JetBrains Plugin Page](https://plugins.jetbrains.com/plugin/11298-clion-arduino-plugin)
 
-The current features are to create an Arduino CMake project in one click, and to create new
-sketch files.
+Create an Arduino CMake project in one click with new project wizard.
 
 ![Screenshot_NewProject.png](assets/images/Screenshot_NewProject.png)
 
