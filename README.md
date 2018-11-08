@@ -33,7 +33,7 @@ Forked to fix CLion 2018 issues and decided that I will add a few creature comfo
 * [ ] Load Libraries from URLs
 * [ ] Add Import Arduino IDE config and sketches
 
-## [Release notes](VERSION.md)
+## Release notes
 
 [CLionArduinoPlugin Version Notes](VERSION.md)
 
