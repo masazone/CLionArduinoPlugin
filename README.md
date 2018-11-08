@@ -33,16 +33,7 @@ Forked to fix CLion 2018 issues and decided that I will add a few creature comfo
 * [ ] Load Libraries from URLs
 * [ ] Add Import Arduino IDE config and sketches
 
-## Release Notes
+## [Release notes](VERSION.md)
 
-[Full release notes](VERSION.md)
-
-### 1.2.4
-
-* Fix: exceptions when run on CLion 2018.
-* Add: `CMakeList.txt` reloading on creation (for 2018 or above)
-* Add: comments to CMakeList.txt to help startup with non-mega boards
-* Fix: change directory layout and plugin.xml to be more compatible with IntelliJ plugins for
-  error checking.
-* Add: IntelliJ project files to git
+[CLionArduinoPlugin Version Notes](VERSION.md)
 
