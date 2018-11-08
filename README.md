@@ -6,6 +6,8 @@ This is a JetBrains CLion plugin that integrates
 The current features are to create an Arduino CMake project in one click, and to create new
 sketch files.
 
+![Screenshot_NewProject.png](assets/images/Screenshot_NewProject.png)
+
 For those asking how to upload, you need to specify the serial port in the CMakeLists.txt file.
 For example:
 
@@ -22,14 +24,14 @@ existing Arduino projects, etc.
 
 Forked to fix CLion 2018 issues and decided that I will add a few creature comforts, soon.
 
-To Do:
-* [ ] Convert to project wizard in new project as Arduino Sketch Project, instead of file menu
+* [x] Convert to project wizard in new project as Arduino Sketch Project, instead of file menu
       item.
-* [ ] Add Configuration options:
-  * [ ] Board selection
-  * [ ] CPU selection
-  * [ ] Load Libraries from URLs
-  * [ ] Add Import Arduino IDE config and sketches
+* [x] Add Configuration options:
+  * [x] Board selection
+  * [x] CPU selection
+  * [ ] User selectable boards.txt and programmers.txt location
+* [ ] Load Libraries from URLs
+* [ ] Add Import Arduino IDE config and sketches
 
 ## Release Notes
 
