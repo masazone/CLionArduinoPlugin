@@ -3,6 +3,7 @@
 [TOC levels=3,4]: # "Version History"
 
 ### Version History
+- [1.3.2](#132)
 - [1.3.0](#130)
 - [1.2.4](#124)
 - [1.2.3](#123)
@@ -14,6 +15,11 @@
 - [1.0.1](#101)
 - [1.0](#10)
 
+
+### 1.3.2
+
+* Fix: no cpus showing up until board selection is changed
+* Fix: add library sub-directory would be set on form opening.
 
 ### 1.3.0
 

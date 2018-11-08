@@ -72,7 +72,7 @@ public class ArduinoProjectSettingsPanel extends JPanel {
             panel.add(labelBoard, gridConstraints);
             myBoardsComboBox = new ComboBox<>(boards);
             String board = projectGenerator.getBoard();
-            if (board != null) {
+            if (board != null && !board.isEmpty()) {
                 myBoardsComboBox.setSelectedItem(board);
             } else {
                 board = (String) myBoardsComboBox.getSelectedItem();
@@ -267,7 +267,6 @@ public class ArduinoProjectSettingsPanel extends JPanel {
                 myAddLibraryDirectory.setSelected(false);
                 myLibraryDirectory.setEnabled(false);
             } else {
-                myAddLibraryDirectory.setSelected(true);
                 myLibraryDirectory.setEnabled(true);
                 myLibraryDirectory.setText(libraryDirectory);
             }
