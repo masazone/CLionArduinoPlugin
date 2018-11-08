@@ -1,11 +1,11 @@
-package io.github.francoiscambell.clionarduinoplugin.components;
+package com.vladsch.clionarduinoplugin.components;
 
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
-import io.github.francoiscambell.clionarduinoplugin.generators.ArduinoProjectSettings;
+import com.vladsch.clionarduinoplugin.generators.ArduinoProjectSettings;
 import org.jetbrains.annotations.NotNull;
 
 @State(name = "ArduinoProject",

@@ -1,8 +1,5 @@
-package io.github.francoiscambell.clionarduinoplugin.resources;
+package com.vladsch.clionarduinoplugin.resources;
 
-/**
- * Created by francois on 15-08-04.
- */
 public class Strings {
     public static final String CMAKE_LISTS_FILENAME = "CMakeLists.txt";
     public static final String CPP_EXT = "cpp";

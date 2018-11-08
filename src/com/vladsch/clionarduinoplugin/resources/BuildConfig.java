@@ -1,6 +1,5 @@
-package io.github.francoiscambell.clionarduinoplugin.resources;
+package com.vladsch.clionarduinoplugin.resources;
 
-import org.gradle.launcher.daemon.protocol.Build;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;

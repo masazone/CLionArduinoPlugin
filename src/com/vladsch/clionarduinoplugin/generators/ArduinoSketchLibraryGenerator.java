@@ -4,11 +4,11 @@
         CLionArduinoPlugin new project wizard
  */
 
-package io.github.francoiscambell.clionarduinoplugin.generators;
+package com.vladsch.clionarduinoplugin.generators;
 
 import com.intellij.openapi.vfs.VirtualFile;
+import com.vladsch.clionarduinoplugin.resources.Strings;
 import icons.PluginIcons;
-import io.github.francoiscambell.clionarduinoplugin.resources.Strings;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

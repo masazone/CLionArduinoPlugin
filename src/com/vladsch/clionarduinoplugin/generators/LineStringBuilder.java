@@ -1,4 +1,4 @@
-package io.github.francoiscambell.clionarduinoplugin.generators;
+package com.vladsch.clionarduinoplugin.generators;
 
 import org.jetbrains.annotations.NotNull;
 

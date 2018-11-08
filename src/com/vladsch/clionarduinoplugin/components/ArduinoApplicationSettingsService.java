@@ -1,7 +1,7 @@
-package io.github.francoiscambell.clionarduinoplugin.components;
+package com.vladsch.clionarduinoplugin.components;
 
 import com.intellij.openapi.components.*;
-import io.github.francoiscambell.clionarduinoplugin.generators.ArduinoProjectSettings;
+import com.vladsch.clionarduinoplugin.generators.ArduinoProjectSettings;
 import org.jetbrains.annotations.NotNull;
 
 @State(name = "ArduinoPlugin",

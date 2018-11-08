@@ -1,4 +1,4 @@
-package io.github.francoiscambell.clionarduinoplugin;
+package com.vladsch.clionarduinoplugin;
 
 import com.intellij.openapi.application.*;
 import com.intellij.openapi.command.*;
@@ -6,13 +6,10 @@ import com.intellij.openapi.editor.*;
 import com.intellij.openapi.fileEditor.*;
 import com.intellij.openapi.project.*;
 import com.intellij.openapi.vfs.*;
-import io.github.francoiscambell.clionarduinoplugin.resources.*;
+import com.vladsch.clionarduinoplugin.resources.Strings;
 
 import java.io.*;
 
-/**
- * Created by francois on 15-08-04.
- */
 public class ArduinoSketchFileCreator {
 
     public static VirtualFile createSketchFileWithName(final Project project, final VirtualFile directory, final String name) {
@@ -36,9 +33,5 @@ public class ArduinoSketchFileCreator {
             }
         });
         return directory.findChild(name);
-    }
-
-    public static void addFileToCMakeLists(final Project project, final VirtualFile file) {
-        CMakeListsEditor.getInstance(project.getBaseDir()).set("SOURCE_FILES", file.getName());
     }
 }

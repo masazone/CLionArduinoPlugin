@@ -1,4 +1,4 @@
-package io.github.francoiscambell.clionarduinoplugin.actions;
+package com.vladsch.clionarduinoplugin.actions;
 
 import com.intellij.ide.IdeView;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -12,17 +12,13 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import icons.PluginIcons;
-import io.github.francoiscambell.clionarduinoplugin.ArduinoSketchFileCreator;
-import io.github.francoiscambell.clionarduinoplugin.resources.Strings;
+import com.vladsch.clionarduinoplugin.ArduinoSketchFileCreator;
+import com.vladsch.clionarduinoplugin.resources.Strings;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
-/**
- * Created by francois on 15-08-02.
- */
 public class NewSketchFile extends AnAction {
-
     public void actionPerformed(AnActionEvent e) {
         final Project project = e.getRequiredData(CommonDataKeys.PROJECT);
         final IdeView view = e.getRequiredData(LangDataKeys.IDE_VIEW);

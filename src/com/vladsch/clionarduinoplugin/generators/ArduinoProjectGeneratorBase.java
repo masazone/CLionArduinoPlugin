@@ -4,7 +4,7 @@
         CLionArduinoPlugin new project wizard
  */
 
-package io.github.francoiscambell.clionarduinoplugin.generators;
+package com.vladsch.clionarduinoplugin.generators;
 
 import com.intellij.facet.ui.ValidationResult;
 import com.intellij.ide.util.PsiNavigationSupport;
@@ -21,18 +21,20 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.platform.GeneratorPeerImpl;
 import com.intellij.platform.ProjectGeneratorPeer;
 import com.intellij.util.containers.ContainerUtil;
+import com.intellij.util.messages.MessageBusConnection;
 import com.jetbrains.cidr.cpp.CPPLog;
 import com.jetbrains.cidr.cpp.cmake.projectWizard.CLionProjectWizardUtils;
 import com.jetbrains.cidr.cpp.cmake.projectWizard.generators.CLionProjectGenerator;
 import com.jetbrains.cidr.cpp.cmake.workspace.CMakeWorkspace;
+import com.jetbrains.cidr.cpp.cmake.workspace.CMakeWorkspaceListener;
 import com.jetbrains.cmake.completion.CMakeRecognizedCPPLanguageStandard;
+import com.vladsch.clionarduinoplugin.components.ArduinoApplicationSettingsService;
+import com.vladsch.clionarduinoplugin.resources.ArduinoToolchainFiles;
+import com.vladsch.clionarduinoplugin.resources.BuildConfig;
+import com.vladsch.clionarduinoplugin.resources.BuildConfig.Board;
+import com.vladsch.clionarduinoplugin.resources.BuildConfig.Programmer;
+import com.vladsch.clionarduinoplugin.resources.Strings;
 import icons.PluginIcons;
-import io.github.francoiscambell.clionarduinoplugin.components.ArduinoApplicationSettingsService;
-import io.github.francoiscambell.clionarduinoplugin.resources.ArduinoToolchainFiles;
-import io.github.francoiscambell.clionarduinoplugin.resources.BuildConfig;
-import io.github.francoiscambell.clionarduinoplugin.resources.BuildConfig.Board;
-import io.github.francoiscambell.clionarduinoplugin.resources.BuildConfig.Programmer;
-import io.github.francoiscambell.clionarduinoplugin.resources.Strings;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -43,9 +45,7 @@ import javax.swing.JPanel;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map.Entry;
+import java.util.*;
 
 public abstract class ArduinoProjectGeneratorBase extends CLionProjectGenerator<ArduinoProjectSettings> {
     public static final String ARDUINO_PROJECTS_GROUP_NAME = "Arduino";
@@ -59,46 +59,17 @@ public abstract class ArduinoProjectGeneratorBase extends CLionProjectGenerator<
     final protected boolean isLibrary;
 
     @Nullable final protected BuildConfig buildConfig;
+    final protected ArduinoProjectSettings mySettings;
 
     public ArduinoProjectGeneratorBase(final boolean isLibrary) {
-        myLanguageVersion = CMakeRecognizedCPPLanguageStandard.CPP14.getDisplayString();
         this.isLibrary = isLibrary;
 
         String buildTxt = BuildConfig.getBuildTxtString();
         String programmersTxt = BuildConfig.getProgrammersTxtString();
         buildConfig = new BuildConfig(buildTxt, programmersTxt);
 
-        ArduinoProjectSettings projectSettings = ArduinoApplicationSettingsService.getInstance().getState();
-        myLanguageVersion = projectSettings.languageVersion;
-        myLibraryType = projectSettings.libraryType;
-        myLibraryDirectory = projectSettings.libraryDirectory;
-        myAddLibraryDirectory = projectSettings.addLibraryDirectory;
-        myBoard = projectSettings.board;
-        myCpu = projectSettings.cpu;
-        myProgrammer = projectSettings.programmer;
-        myPort = projectSettings.port;
-        myVerbose = projectSettings.verbose;
-        myBoardCpuMap = new HashMap<>(projectSettings.boardCpu);
+        mySettings = new ArduinoProjectSettings(ArduinoApplicationSettingsService.getInstance().getState());
     }
-
-    @Nullable
-    protected String myLanguageVersion;
-
-    @Nullable
-    private String myLibraryType = ARDUINO_LIB_TYPE;
-
-    @Nullable
-    String myLibraryDirectory;
-
-    @Nullable Boolean myAddLibraryDirectory;
-
-    @Nullable String myBoard;
-    @Nullable String myCpu;
-    @Nullable String myProgrammer;
-    @Nullable String myPort;
-    @Nullable Boolean myVerbose;
-
-    @Nullable HashMap<String, String> myBoardCpuMap;
 
     @NotNull
     public String getGroupName() {
@@ -114,24 +85,25 @@ public abstract class ArduinoProjectGeneratorBase extends CLionProjectGenerator<
         return PluginIcons.arduino_logo;
     }
 
+    @SuppressWarnings("MethodMayBeStatic")
     @NotNull
     public String[] getLibraryTypes() {
         return new String[] { ARDUINO_LIB_TYPE, STATIC_LIB_TYPE };
     }
 
-    @Nullable
+    @NotNull
     public String getLanguageVersion() {
-        return myLanguageVersion;
+        return mySettings.getLanguageVersion();
     }
 
     @Nullable
     public String getLibraryType() {
-        return myLibraryType;
+        return mySettings.getLibraryType();
     }
 
     @Nullable
     public String getLibraryDirectory() {
-        return myLibraryDirectory;
+        return mySettings.getLibraryDirectory();
     }
 
     public boolean addLibrarySettingsPanel() {
@@ -139,88 +111,94 @@ public abstract class ArduinoProjectGeneratorBase extends CLionProjectGenerator<
     }
 
     public void setLanguageVersion(@NotNull String languageVersion) {
-        myLanguageVersion = languageVersion;
+        mySettings.setLanguageVersion(languageVersion);
     }
 
-    public void setLibraryType(@Nullable String libraryType) {
-        myLibraryType = libraryType;
+    public void setLibraryType(@NotNull String libraryType) {
+        mySettings.setLibraryType(libraryType);
     }
 
     public void setLibraryDirectory(@NotNull String libraryDirectory) {
-        myLibraryDirectory = libraryDirectory;
+        mySettings.setLibraryDirectory(libraryDirectory);
     }
 
     public boolean isAddLibraryDirectory() {
-        return myAddLibraryDirectory != null && myAddLibraryDirectory;
+        return mySettings.isAddLibraryDirectory();
     }
 
-    public void setAddLibraryDirectory(final boolean myAddLibraryDirectory) {
-        this.myAddLibraryDirectory = myAddLibraryDirectory;
+    public void setAddLibraryDirectory(final boolean addLibraryDirectory) {
+        mySettings.setAddLibraryDirectory(addLibraryDirectory);
     }
 
     @Nullable
     public String getBoard() {
-        return myBoard;
+        return mySettings.getBoard();
     }
 
-    public void setBoard(final String board) {
-        myBoard = board;
-        myCpu = myBoardCpuMap == null ? null : myBoardCpuMap.get(myBoard);
+    public void setBoard(@NotNull final String board) {
+        mySettings.setBoard(board);
+        mySettings.setCpu(mySettings.boardCpu.get(board));
     }
 
     @Nullable
     public String getCpu() {
-        return myCpu;
+        return mySettings.getCpu();
     }
 
-    public void setCpu(final String cpu) {
-        myCpu = cpu;
-        if (myBoardCpuMap == null) {
-            myBoardCpuMap = new HashMap<>();
-        }
-        myBoardCpuMap.put(myBoard, myCpu);
+    public void setCpu(@NotNull final String cpu) {
+        mySettings.setCpu(cpu);
+        mySettings.setBoardCpu(mySettings.getBoard(), cpu);
     }
 
     @Nullable
     public String getProgrammer() {
-        return myProgrammer;
+        return mySettings.programmer;
     }
 
-    public void setProgrammer(@Nullable final String programmer) {
-        myProgrammer = programmer;
+    public void setProgrammer(@NotNull final String programmer) {
+        mySettings.setProgrammer(programmer);
     }
 
     @Nullable
     public String getPort() {
-        return myPort;
+        return mySettings.getPort();
     }
 
     public void setPort(@Nullable final String port) {
-        myPort = port;
+        mySettings.setPort(port);
+        mySettings.addPortHistory(port);
     }
 
     public boolean isVerbose() {
-        return myVerbose != null && myVerbose;
+        return mySettings.isVerbose();
     }
 
     public void setVerbose(final boolean verbose) {
-        myVerbose = verbose;
+        mySettings.setVerbose(verbose);
     }
 
     @Nullable
     public String[] getBoardNames() {
-        return buildConfig == null ? null : ContainerUtil.map2Array(buildConfig.getBoards().values(), String.class, (board) -> {
-            return board.name;
-        });
+        return buildConfig == null ? null : ContainerUtil.map2Array(buildConfig.getBoards().values(), String.class, (board) -> board.name);
     }
 
     @Nullable
     public String[] getProgrammerNames() {
-        return buildConfig == null ? null : ContainerUtil.map2Array(buildConfig.getProgrammers().values(), String.class, (programmer) -> {
-            return programmer.name;
-        });
+        return buildConfig == null ? null : ContainerUtil.map2Array(buildConfig.getProgrammers().values(), String.class, (programmer) -> programmer.name);
     }
 
+    @Nullable
+    public List<String> getPorts() {
+        HashSet<String> ports = new LinkedHashSet<>();
+        if (getPort() != null && !getPort().isEmpty()) {
+            ports.add(getPort());
+        }
+        ports.addAll(mySettings.getPortHistory());
+        ports.addAll(Arrays.asList(SerialPortList.getPortNames()));
+        return new ArrayList<>(ports);
+    }
+
+    @SuppressWarnings("MethodMayBeStatic")
     public String[] getLanguageVersions() {
         return ContainerUtil.map2Array(CMakeRecognizedCPPLanguageStandard.values(), String.class, CMakeRecognizedCPPLanguageStandard::getDisplayString);
     }
@@ -257,27 +235,27 @@ public abstract class ArduinoProjectGeneratorBase extends CLionProjectGenerator<
 
     @Nullable
     public String cmakeLanguageVersion() {
-        return myLanguageVersion == null ? null : CMakeRecognizedCPPLanguageStandard.fromDisplayString(myLanguageVersion);
+        return CMakeRecognizedCPPLanguageStandard.fromDisplayString(getLanguageVersion());
     }
 
     @Nullable
     public String getBoardId() {
-        Board board = getBoardFromName(myBoard);
+        Board board = getBoardFromName(getBoard());
         return board == null ? null : board.id;
     }
 
     @Nullable
     public String getProgrammerId() {
-        Programmer programmer = getProgrammerFromName(myProgrammer);
+        Programmer programmer = getProgrammerFromName(getProgrammer());
         return programmer == null ? null : programmer.id;
     }
 
     @Nullable
     String getCpuId() {
-        if (buildConfig != null && myCpu != null && myBoard != null) {
-            Board board = getBoardFromName(myBoard);
+        if (buildConfig != null && getCpu() != null && getBoard() != null) {
+            Board board = getBoardFromName(getBoard());
             if (board != null) {
-                return board.cpuFromName(myCpu);
+                return board.cpuFromName(getCpu());
             }
         }
         return null;
@@ -340,10 +318,10 @@ public abstract class ArduinoProjectGeneratorBase extends CLionProjectGenerator<
 
         sb.line();
 
-        if (myAddLibraryDirectory != null && myAddLibraryDirectory) {
+        if (isAddLibraryDirectory()) {
             sb.appendln("### Additional settings to add non-standard or your own Arduino libraries.");
-            sb.appendln("# An Arduino library my_lib will contain files in " + myLibraryDirectory + "/my_lib/: my_lib.h, my_lib.cpp + any other cpp files");
-            sb.appendln("link_directories(${CMAKE_CURRENT_SOURCE_DIR}/" + myLibraryDirectory + ")");
+            sb.appendln("# An Arduino library my_lib will contain files in " + getLibraryDirectory() + "/my_lib/: my_lib.h, my_lib.cpp + any other cpp files");
+            sb.appendln("link_directories(${CMAKE_CURRENT_SOURCE_DIR}/" + getLibraryDirectory() + ")");
             sb.line();
         } else {
             sb.appendln("### Additional settings to add non-standard or your own Arduino libraries.");
@@ -356,11 +334,11 @@ public abstract class ArduinoProjectGeneratorBase extends CLionProjectGenerator<
         sb.appendln("#### Additional settings for for pro mini example, with usb serial programmer. From programmers.txt");
         String programmer = getProgrammerId();
         sb.prefix(programmer).appendln("set(${CMAKE_PROJECT_NAME}_PROGRAMMER " + ifNull(programmer, "avrispmkii") + ")");
-        sb.prefixNullOrEmpty(myPort).appendln("set(${CMAKE_PROJECT_NAME}_PORT " + ifNullOrEmpty(myPort, "/dev/cu.usbserial-00000000") + ")");
+        sb.prefixNullOrEmpty(getPort()).appendln("set(${CMAKE_PROJECT_NAME}_PORT " + ifNullOrEmpty(getPort(), "/dev/cu.usbserial-00000000") + ")");
         sb.prefix().appendln("set(pro.upload.speed 57600)");
         sb.line();
         sb.appendln("## Verbose build process");
-        sb.prefix(myVerbose == null || !myVerbose).appendln("set(${CMAKE_PROJECT_NAME}_AFLAGS -v)");
+        sb.prefix(!isVerbose()).appendln("set(${CMAKE_PROJECT_NAME}_AFLAGS -v)");
         sb.line();
 
         sb.appendln("generate_arduino_firmware(${CMAKE_PROJECT_NAME})");
@@ -386,12 +364,12 @@ public abstract class ArduinoProjectGeneratorBase extends CLionProjectGenerator<
                 return result;
             } else {
                 // validate other fields
-                if (myAddLibraryDirectory != null && myAddLibraryDirectory) {
-                    if (myLibraryDirectory != null && myLibraryDirectory.startsWith("/")) {
-                        result = new ValidationResult(String.format("Library sub-directory '%s' must be relative to project path.", myLibraryDirectory));
+                if (isAddLibraryDirectory()) {
+                    if (getLibraryDirectory() != null && getLibraryDirectory().startsWith("/")) {
+                        result = new ValidationResult(String.format("Library sub-directory '%s' must be relative to project path.", getLibraryDirectory()));
                         return result;
                         //} else {
-                        //    File libDir = new File(baseDir.getPath() + "/" + myLibraryDirectory);
+                        //    File libDir = new File(baseDir.getPath() + "/" + getLibraryDirectory());
                         //    if (libDir.exists() && !libDir.canWrite()) {
                         //        result = new ValidationResult(String.format("Library sub-directory '%s' is not writable.\nPlease choose another sub-directory.", libDir.getPath()));
                         //        return result;
@@ -427,6 +405,34 @@ public abstract class ArduinoProjectGeneratorBase extends CLionProjectGenerator<
                 PsiNavigationSupport.getInstance().createNavigatable(project, file, -1).navigate(true);
             });
         }
+
+        // vsch: Need to load the CMakeList.txt to generate the project files, otherwise it appears empty
+        CMakeWorkspace workspace = CMakeWorkspace.getInstance(project);
+
+        // vsch: reload CMakeLists.txt, for some reason first generation of it is incorrect
+        MessageBusConnection busConnection = project.getMessageBus().connect();
+        busConnection.subscribe(CMakeWorkspaceListener.TOPIC, new CMakeWorkspaceListener() {
+            @Override
+            public void generationFinished() {
+               int tmp = 0;
+            }
+
+            @Override
+            public void filesRefreshedAfterGeneration() {
+               int tmp = 0;
+            }
+
+            @Override
+            public void reloadingFinished(final boolean canceled) {
+                busConnection.disconnect();
+
+                if (!canceled) {
+                    ApplicationManager.getApplication().invokeLater(() -> {
+                        workspace.selectProjectDir(workspace.getProjectDir());
+                    });
+                }
+            }
+        });
     }
 
     protected void handleErrorDuringGeneration(@NotNull Project project, Exception e) {
@@ -454,48 +460,6 @@ public abstract class ArduinoProjectGeneratorBase extends CLionProjectGenerator<
     public ArduinoProjectSettings getArduinoProjectSettings() {
         ArduinoProjectSettings projectSettings = createProjectSettings();
         if (projectSettings != null) {
-            if (myLanguageVersion != null) {
-                projectSettings.setLanguageVersion(myLanguageVersion);
-            }
-
-            if (myLibraryType != null) {
-                projectSettings.setLibraryType(myLibraryType);
-            }
-
-            if (myAddLibraryDirectory != null) {
-                projectSettings.setAddLibraryDirectory(myAddLibraryDirectory);
-            }
-
-            if (myLibraryDirectory != null) {
-                projectSettings.setLibraryDirectory(myLibraryDirectory);
-            }
-
-            if (myBoard != null) {
-                projectSettings.setBoard(myBoard);
-            }
-
-            if (myCpu != null) {
-                projectSettings.setCpu(myCpu);
-            }
-
-            if (myProgrammer != null) {
-                projectSettings.setProgrammer(myProgrammer);
-            }
-
-            if (myPort != null) {
-                projectSettings.setPort(myPort);
-            }
-
-            if (myBoardCpuMap != null) {
-                for (Entry<String, String> entry : myBoardCpuMap.entrySet()) {
-                    // copy new mappings
-                    projectSettings.setBoardCpu(entry.getKey(), entry.getValue());
-                }
-            }
-
-            if (myVerbose != null) {
-                projectSettings.setVerbose(myVerbose);
-            }
 
             // persist settings
             ArduinoApplicationSettingsService.getInstance().loadState(projectSettings);
@@ -519,7 +483,7 @@ public abstract class ArduinoProjectGeneratorBase extends CLionProjectGenerator<
 
     @Nullable
     public ArduinoProjectSettings createProjectSettings() {
-        return new ArduinoProjectSettings(ArduinoApplicationSettingsService.getInstance().getState());
+        return new ArduinoProjectSettings(mySettings);
     }
 
     CreatedFilesHolder createFiles(String projectName, VirtualFile rootDir) throws IOException {
@@ -529,8 +493,8 @@ public abstract class ArduinoProjectGeneratorBase extends CLionProjectGenerator<
         VirtualFile cMakeFile = createCMakeFile(sanitizedName, rootDir, sourceFiles);
 
         VirtualFile[] extraFiles = ArduinoToolchainFiles.copyToDirectory(VfsUtil.findFileByIoFile(VfsUtilCore.virtualToIoFile(rootDir), false));
-        if (myAddLibraryDirectory != null && myAddLibraryDirectory) {
-            File libDir = new File(rootDir.getPath() + "/" + myLibraryDirectory);
+        if (isAddLibraryDirectory()) {
+            File libDir = new File(rootDir.getPath() + "/" + getLibraryDirectory());
             if (!libDir.exists() && !libDir.getCanonicalPath().equals(rootDir.getCanonicalPath())) {
                 libDir.mkdirs();
             }

@@ -1,14 +1,11 @@
-package io.github.francoiscambell.clionarduinoplugin.components;
+package com.vladsch.clionarduinoplugin.components;
 
 import com.intellij.openapi.application.*;
 import com.intellij.openapi.components.*;
 import com.intellij.openapi.fileTypes.*;
-import io.github.francoiscambell.clionarduinoplugin.resources.*;
+import com.vladsch.clionarduinoplugin.resources.Strings;
 import org.jetbrains.annotations.*;
 
-/**
- * Created by francois on 15-08-03.
- */
 public class ArduinoFileTypeRegistration implements BaseComponent {
 
     public void initComponent() {

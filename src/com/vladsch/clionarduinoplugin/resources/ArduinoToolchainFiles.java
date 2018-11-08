@@ -1,4 +1,4 @@
-package io.github.francoiscambell.clionarduinoplugin.resources;
+package com.vladsch.clionarduinoplugin.resources;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -9,11 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.List;
 
-/**
- * Created by francois on 15-08-03.
- */
 public class ArduinoToolchainFiles {
     public static InputStream getArduinoToolchainCmake() {
         return ArduinoToolchainFiles.class.getResourceAsStream("arduino-cmake/cmake/ArduinoToolchain.cmake");

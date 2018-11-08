@@ -1,18 +1,21 @@
-package io.github.francoiscambell.clionarduinoplugin.generators;
+package com.vladsch.clionarduinoplugin.generators;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.ui.ComboBox;
+import com.intellij.ui.TextFieldWithHistory;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
 import java.awt.event.ItemEvent;
+import java.util.List;
 
 public class ArduinoProjectSettingsPanel extends JPanel {
     ComboBox<String> myLanguageVersionComboBox;
@@ -25,7 +28,7 @@ public class ArduinoProjectSettingsPanel extends JPanel {
 
     //TextFieldWithBrowseButton myLibraryDirectory;
     JTextField myLibraryDirectory;
-    JTextField myPort;
+    TextFieldWithHistory myPort;
 
     boolean inUpdate = false;
 
@@ -88,7 +91,7 @@ public class ArduinoProjectSettingsPanel extends JPanel {
             // create CPU dropdown
             String[] cpus = projectGenerator.getBoardCpuNames(board);
             gridConstraints = setConstraints(row, 0);
-            JLabel labelCpu = new JLabel("Cpu:");
+            JLabel labelCpu = new JLabel(projectGenerator.getCpuLabel());
             panel.add(labelCpu, gridConstraints);
             myCpusComboBox = new ComboBox<>(cpus == null ? new String[0] : cpus);
             String cpu = projectGenerator.getCpu();
@@ -168,14 +171,50 @@ public class ArduinoProjectSettingsPanel extends JPanel {
             gridConstraints = setConstraints(row, 0);
             JLabel labelPort = new JLabel("Port:");
             panel.add(labelPort, gridConstraints);
-            myPort = new JTextField(30);
+            //myPort = new JTextField(30);
+            //String port = projectGenerator.getPort();
+            //if (port != null) {
+            //    myPort.setText(port);
+            //}
+            //
+            ////myPort.getTextField().getDocument().addDocumentListener(new DocumentListener() {
+            //myPort.getDocument().addDocumentListener(new DocumentListener() {
+            //    @Override
+            //    public void insertUpdate(final DocumentEvent e) {
+            //        projectGenerator.setPort(myPort.getText());
+            //    }
+            //
+            //    @Override
+            //    public void removeUpdate(final DocumentEvent e) {
+            //        projectGenerator.setPort(myPort.getText());
+            //    }
+            //
+            //    @Override
+            //    public void changedUpdate(final DocumentEvent e) {
+            //        projectGenerator.setPort(myPort.getText());
+            //    }
+            //});
+
+            myPort = new TextFieldWithHistory();
+            @Nullable List<String> ports = projectGenerator.getPorts();
             String port = projectGenerator.getPort();
-            if (port != null) {
+
+            myPort.setHistorySize(-1);
+            if (ports != null) {
+                myPort.setHistory(ports);
+            }
+
+            if (port != null && !port.isEmpty()) {
                 myPort.setText(port);
             }
 
-            //myPort.getTextField().getDocument().addDocumentListener(new DocumentListener() {
-            myPort.getDocument().addDocumentListener(new DocumentListener() {
+            myPort.addItemListener(e -> {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    projectGenerator.setPort((String) e.getItem());
+                }
+            });
+
+            myPort.addDocumentListener(new DocumentListener() {
                 @Override
                 public void insertUpdate(final DocumentEvent e) {
                     projectGenerator.setPort(myPort.getText());
@@ -193,7 +232,9 @@ public class ArduinoProjectSettingsPanel extends JPanel {
             });
 
             gridConstraints = setConstraints(row++, 1);
+            gridConstraints.setFill(GridConstraints.FILL_HORIZONTAL);
             panel.add(myPort, gridConstraints);
+            gridConstraints.setFill(GridConstraints.FILL_NONE);
         }
 
         gridConstraints = setConstraints(row++, 0);
@@ -267,7 +308,7 @@ public class ArduinoProjectSettingsPanel extends JPanel {
                 myAddLibraryDirectory.setSelected(false);
                 myLibraryDirectory.setEnabled(false);
             } else {
-                myLibraryDirectory.setEnabled(true);
+                myLibraryDirectory.setEnabled(myAddLibraryDirectory.isSelected());
                 myLibraryDirectory.setText(libraryDirectory);
             }
 

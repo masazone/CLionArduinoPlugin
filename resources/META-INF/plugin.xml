@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <idea-plugin>
-    <id>com.vladsch.clionarduinoplugin2018</id>
-    <name>CLion Arduino Plugin</name>
+    <id>com.vladsch.clionarduinoplugin</id>
+    <name>Arduino Support</name>
     <vendor email="" url="https://github.com/vsch/CLionArduinoPlugin">Vladimir Schneider</vendor>
 
     <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
@@ -11,17 +11,15 @@
          on how to target different products -->
     <depends>com.intellij.modules.clion</depends>
 
-    <version>1.3.2</version>
+    <version>1.3.4</version>
     <description><![CDATA[
         <p>
-            | <a href="https://github.com/vsch/CLionArduinoPlugin/issues">Issues</a> |
-            <a href="https://github.com/vsch/CLionArduinoPlugin">Plugin Source</a> |
+            <a href="https://github.com/vsch/CLionArduinoPlugin/issues">Issues</a>
+            <a href="https://github.com/vsch/CLionArduinoPlugin">Plugin Source</a>
         </p>
-        <br>
         <p>
-            This plugin integrates <a href="https://github.com/francoiscampbell/arduino-cmake">Arduino CMake</a> into the IDE.
+            Integrates <a href="https://github.com/francoiscampbell/arduino-cmake">Arduino CMake</a> into the CLion IDE.
         </p>
-        <br>
         <p>
             Adds New Project wizard types with options to select board type, cpu, programmer and port:
             <ul>
@@ -31,8 +29,6 @@
 
             Adds New File Action: <code>New Arduino Sketch</code>
         </p>
-        <br>
-        <br>
         <p>
             This plugin is a branch of <a href="https://github.com/rjuang/CLionArduinoPlugin">rjuang/CLionArduinoPlugin</a> which in turn is a branch of
             <a href="https://github.com/francoiscampbell/CLionArduinoPlugin">Original CLionArduinoPlugin</a> written by Francois Cambell.
@@ -40,6 +36,16 @@
         ]]></description>
 
     <change-notes><![CDATA[
+        <h3>1.3.4</h3>
+        <ul>
+            <li>Fix: change plugin name for JetBrains requirements</li>
+            <li>Fix: reload CMakeLists.txt after project creation otherwise generated files don&rsquo;t have the
+                <code>-mmcu</code> set.</li>
+            <li>Fix: add port drop down using jssc <a href="https://github.com/scream3r/java-simple-serial-connector">https://github.com/scream3r/java-simple-serial-connector</a>,
+                with <code>SerialPorts</code> Patched for Arduino by Cristian Maglie
+                <a href="https://raw.githubusercontent.com/arduino/Arduino/master/arduino-core/src/processing/app/SerialPortList.java">https://raw.githubusercontent.com/arduino/Arduino/master/arduino-core/src/processing/app/SerialPortList.java</a></li>
+            <li>Fix: change source packages to match plugin id.</li>
+        </ul>
         <h3>1.3.2</h3>
         <ul>
             <li>Fix: no cpus showing up until board selection is changed</li>
@@ -69,69 +75,22 @@
             </li>
             <li>Add: IntelliJ project files to git</li>
         </ul>
-        <h3>1.2.3</h3>
-        <ul>
-            <li>Fixed to run on CLion 2016.3.2 and 2017.2.1</li>
-            <li>Updating plugin xml to create a branch that can be uploaded to Jetbrains plugin repo.</li>
-        </ul>
-        <h3>1.2.2</h3>
-        <ul>
-            <li>Fixed .ino and .pde files not refactorable. Increased compatibility for Servo library</li>
-        </ul>
-        <h3>1.2.1</h3>
-        <ul>
-            <li>Re-compiled for Java 6</li>
-        </ul>
-        <h3>1.2.0</h3>
-        <ul>
-            <li>Added new project creation to Welcome Screen and File menu</li>
-        </ul>
-        <h3>1.1.0</h3>
-        <ul>
-            <li>Compatiblity with Arduino SDK 1.6 on Mac OS X</li>
-        </ul>
-        <h3>1.0.2</h3>
-        <ul>
-            <li>Removed Groovy runtime, no longer necessary</li>
-        </ul>
-        <h3>1.0.1</h3>
-        <ul>
-            <li>Fixed organization</li>
-        </ul>
-        <h3>1.0</h3>
-        <ul>
-            <li>Convert a project to Arduino CMake. This replaces CMakeLists.txt with a default one, deletes
-                the default main.cpp file, copies in the Arduino CMake toolchain files, and deletes the build
-                direcory to start fresh
-            </li>
-            <li>Associates .ino and .pde files as C++ source, so you get syntax highlighting and prediction,
-                etc.
-            </li>
-            <li>Create a new sketch file in any directory. If you omit the extension, it will add .ino
-                automatically
-            </li>
-            <li>Adds import for Arduino.h to all newly created sketch files to enable code completion</li>
-            <li>Compiled with Java 6 for compatibility with OS X out of the box</li>
-        </ul>
         ]]>
     </change-notes>
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-        <!--<moduleType id="ARDUINO" implementationClass="io.github.francoiscambell.clionarduinoplugin.module.ArduinoModuleType"/>-->
-        <!--<moduleBuilder builderClass="io.github.francoiscambell.clionarduinoplugin.module.ArduinoModuleBuilder"/>-->
-        <!-- project templates -->
-        <directoryProjectGenerator implementation="io.github.francoiscambell.clionarduinoplugin.generators.ArduinoSketchProjectGenerator"/>
-        <directoryProjectGenerator implementation="io.github.francoiscambell.clionarduinoplugin.generators.ArduinoSketchLibraryGenerator"/>
-        <!--<projectService serviceImplementation="io.github.francoiscambell.clionarduinoplugin.components.ArduinoProjectSettingsService"/>-->
-        <applicationService serviceInterface="io.github.francoiscambell.clionarduinoplugin.components.ArduinoApplicationSettingsService"
-                            serviceImplementation="io.github.francoiscambell.clionarduinoplugin.components.ArduinoApplicationSettingsService"/>
+        <directoryProjectGenerator implementation="com.vladsch.clionarduinoplugin.generators.ArduinoSketchProjectGenerator"/>
+        <directoryProjectGenerator implementation="com.vladsch.clionarduinoplugin.generators.ArduinoSketchLibraryGenerator"/>
+        <!--<projectService serviceImplementation="ArduinoProjectSettingsService"/>-->
+        <applicationService serviceInterface="com.vladsch.clionarduinoplugin.components.ArduinoApplicationSettingsService"
+                            serviceImplementation="com.vladsch.clionarduinoplugin.components.ArduinoApplicationSettingsService"/>
     </extensions>
 
     <application-components>
         <!-- Add your application components here -->
         <component>
-            <implementation-class>io.github.francoiscambell.clionarduinoplugin.components.ArduinoFileTypeRegistration</implementation-class>
+            <implementation-class>com.vladsch.clionarduinoplugin.components.ArduinoFileTypeRegistration</implementation-class>
         </component>
     </application-components>
 
@@ -141,18 +100,11 @@
 
     <actions>
         <!-- Add your actions here -->
-        <action id="io.github.francoiscambell.clionarduinoplugin.actions.NewSketchFile"
-                class="io.github.francoiscambell.clionarduinoplugin.actions.NewSketchFile"
+        <action id="com.vladsch.clionarduinoplugin.actions.NewSketchFile"
+                class="com.vladsch.clionarduinoplugin.actions.NewSketchFile"
                 text="Arduino Sketch" description="New Arduino Sketch File"
                 icon="PluginIcons.arduino_sketch">
             <add-to-group group-id="NewGroup" anchor="first"/>
         </action>
-        <!--<action id="io.github.francoiscambell.clionarduinoplugin.actions.NewArduinoProject"-->
-        <!--class="io.github.francoiscambell.clionarduinoplugin.actions.NewArduinoProject"-->
-        <!--text="New Arduino Sketch Project" description="Creates a new Arduino sketch project"-->
-        <!--icon="PluginIcons.arduino_logo">-->
-        <!--<add-to-group group-id="FileMenu" anchor="first"/>-->
-        <!--<add-to-group group-id="WelcomeScreen.QuickStart" anchor="first"/>-->
-        <!--</action>-->
     </actions>
 </idea-plugin>

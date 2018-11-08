@@ -10,8 +10,8 @@ sketch files.
 
 ![Screenshot_NewProject.png](assets/images/Screenshot_NewProject.png)
 
-For those asking how to upload, you need to specify the serial port in the CMakeLists.txt file.
-For example:
+For those asking how to upload, you either need to select the port from the dropdown when
+crating the project or specify the serial port in the CMakeLists.txt file. For example:
 
     set(${CMAKE_PROJECT_NAME}_BOARD uno)
     set(${CMAKE_PROJECT_NAME}_PORT /dev/ttys0)
@@ -19,21 +19,25 @@ For example:
 This will create the 'upload' configuration in your Run Configurations and you can click the Run
 button or use the keyboard shortcut to upload.
 
-Future features are to add menu option to easily change the board type, port number, import
-existing Arduino projects, etc.
-
 ## Update on status:
 
-Forked to fix CLion 2018 issues and decided that I will add a few creature comforts, soon.
+Forked to fix CLion 2018 issues and decided to add a few creature comforts:
 
 * [x] Convert to project wizard in new project as Arduino Sketch Project, instead of file menu
       item.
 * [x] Add Configuration options:
   * [x] Board selection
   * [x] CPU selection
-  * [ ] User selectable boards.txt and programmers.txt location
-* [ ] Load Libraries from URLs
-* [ ] Add Import Arduino IDE config and sketches
+  * [x] Port selection using jssc https://github.com/scream3r/java-simple-serial-connector
+        Patched for Arduino by Cristian Maglie
+        https://raw.githubusercontent.com/arduino/Arduino/master/arduino-core/src/processing/app/SerialPortList.java
+  * [x] Persistence for new project options, since these are most likely to be re-used.
+  * [ ] User selectable boards.txt and programmers.txt location, for now the jar contains a copy
+        from Arduino IDE 1.8.6
+* [ ] Add UI for changing existing CMakeLists.txt configuration
+  * [ ] Load Libraries from URLs
+  * [ ] Allow additional Library directories
+* [ ] Add Import Arduino IDE config, sketches and libraries
 
 ## Release notes
 

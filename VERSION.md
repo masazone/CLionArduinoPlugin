@@ -3,6 +3,7 @@
 [TOC levels=3,4]: # "Version History"
 
 ### Version History
+- [1.3.4](#134)
 - [1.3.2](#132)
 - [1.3.0](#130)
 - [1.2.4](#124)
@@ -15,6 +16,16 @@
 - [1.0.1](#101)
 - [1.0](#10)
 
+
+### 1.3.4
+
+* Fix: change plugin name for JetBrains requirements
+* Fix: reload CMakeLists.txt after project creation otherwise generated files don't have the
+  `-mmcu` set.
+* Fix: add port drop down using jssc https://github.com/scream3r/java-simple-serial-connector,
+  with `SerialPorts` Patched for Arduino by Cristian Maglie
+  https://raw.githubusercontent.com/arduino/Arduino/master/arduino-core/src/processing/app/SerialPortList.java
+* Fix: change source packages to match plugin id.
 
 ### 1.3.2
 
