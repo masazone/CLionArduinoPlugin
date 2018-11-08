@@ -1,4 +1,4 @@
-# <img src="file:///Users/vlad/src/projects/CLionArduinoPlugin/resources/META-INF/pluginIcon.svg" alt="pluginIcon.svg" width="60" align="absmiddle"/> CLion Arduino Plugin
+# <img src="resources/META-INF/pluginIcon.svg" alt="pluginIcon.svg" width="60" align="absmiddle"/> CLion Arduino Plugin
 
 This is a JetBrains CLion plugin that integrates
 [Arduino CMake](https://github.com/francoiscampbell/arduino-cmake) into the IDE.
