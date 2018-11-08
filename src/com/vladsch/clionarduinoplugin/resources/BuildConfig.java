@@ -12,7 +12,7 @@ public class BuildConfig {
     public static final String PROCESSOR = "Processor";
 
     public static String getBuildTxtString() {
-        return ResourceUtils.getResourceFileContent(BuildConfig.class,"config/boards.txt");
+        return ResourceUtils.getResourceFileContent(BuildConfig.class, "config/boards.txt");
     }
 
     public static String getProgrammersTxtString() {
@@ -121,8 +121,7 @@ public class BuildConfig {
                             Board board = new Board(keyParts[0], value, null);
                             boards.put(board.id, board);
                         }
-                    }
-                    else if (keyParts.length == 4 && keyParts[1].equals("menu") && keyParts[2].equals("cpu")) {
+                    } else if (keyParts.length == 4 && keyParts[1].equals("menu") && keyParts[2].equals("cpu")) {
                         // have a board cpu
                         if (boards.containsKey(keyParts[0])) {
                             // add the board

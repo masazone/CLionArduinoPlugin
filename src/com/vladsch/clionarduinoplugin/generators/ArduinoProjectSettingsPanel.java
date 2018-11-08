@@ -7,17 +7,21 @@ import com.intellij.ui.TextFieldWithHistory;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
+import com.jetbrains.cidr.cpp.cmake.projectWizard.generators.settings.ui.CMakeSettingsPanel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
 import java.awt.event.ItemEvent;
 import java.util.List;
 
-public class ArduinoProjectSettingsPanel extends JPanel {
+public class ArduinoProjectSettingsPanel extends CMakeSettingsPanel {
     ComboBox<String> myLanguageVersionComboBox;
     ComboBox<String> myLibraryTypeComboBox;
     ComboBox<String> myBoardsComboBox;
@@ -33,7 +37,7 @@ public class ArduinoProjectSettingsPanel extends JPanel {
     boolean inUpdate = false;
 
     public ArduinoProjectSettingsPanel(@NotNull ArduinoProjectGeneratorBase projectGenerator) {
-        super();
+        super(projectGenerator);
         init(projectGenerator);
     }
 
@@ -113,7 +117,7 @@ public class ArduinoProjectSettingsPanel extends JPanel {
 
                     String[] cpus1 = projectGenerator.getBoardCpuNames(projectGenerator.getBoard());
                     if (cpus1 != null) {
-                        ApplicationManager.getApplication().invokeLater(()->{
+                        ApplicationManager.getApplication().invokeLater(() -> {
                             inUpdate = true;
                             DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) myCpusComboBox.getModel();
                             model.removeAllElements();

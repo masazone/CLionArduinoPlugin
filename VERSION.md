@@ -26,6 +26,7 @@
   with `SerialPorts` Patched for Arduino by Cristian Maglie
   https://raw.githubusercontent.com/arduino/Arduino/master/arduino-core/src/processing/app/SerialPortList.java
 * Fix: change source packages to match plugin id.
+* Fix: make plugin compatible with CLion 2018.1 through 2018.3
 
 ### 1.3.2
 

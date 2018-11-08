@@ -43,3 +43,10 @@ Forked to fix CLion 2018 issues and decided to add a few creature comforts:
 
 [CLionArduinoPlugin Version Notes](VERSION.md)
 
+## History
+
+This plugin is a fork of
+[rjuang/CLionArduinoPlugin](https://github.com/rjuang/CLionArduinoPlugin) which in turn is a
+fork of [Original CLionArduinoPlugin](https://github.com/francoiscampbell/CLionArduinoPlugin)
+written by Francois Campbell.
+

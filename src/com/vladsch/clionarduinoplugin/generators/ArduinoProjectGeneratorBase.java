@@ -24,10 +24,10 @@ import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.messages.MessageBusConnection;
 import com.jetbrains.cidr.cpp.CPPLog;
 import com.jetbrains.cidr.cpp.cmake.projectWizard.CLionProjectWizardUtils;
-import com.jetbrains.cidr.cpp.cmake.projectWizard.generators.CLionProjectGenerator;
+import com.jetbrains.cidr.cpp.cmake.projectWizard.generators.CMakeProjectGenerator;
+import com.jetbrains.cidr.cpp.cmake.projectWizard.generators.settings.CMakeProjectSettings;
 import com.jetbrains.cidr.cpp.cmake.workspace.CMakeWorkspace;
 import com.jetbrains.cidr.cpp.cmake.workspace.CMakeWorkspaceListener;
-import com.jetbrains.cmake.completion.CMakeRecognizedCPPLanguageStandard;
 import com.vladsch.clionarduinoplugin.components.ArduinoApplicationSettingsService;
 import com.vladsch.clionarduinoplugin.resources.ArduinoToolchainFiles;
 import com.vladsch.clionarduinoplugin.resources.BuildConfig;
@@ -47,7 +47,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-public abstract class ArduinoProjectGeneratorBase extends CLionProjectGenerator<ArduinoProjectSettings> {
+public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator {
     public static final String ARDUINO_PROJECTS_GROUP_NAME = "Arduino";
     public static final String ARDUINO_SKETCH_PROJECT_GENERATOR_NAME = "Arduino Sketch";
     public static final String ARDUINO_SKETCH_LIBRARY_GENERATOR_NAME = "Arduino Library";
@@ -72,6 +72,12 @@ public abstract class ArduinoProjectGeneratorBase extends CLionProjectGenerator<
     }
 
     @NotNull
+    @Override
+    protected String getCMakeFileContent(@NotNull final String projectName) {
+        return "";
+    }
+
+    @NotNull
     public String getGroupName() {
         return ARDUINO_PROJECTS_GROUP_NAME;
     }
@@ -79,6 +85,12 @@ public abstract class ArduinoProjectGeneratorBase extends CLionProjectGenerator<
     @Nls
     @NotNull
     abstract public String getName();
+
+    @Nullable
+    @Override
+    public String getDescription() {
+        return "Description";
+    }
 
     @Nullable
     public Icon getLogo() {
@@ -200,7 +212,7 @@ public abstract class ArduinoProjectGeneratorBase extends CLionProjectGenerator<
 
     @SuppressWarnings("MethodMayBeStatic")
     public String[] getLanguageVersions() {
-        return ContainerUtil.map2Array(CMakeRecognizedCPPLanguageStandard.values(), String.class, CMakeRecognizedCPPLanguageStandard::getDisplayString);
+        return ContainerUtil.map2Array(CppLanguageVersions.values(), String.class, CppLanguageVersions::getDisplayString);
     }
 
     @Nullable
@@ -235,7 +247,7 @@ public abstract class ArduinoProjectGeneratorBase extends CLionProjectGenerator<
 
     @Nullable
     public String cmakeLanguageVersion() {
-        return CMakeRecognizedCPPLanguageStandard.fromDisplayString(getLanguageVersion());
+        return CppLanguageVersions.fromDisplayString(getLanguageVersion());
     }
 
     @Nullable
@@ -383,7 +395,7 @@ public abstract class ArduinoProjectGeneratorBase extends CLionProjectGenerator<
     }
 
     @Override
-    public void generateProject(@NotNull final Project project, @NotNull final VirtualFile baseDir, @NotNull final ArduinoProjectSettings settings, @NotNull final Module module) {
+    public void generateProject(@NotNull final Project project, @NotNull final VirtualFile baseDir, @NotNull final CMakeProjectSettings settings, @NotNull final Module module) {
         CreatedFilesHolder createdFilesHolder;
         try {
             createdFilesHolder = ApplicationManager.getApplication().runWriteAction(new ThrowableComputable<CreatedFilesHolder, IOException>() {
@@ -414,12 +426,12 @@ public abstract class ArduinoProjectGeneratorBase extends CLionProjectGenerator<
         busConnection.subscribe(CMakeWorkspaceListener.TOPIC, new CMakeWorkspaceListener() {
             @Override
             public void generationFinished() {
-               int tmp = 0;
+                int tmp = 0;
             }
 
             @Override
             public void filesRefreshedAfterGeneration() {
-               int tmp = 0;
+                int tmp = 0;
             }
 
             @Override
@@ -441,7 +453,7 @@ public abstract class ArduinoProjectGeneratorBase extends CLionProjectGenerator<
     }
 
     @NotNull
-    public ProjectGeneratorPeer<ArduinoProjectSettings> createPeer() {
+    public ProjectGeneratorPeer<CMakeProjectSettings> createPeer() {
         JComponent panel = getSettingsPanel();
         if (panel == null) {
             panel = new JPanel();
@@ -452,7 +464,7 @@ public abstract class ArduinoProjectGeneratorBase extends CLionProjectGenerator<
             projectSettings = ARDUINO_MAKE_DEFAULT_PROJECT_SETTINGS;
         }
 
-        GeneratorPeerImpl<ArduinoProjectSettings> peer = new GeneratorPeerImpl<>(projectSettings, panel);
+        GeneratorPeerImpl<CMakeProjectSettings> peer = new GeneratorPeerImpl<>(projectSettings, panel);
         return peer;
     }
 
@@ -508,6 +520,7 @@ public abstract class ArduinoProjectGeneratorBase extends CLionProjectGenerator<
         return cMakeLists;
     }
 
+    @SuppressWarnings("MethodMayBeStatic")
     protected boolean formatSourceFilesAsCpp() {
         return true;
     }

@@ -1,10 +1,11 @@
 package com.vladsch.clionarduinoplugin.components;
 
-import com.intellij.openapi.application.*;
-import com.intellij.openapi.components.*;
-import com.intellij.openapi.fileTypes.*;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.components.BaseComponent;
+import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.vladsch.clionarduinoplugin.resources.Strings;
-import org.jetbrains.annotations.*;
+import org.jetbrains.annotations.NotNull;
 
 public class ArduinoFileTypeRegistration implements BaseComponent {
 

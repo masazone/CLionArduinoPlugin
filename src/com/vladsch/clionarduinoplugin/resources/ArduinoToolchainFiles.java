@@ -33,7 +33,6 @@ public class ArduinoToolchainFiles {
                     VirtualFile arduinoToolchain = cmakeDirectory.createChildData(this, "ArduinoToolchain.cmake");
                     VirtualFile arduino = platformDirectory.createChildData(this, "Arduino.cmake");
 
-
                     OutputStream arduinoToolchainOutputStream = arduinoToolchain.getOutputStream(this);
                     OutputStream arduinoOutputStream = arduino.getOutputStream(this);
 

@@ -11,9 +11,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
-import icons.PluginIcons;
 import com.vladsch.clionarduinoplugin.ArduinoSketchFileCreator;
 import com.vladsch.clionarduinoplugin.resources.Strings;
+import icons.PluginIcons;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;

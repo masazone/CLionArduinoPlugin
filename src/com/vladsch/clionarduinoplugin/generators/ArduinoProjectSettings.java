@@ -2,12 +2,13 @@ package com.vladsch.clionarduinoplugin.generators;
 
 import com.intellij.util.xmlb.annotations.XCollection;
 import com.intellij.util.xmlb.annotations.XMap;
+import com.jetbrains.cidr.cpp.cmake.projectWizard.generators.settings.CMakeProjectSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class ArduinoProjectSettings {
+public class ArduinoProjectSettings extends CMakeProjectSettings {
     protected String languageVersion;
     protected String libraryType;
     protected boolean addLibraryDirectory;
@@ -19,6 +20,18 @@ public class ArduinoProjectSettings {
     protected boolean verbose;
     protected HashMap<String, String> boardCpu;
     protected LinkedHashSet<String> portHistory;
+
+    @NotNull
+    @Override
+    public String getEnabledProjectLanguages() {
+        return "";
+    }
+
+    @NotNull
+    @Override
+    public String getLanguageVersionLineForCMake() {
+        return CppLanguageVersions.fromDisplayString(languageVersion);
+    }
 
     public ArduinoProjectSettings(
             final String languageVersion,

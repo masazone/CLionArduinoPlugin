@@ -64,10 +64,13 @@ public class LineStringBuilder implements Appendable, CharSequence {
         return this;
     }
 
-    public LineStringBuilder line() { sb.append("\n"); return this; }
+    public LineStringBuilder line() {
+        sb.append("\n");
+        return this;
+    }
 
     public boolean isNewLine() {
-        return sb.length() != 0 || sb.charAt(sb.length()-1) == '\n';
+        return sb.length() != 0 || sb.charAt(sb.length() - 1) == '\n';
     }
 
     public LineStringBuilder prefixNewLine() {
@@ -126,7 +129,6 @@ public class LineStringBuilder implements Appendable, CharSequence {
     public LineStringBuilder insert(final int offset, final double d) {sb.insert(offset, d); return this;}
     public LineStringBuilder reverse() {return new LineStringBuilder(sb.reverse());}
     // @formatter:on
-
 
     public int indexOf(final String str) {return sb.indexOf(str);}
 

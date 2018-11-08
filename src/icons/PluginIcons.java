@@ -1,8 +1,8 @@
 package icons;
 
-import com.intellij.openapi.util.*;
+import com.intellij.openapi.util.IconLoader;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 /**
  * Created by francois on 15-08-04.
