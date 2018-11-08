@@ -3,7 +3,7 @@
 This is a JetBrains CLion plugin that integrates
 [Arduino CMake](https://github.com/francoiscampbell/arduino-cmake) into the IDE.
 
-[JetBrains Plugin Page](https://plugins.jetbrains.com/plugin/11298-clion-arduino-plugin)
+[JetBrains Plugin Page](https://plugins.jetbrains.com/plugin/11301-arduino-support)
 
 Create an Arduino CMake project in one click with new project wizard.
 
