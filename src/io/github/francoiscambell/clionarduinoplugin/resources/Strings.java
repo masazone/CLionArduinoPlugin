@@ -6,6 +6,9 @@ package io.github.francoiscambell.clionarduinoplugin.resources;
 public class Strings {
     public static final String CMAKE_LISTS_FILENAME = "CMakeLists.txt";
     public static final String CPP_EXT = "cpp";
+    public static final String DOT_CPP_EXT = "." + CPP_EXT;
+    public static final String H_EXT = "h";
+    public static final String DOT_H_EXT = "." + H_EXT;
     public static final String DEFAULT_ARDUINO_SKETCH_CONTENTS = "#include <Arduino.h>\n\nvoid setup() {\n\n}\n\nvoid loop() {\n\n}";
     public static final String ENTER_FILENAME = "Enter filename";
     public static final String ERROR = "Error";
@@ -17,4 +20,6 @@ public class Strings {
     public static final String DOT_PDE_EXT = "." + PDE_EXT;
     public static final String QUESTION_OVERWRITE = "Do you wish to overwrite the existing file?";
     public static final String SKETCH_NAME = "Sketch Name";
+    public static final String DEFAULT_ARDUINO_LIBRARY_CPP_CONTENTS = "\n";
+    public static final String DEFAULT_ARDUINO_LIBRARY_H_CONTENTS = "\n";
 }

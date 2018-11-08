@@ -1,13 +1,9 @@
 package io.github.francoiscambell.clionarduinoplugin.wizards;
 
 import com.intellij.ide.RecentProjectsManager;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
-import com.intellij.openapi.project.DumbAwareRunnable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
-import com.intellij.openapi.startup.StartupManager;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -19,19 +15,14 @@ import com.intellij.openapi.wm.ToolWindowId;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.openapi.wm.ToolWindowType;
 import com.intellij.openapi.wm.ex.ToolWindowManagerEx;
-import com.intellij.openapi.wm.ex.ToolWindowManagerListener;
-import com.intellij.util.messages.MessageBusConnection;
 import com.jetbrains.cidr.cpp.CPPLog;
 import com.jetbrains.cidr.cpp.cmake.CMakeProjectOpenProcessor;
 import com.jetbrains.cidr.cpp.cmake.projectWizard.CMakeProjectWizard;
 import com.jetbrains.cidr.cpp.cmake.workspace.CMakeWorkspace;
-import com.jetbrains.cidr.cpp.cmake.workspace.CMakeWorkspaceListener;
 import io.github.francoiscambell.clionarduinoplugin.CMakeListsEditor;
 import io.github.francoiscambell.clionarduinoplugin.resources.ArduinoToolchainFiles;
 import io.github.francoiscambell.clionarduinoplugin.resources.Strings;
 import org.jdom.JDOMException;
-import org.jetbrains.annotations.NotNull;
-import sun.reflect.generics.scope.MethodScope;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -53,7 +44,6 @@ public class NewArduinoProjectWizard extends CMakeProjectWizard {
     private NewArduinoProjectForm adapter = new NewArduinoProjectForm(
             "untitled-0",
             new File(lastDir).getPath());
-
 
     public NewArduinoProjectWizard() {
         super("New Arduino Sketch Project", "NewArduinoSketchProject");
@@ -135,7 +125,7 @@ public class NewArduinoProjectWizard extends CMakeProjectWizard {
                 cMakeListsEditor.blankLine();
                 cMakeListsEditor.appendLine("### If for example using Pro Mini then set board to pro and need to set ARDUINO_CPU");
                 cMakeListsEditor.appendLine("## To find the CPU string, RegEx Search for /pro.menu.cpu.([\\w])+.build.mcu=/ in boards.txt");
-                cMakeListsEditor.appendLine("## ([\\w+]) above is a placeholder for the string to use for the ARDUINO_CPU") ;
+                cMakeListsEditor.appendLine("## ([\\w+]) above is a placeholder for the string to use for the ARDUINO_CPU");
                 cMakeListsEditor.appendLine("# set(${CMAKE_PROJECT_NAME}_BOARD pro)");
                 cMakeListsEditor.appendLine("# ARDUINO_CPU must be set before project()");
                 cMakeListsEditor.appendLine("# set(ARDUINO_CPU 8MHzatmega328)");
@@ -152,7 +142,7 @@ public class NewArduinoProjectWizard extends CMakeProjectWizard {
                 cMakeListsEditor.appendLine("# link_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs)");
                 cMakeListsEditor.blankLine();
                 cMakeListsEditor.appendLine("#### Additional settings for for pro mini example, with usb serial programmer.");
-                cMakeListsEditor.appendLine("## Don't forget to uncomment the set ARDUINO_CPU above as per boards.txt.") ;
+                cMakeListsEditor.appendLine("## Don't forget to uncomment the set ARDUINO_CPU above as per boards.txt.");
                 cMakeListsEditor.appendLine("# set(${CMAKE_PROJECT_NAME}_PORT /dev/cu.usbserial-00000000)");
                 cMakeListsEditor.appendLine("# set(${CMAKE_PROJECT_NAME}_PROGRAMMER avrispmkii)");
                 cMakeListsEditor.appendLine("# set(${CMAKE_PROJECT_NAME}_AFLAGS -v)");
@@ -243,7 +233,7 @@ public class NewArduinoProjectWizard extends CMakeProjectWizard {
             //workspace.selectProjectDir(cmakeLists);
             Method method = CMakeWorkspace.class.getMethod("selectProjectDir", File.class);
             File cmakeLists = VfsUtilCore.virtualToIoFile(cMakeLists.getParent());
-            method.invoke(workspace,cmakeLists);
+            method.invoke(workspace, cmakeLists);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {
         }
     }

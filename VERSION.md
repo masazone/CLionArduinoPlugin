@@ -3,6 +3,7 @@
 [TOC levels=3,4]: # "Version History"
 
 ### Version History
+- [1.3.0](#130)
 - [1.2.4](#124)
 - [1.2.3](#123)
 - [1.2.2](#122)
@@ -13,6 +14,20 @@
 - [1.0.1](#101)
 - [1.0](#10)
 
+
+### 1.3.0
+
+* Fix: add project types to `New Project` wizard, only compatible with 2018.3 and above.
+* Fix: remove arduino new project action
+* Add: arduino library. Adds .cpp and .h file named as project directory,
+* Add: boards project option and cpu option (from boards.txt stored in resources). TODO: add
+  config for boards.txt path
+* Add: programmers (from boards.txt stored in resources). TODO: add config for boards.txt path
+* Add: Port option, for now manually set. TODO: add code to scan available ports
+* Add: verbose build option
+* Add: local library directory option
+* Add: icons for sketch file, library and project
+* Add: persistence of project creation options, last cpu per board is saved.
 
 ### 1.2.4
 

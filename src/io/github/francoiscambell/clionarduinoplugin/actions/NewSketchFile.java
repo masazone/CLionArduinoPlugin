@@ -74,12 +74,12 @@ public class NewSketchFile extends AnAction {
 
     private int getOverwriteChoice(Project project) {
         return Messages
-                .showYesNoCancelDialog(project, Strings.QUESTION_OVERWRITE, Strings.FILE_ALREADY_EXISTS, PluginIcons.ARDUINO_ICON);
+                .showYesNoCancelDialog(project, Strings.QUESTION_OVERWRITE, Strings.FILE_ALREADY_EXISTS, PluginIcons.arduino_logo);
     }
 
     private String getDesiredFilename(Project project) {
         return Messages
-                .showInputDialog(project, Strings.ENTER_FILENAME, Strings.SKETCH_NAME, PluginIcons.ARDUINO_ICON);
+                .showInputDialog(project, Strings.ENTER_FILENAME, Strings.SKETCH_NAME, PluginIcons.arduino_logo);
     }
 
     @NotNull

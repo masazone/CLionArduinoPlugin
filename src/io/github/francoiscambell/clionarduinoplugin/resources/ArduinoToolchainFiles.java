@@ -8,6 +8,8 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by francois on 15-08-03.
@@ -21,8 +23,11 @@ public class ArduinoToolchainFiles {
         return ArduinoToolchainFiles.class.getResourceAsStream("arduino-cmake/cmake/Platform/Arduino.cmake");
     }
 
-    public static void copyToDirectory(final VirtualFile projectRoot) {
+    public static VirtualFile[] copyToDirectory(final VirtualFile projectRoot) {
+        ArrayList<VirtualFile> files = new ArrayList<>();
+
         ApplicationManager.getApplication().runWriteAction(new Runnable() {
+
             @Override
             public void run() {
                 try {
@@ -31,6 +36,7 @@ public class ArduinoToolchainFiles {
 
                     VirtualFile arduinoToolchain = cmakeDirectory.createChildData(this, "ArduinoToolchain.cmake");
                     VirtualFile arduino = platformDirectory.createChildData(this, "Arduino.cmake");
+
 
                     OutputStream arduinoToolchainOutputStream = arduinoToolchain.getOutputStream(this);
                     OutputStream arduinoOutputStream = arduino.getOutputStream(this);
@@ -41,6 +47,8 @@ public class ArduinoToolchainFiles {
                     try {
                         IOUtils.copy(arduinoToolchainInputStream, arduinoToolchainOutputStream);
                         IOUtils.copy(arduinoInputStream, arduinoOutputStream);
+                        files.add(arduinoToolchain);
+                        files.add(arduino);
                     } finally {
                         closeStreams(arduinoToolchainOutputStream,
                                 arduinoOutputStream,
@@ -52,9 +60,11 @@ public class ArduinoToolchainFiles {
                 }
             }
         });
+
+        return files.toArray(new VirtualFile[0]);
     }
 
-    private static void closeStreams(Closeable... streams) {
+    static void closeStreams(Closeable... streams) {
         for (Closeable c : streams) {
             IOUtils.closeQuietly(c);
         }
