@@ -189,6 +189,14 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
         mySettings.setVerbose(verbose);
     }
 
+    public boolean isNestedLibrarySources() {
+        return mySettings.isNestedLibrarySources();
+    }
+
+    public void setRecursiveLibrarySources(final boolean recursiveLibrarySources) {
+        mySettings.setNestedLibrarySources(recursiveLibrarySources);
+    }
+
     @Nullable
     public String[] getBoardNames() {
         return buildConfig == null ? null : ContainerUtil.map2Array(buildConfig.getBoards().values(), String.class, (board) -> board.name);
@@ -284,6 +292,7 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
     @NotNull
     protected String getCMakeFileContent(@NotNull String projectName, @NotNull VirtualFile[] sourceFiles) {
         LineStringBuilder sb = new LineStringBuilder("# ");
+        boolean isStaticLib = isLibrary && "static".equals(getLibraryType());
 
         sb.appendln("cmake_minimum_required(VERSION 2.8.4)");
         sb.appendln("set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/ArduinoToolchain.cmake)");
@@ -291,8 +300,8 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
         if (languageVersion != null) {
             sb.appendln("set(CMAKE_CXX_STANDARD " + languageVersion + ")");
         }
-
         sb.line();
+
         sb.appendln("set(PROJECT_NAME " + projectName + ")");
         sb.appendln("set(${CMAKE_PROJECT_NAME}_BOARD " + ifNull(getBoardId(), "mega") + ")");
         String cpu = getCpuId();
@@ -302,6 +311,7 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
 
         sb.appendln("# Define the source code for cpp files or default arduino sketch files");
         StringBuilder cppFiles = new StringBuilder();
+        StringBuilder hFiles = new StringBuilder();
         String sep = "";
         String sketchFile = null;
 
@@ -310,6 +320,8 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
             if (ext != null) {
                 if (ext.equalsIgnoreCase("c") || ext.equalsIgnoreCase(Strings.CPP_EXT)) {
                     cppFiles.append(" ").append(file.getName());
+                } else if (ext.equalsIgnoreCase("hpp") || ext.equalsIgnoreCase(Strings.H_EXT)) {
+                    hFiles.append(" ").append(file.getName());
                 } else if (ext.equalsIgnoreCase(Strings.INO_EXT) || ext.equalsIgnoreCase(Strings.PDE_EXT)) {
                     sketchFile = file.getName();
                 }
@@ -322,6 +334,14 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
             sb.appendln("# set(${PROJECT_NAME}_SRCS " + projectName + Strings.DOT_CPP_EXT + ")");
         }
 
+        if (hFiles.length() != 0) {
+            sb.appendln("set(${PROJECT_NAME}_HDRS " + hFiles.toString() + ")");
+        }
+
+        sb.appendln("### Additional static libraries to include in the target.");
+        sb.appendln("# set(${CMAKE_PROJECT_NAME}_LIBS lib_name)");
+        sb.line();
+
         if (sketchFile != null) {
             sb.appendln("set(${CMAKE_PROJECT_NAME}_SKETCH " + sketchFile + ")");
         } else {
@@ -330,20 +350,28 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
 
         sb.line();
 
-        if (isAddLibraryDirectory()) {
-            sb.appendln("### Additional settings to add non-standard or your own Arduino libraries.");
-            sb.appendln("# An Arduino library my_lib will contain files in " + getLibraryDirectory() + "/my_lib/: my_lib.h, my_lib.cpp + any other cpp files");
-            sb.appendln("link_directories(${CMAKE_CURRENT_SOURCE_DIR}/" + getLibraryDirectory() + ")");
-            sb.line();
-        } else {
-            sb.appendln("### Additional settings to add non-standard or your own Arduino libraries.");
-            sb.appendln("# For this example (libs will contain additional arduino libraries)");
-            sb.appendln("# An Arduino library my_lib will contain files in libs/my_lib/: my_lib.h, my_lib.cpp + any other cpp files");
-            sb.prefix().appendln("link_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs)");
-            sb.line();
+        if (!isLibrary) {
+            if (isAddLibraryDirectory() && getLibraryDirectory() != null && !getLibraryDirectory().isEmpty()) {
+                sb.appendln("### Additional settings to add non-standard or your own Arduino libraries.");
+                sb.appendln("# An Arduino library my_lib will contain files in " + getLibraryDirectory() + "/my_lib/: my_lib.h, my_lib.cpp + any other cpp files");
+                sb.appendln("link_directories(${CMAKE_CURRENT_SOURCE_DIR}/" + getLibraryDirectory() + ")");
+                sb.line();
+            } else {
+                sb.appendln("### Additional settings to add non-standard or your own Arduino libraries.");
+                sb.appendln("# For this example (libs will contain additional arduino libraries)");
+                sb.appendln("# An Arduino library my_lib will contain files in libs/my_lib/: my_lib.h, my_lib.cpp + any other cpp files");
+                sb.prefix().appendln("link_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs)");
+                sb.line();
+            }
+
+            if (sketchFile != null) {
+                sb.appendln("# For nested library sources replace ${LIB_NAME} with library name for each library");
+                sb.prefix().appendln("set(${LIB_NAME}_RECURSE true)");
+                sb.line();
+            }
         }
 
-        sb.appendln("#### Additional settings for for pro mini example, with usb serial programmer. From programmers.txt");
+        sb.appendln("#### Additional settings for programmer. From programmers.txt");
         String programmer = getProgrammerId();
         sb.prefix(programmer).appendln("set(${CMAKE_PROJECT_NAME}_PROGRAMMER " + ifNull(programmer, "avrispmkii") + ")");
         sb.prefixNullOrEmpty(getPort()).appendln("set(${CMAKE_PROJECT_NAME}_PORT " + ifNullOrEmpty(getPort(), "/dev/cu.usbserial-00000000") + ")");
@@ -353,7 +381,11 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
         sb.prefix(!isVerbose()).appendln("set(${CMAKE_PROJECT_NAME}_AFLAGS -v)");
         sb.line();
 
-        sb.appendln("generate_arduino_firmware(${CMAKE_PROJECT_NAME})");
+        if (isStaticLib) {
+            sb.appendln("generate_arduino_library(${CMAKE_PROJECT_NAME})");
+        } else {
+            sb.appendln("generate_arduino_firmware(${CMAKE_PROJECT_NAME})");
+        }
         return sb.toString();
     }
 
@@ -418,28 +450,18 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
             });
         }
 
-        // vsch: Need to load the CMakeList.txt to generate the project files, otherwise it appears empty
+        // vsch: Need to reload the CMakeList.txt to generate build files, first time generation is incorrect
         CMakeWorkspace workspace = CMakeWorkspace.getInstance(project);
 
-        // vsch: reload CMakeLists.txt, for some reason first generation of it is incorrect
         MessageBusConnection busConnection = project.getMessageBus().connect();
         busConnection.subscribe(CMakeWorkspaceListener.TOPIC, new CMakeWorkspaceListener() {
-            @Override
-            public void generationFinished() {
-                int tmp = 0;
-            }
-
-            @Override
-            public void filesRefreshedAfterGeneration() {
-                int tmp = 0;
-            }
-
             @Override
             public void reloadingFinished(final boolean canceled) {
                 busConnection.disconnect();
 
                 if (!canceled) {
                     ApplicationManager.getApplication().invokeLater(() -> {
+                        // force reload after the first generation cycle is complete
                         workspace.selectProjectDir(workspace.getProjectDir());
                     });
                 }

@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="plugin-description" pattern="file[CLionArduinoPlugin]:assets/docs//*" />
+</component>

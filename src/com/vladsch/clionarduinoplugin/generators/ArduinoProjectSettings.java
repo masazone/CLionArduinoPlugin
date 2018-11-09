@@ -20,6 +20,7 @@ public class ArduinoProjectSettings extends CMakeProjectSettings {
     protected boolean verbose;
     protected HashMap<String, String> boardCpu;
     protected LinkedHashSet<String> portHistory;
+    protected boolean nestedLibrarySources;
 
     @NotNull
     @Override
@@ -44,7 +45,8 @@ public class ArduinoProjectSettings extends CMakeProjectSettings {
             String port,
             boolean verbose,
             @Nullable Map<String, String> boardCpu,
-            @Nullable Collection<String> portHistory
+            @Nullable Collection<String> portHistory,
+            boolean nestedLibrarySources
     ) {
         this.languageVersion = languageVersion;
         this.libraryType = libraryType;
@@ -57,10 +59,11 @@ public class ArduinoProjectSettings extends CMakeProjectSettings {
         this.verbose = verbose;
         this.boardCpu = boardCpu == null ? new HashMap<>() : new HashMap<>(boardCpu);
         setPortHistory(portHistory == null ? Collections.EMPTY_LIST : portHistory);
+        this.nestedLibrarySources = nestedLibrarySources;
     }
 
     public ArduinoProjectSettings() {
-        this("", "", false, "", "", "", "", "", false, null, null);
+        this("", "", false, "", "", "", "", "", false, null, null, false);
     }
 
     public ArduinoProjectSettings(ArduinoProjectSettings other) {
@@ -74,7 +77,8 @@ public class ArduinoProjectSettings extends CMakeProjectSettings {
                 other.port,
                 other.verbose,
                 other.boardCpu,
-                other.portHistory
+                other.portHistory,
+                other.nestedLibrarySources
         );
     }
 
@@ -186,5 +190,13 @@ public class ArduinoProjectSettings extends CMakeProjectSettings {
 
     public void setBoardCpu(String board, String cpu) {
         this.boardCpu.put(board, cpu);
+    }
+
+    public boolean isNestedLibrarySources() {
+        return nestedLibrarySources;
+    }
+
+    public void setNestedLibrarySources(final boolean nestedLibrarySources) {
+        this.nestedLibrarySources = nestedLibrarySources;
     }
 }
