@@ -5,7 +5,7 @@ A JetBrains CLion plugin to integrate
 
 [JetBrains Plugin Page](https://plugins.jetbrains.com/plugin/11301-arduino-support)
 
-Create an Arduino CMake project in one click with new project wizard.
+Create an Arduino CMake project in one click with new project wizard types.
 
 * Adds `Arduino Sketch` and `Arduino Library` project types to new project wizard, with Options
   to select board type, cpu, programmer and port
