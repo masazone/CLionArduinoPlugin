@@ -99,6 +99,13 @@ public class ArduinoProjectSettingsPanel extends CMakeSettingsPanel {
             panel.add(labelCpu, gridConstraints);
             myCpusComboBox = new ComboBox<>(cpus == null ? new String[0] : cpus);
             String cpu = projectGenerator.getCpu();
+            if (cpu == null && cpus != null && cpus.length > 0) {
+                // need to initialize the cpu
+                cpu = (String) myCpusComboBox.getSelectedItem();
+                if (cpu == null) cpu = cpus[0];
+                projectGenerator.setCpu(cpu);
+            }
+
             if (cpu != null) {
                 myCpusComboBox.setSelectedItem(cpu);
             }

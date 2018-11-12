@@ -11,7 +11,7 @@
          on how to target different products -->
     <depends>com.intellij.modules.clion</depends>
 
-    <version>1.3.6</version>
+    <version>1.3.7</version>
     <description><![CDATA[
         <p><img src="https://github.com/vsch/CLionArduinoPlugin/raw/master/resources/META-INF/pluginIcon.png" alt="pluginIcon.png" width="50" align="middle" /> Integrates
             <a href="https://github.com/francoiscampbell/arduino-cmake">Arduino CMake</a> into the CLion IDE.</p>

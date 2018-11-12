@@ -544,7 +544,7 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
 
     @SuppressWarnings("MethodMayBeStatic")
     protected boolean formatSourceFilesAsCpp() {
-        return true;
+        return false;
     }
 
     @NotNull

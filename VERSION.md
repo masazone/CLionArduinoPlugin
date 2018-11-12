@@ -3,6 +3,7 @@
 [TOC levels=3,4]: # "Version History"
 
 ### Version History
+- [1.3.8](#138)
 - [1.3.6](#136)
 - [1.3.4](#134)
 - [1.3.2](#132)
@@ -18,11 +19,19 @@
 - [1.0](#10)
 
 
+### 1.3.8
+
+* [ ] Add: `Generate keywords.txt` action to generate keywords.txt based on contained project
+  classes and functions.
+* Add: skeleton `keywords.txt` and `library.properties` files when creating arduino project.
+
 ### 1.3.6
 
 * Fix: CPU selection line in `CMakeLists.txt` would be commented out if a new board is selected
   and the CPU was left as default.
 * Add: static library changes to `CMakeLists.txt`, using `generate_arduino_library()`
+* Fix: if current saved selected board did not have a CPU associated with it then the
+  ARDUINO_CPU line in the cmake file would be commented out.
 
 ### 1.3.4
 
