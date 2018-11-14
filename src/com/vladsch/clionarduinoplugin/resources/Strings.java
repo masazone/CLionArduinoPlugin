@@ -26,6 +26,18 @@ public class Strings {
     public static final String QUESTION_OVERWRITE = "Do you wish to overwrite the existing file?";
     public static final String SKETCH_NAME = "Sketch Name";
     public static final String DEFAULT_ARDUINO_LIBRARY_CPP_CONTENTS = "\n";
+    public static final String DEFAULT_ARDUINO_LIBRARY_TEST_CONTENTS = "" +
+            "#include <Arduino.h>\n" +
+            "#include \"<$PROJECT_NAME$>.h\"\n" +
+            "\n" +
+            "void setup() {\n" +
+            "\n" +
+            "}\n" +
+            "\n" +
+            "void loop() {\n" +
+            "\n" +
+            "}" +
+            "";
     public static final String DEFAULT_ARDUINO_LIBRARY_H_CONTENTS = "\n";
     public static final String DEFAULT_ARDUINO_LIBRARY_KEYWORDS_CONTENTS = "" +
             "#######################################\n" +
@@ -51,11 +63,11 @@ public class Strings {
     public static final String DEFAULT_ARDUINO_LIBRARY_PROPERTIES_CONTENTS = "" +
             "name=<$PROJECT_NAME$>\n"+
             "version=0.0.0\n"+
-            "author=Name\n"+
-            "maintainer=Name <name@email.com>\n"+
-            "sentence=Summany\n"+
+            "author=<$USER_NAME$>\n"+
+            "maintainer=<$USER_NAME$> <$E_MAIL$>\n"+
+            "sentence=Summary\n"+
             "paragraph=Description\n"+
-            "category=Device Control\n"+
+            "category=<$LIBRARY_CATEGORY$>\n"+
             "url=URL\n"+
             "architectures=*\n"+
             "";

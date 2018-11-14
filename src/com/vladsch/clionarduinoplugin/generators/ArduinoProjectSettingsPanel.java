@@ -36,6 +36,13 @@ public class ArduinoProjectSettingsPanel extends CMakeSettingsPanel {
 
     boolean inUpdate = false;
 
+    ComboBox<String> myLibraryCategoriesComboBox;
+    private JLabel myLibraryCategoryLabel;
+    JTextField myAuthorName;
+    private JLabel myAuthorNameLabel;
+    JTextField myAuthorEMail;
+    private JLabel myAuthorEMailLabel;
+
     public ArduinoProjectSettingsPanel(@NotNull ArduinoProjectGeneratorBase projectGenerator) {
         super(projectGenerator);
         init(projectGenerator);
@@ -47,17 +54,24 @@ public class ArduinoProjectSettingsPanel extends CMakeSettingsPanel {
         String[] boards = projectGenerator.getBoardNames();
         String[] programmers = projectGenerator.getProgrammerNames();
 
-        int rows = (isLibrary ? 6 : 6) + (boards != null ? 2 : 0) + (programmers != null ? 2 : 0);
+        int rows = (isLibrary ? 11 : 6) + (boards != null ? 2 : 0) + (programmers != null ? 2 : 0);
         GridLayoutManager layoutManager = new GridLayoutManager(rows, 2);
         JPanel panel = new JPanel(layoutManager);
 
         int row = 0;
 
-        GridConstraints gridConstraints = setConstraints(row, 0);
+        GridConstraints gridConstraints = setConstraints(row, 0, false);
         JLabel label = new JLabel("Language standard:");
         panel.add(label, gridConstraints);
-        myLanguageVersionComboBox = new ComboBox<>(projectGenerator.getLanguageVersions());
+        String[] languageVersions = projectGenerator.getLanguageVersions();
+        myLanguageVersionComboBox = new ComboBox<>(languageVersions);
         String languageVersion = projectGenerator.getLanguageVersion();
+
+        if (languageVersion == null || languageVersion.isEmpty() && languageVersions.length > 0) {
+            languageVersion = languageVersions[0];
+            projectGenerator.setLanguageVersion(languageVersion);
+        }
+
         if (languageVersion != null) {
             myLanguageVersionComboBox.setSelectedItem(languageVersion);
         }
@@ -68,13 +82,13 @@ public class ArduinoProjectSettingsPanel extends CMakeSettingsPanel {
             }
         });
 
-        gridConstraints = setConstraints(row++, 1);
+        gridConstraints = setConstraints(row++, 1, false);
         panel.add(myLanguageVersionComboBox, gridConstraints);
         label.setDisplayedMnemonic('s');
         label.setLabelFor(myLanguageVersionComboBox);
 
         if (boards != null) {
-            gridConstraints = setConstraints(row, 0);
+            gridConstraints = setConstraints(row, 0, false);
             JLabel labelBoard = new JLabel("Board:");
             panel.add(labelBoard, gridConstraints);
             myBoardsComboBox = new ComboBox<>(boards);
@@ -85,16 +99,14 @@ public class ArduinoProjectSettingsPanel extends CMakeSettingsPanel {
                 board = (String) myBoardsComboBox.getSelectedItem();
             }
 
-            gridConstraints = setConstraints(row++, 1);
-            gridConstraints.setFill(GridConstraints.FILL_HORIZONTAL);
+            gridConstraints = setConstraints(row++, 1, true);
             panel.add(myBoardsComboBox, gridConstraints);
-            gridConstraints.setFill(GridConstraints.FILL_NONE);
             labelBoard.setDisplayedMnemonic('b');
             labelBoard.setLabelFor(myBoardsComboBox);
 
             // create CPU dropdown
             String[] cpus = projectGenerator.getBoardCpuNames(board);
-            gridConstraints = setConstraints(row, 0);
+            gridConstraints = setConstraints(row, 0, false);
             JLabel labelCpu = new JLabel(projectGenerator.getCpuLabel());
             panel.add(labelCpu, gridConstraints);
             myCpusComboBox = new ComboBox<>(cpus == null ? new String[0] : cpus);
@@ -153,16 +165,14 @@ public class ArduinoProjectSettingsPanel extends CMakeSettingsPanel {
                 }
             });
 
-            gridConstraints = setConstraints(row++, 1);
-            gridConstraints.setFill(GridConstraints.FILL_HORIZONTAL);
+            gridConstraints = setConstraints(row++, 1, true);
             panel.add(myCpusComboBox, gridConstraints);
-            gridConstraints.setFill(GridConstraints.FILL_NONE);
             labelCpu.setDisplayedMnemonic('c');
             labelCpu.setLabelFor(myCpusComboBox);
         }
 
         if (programmers != null) {
-            gridConstraints = setConstraints(row, 0);
+            gridConstraints = setConstraints(row, 0, false);
             JLabel labelProg = new JLabel("Programmer:");
             panel.add(labelProg, gridConstraints);
             myProgrammersComboBox = new ComboBox<>(programmers);
@@ -177,14 +187,12 @@ public class ArduinoProjectSettingsPanel extends CMakeSettingsPanel {
                 }
             });
 
-            gridConstraints = setConstraints(row++, 1);
-            gridConstraints.setFill(GridConstraints.FILL_HORIZONTAL);
+            gridConstraints = setConstraints(row++, 1, true);
             panel.add(myProgrammersComboBox, gridConstraints);
-            gridConstraints.setFill(GridConstraints.FILL_NONE);
             labelProg.setDisplayedMnemonic('g');
             labelProg.setLabelFor(myProgrammersComboBox);
 
-            gridConstraints = setConstraints(row, 0);
+            gridConstraints = setConstraints(row, 0, false);
             JLabel labelPort = new JLabel("Port:");
             panel.add(labelPort, gridConstraints);
             //myPort = new JTextField(30);
@@ -247,13 +255,11 @@ public class ArduinoProjectSettingsPanel extends CMakeSettingsPanel {
                 }
             });
 
-            gridConstraints = setConstraints(row++, 1);
-            gridConstraints.setFill(GridConstraints.FILL_HORIZONTAL);
+            gridConstraints = setConstraints(row++, 1, true);
             panel.add(myPort, gridConstraints);
-            gridConstraints.setFill(GridConstraints.FILL_NONE);
         }
 
-        gridConstraints = setConstraints(row++, 0);
+        gridConstraints = setConstraints(row++, 0, false);
         myVerbose = new JBCheckBox("Verbose Build Process");
         panel.add(myVerbose, gridConstraints);
 
@@ -264,101 +270,209 @@ public class ArduinoProjectSettingsPanel extends CMakeSettingsPanel {
         });
 
         if (isLibrary) {
-            gridConstraints = setConstraints(row, 0);
+            gridConstraints = setConstraints(row, 0, false);
             JLabel libraryLabel = new JLabel("Library type:");
             panel.add(libraryLabel, gridConstraints);
             myLibraryTypeComboBox = new ComboBox<>(projectGenerator.getLibraryTypes());
             String libraryType = projectGenerator.getLibraryType();
-            if (libraryType != null) {
-                myLibraryTypeComboBox.setSelectedItem(libraryType);
+
+            if (libraryType == null) {
+                libraryType = ArduinoProjectGeneratorBase.ARDUINO_LIB_TYPE;
             }
+
+            myLibraryTypeComboBox.setSelectedItem(libraryType);
 
             myLibraryTypeComboBox.addItemListener(e -> {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
-                    projectGenerator.setLibraryType((String) e.getItem());
+                    String item = (String) e.getItem();
+                    projectGenerator.setLibraryType(item);
+
+                    updateLibraryOptions(item);
                 }
             });
 
-            gridConstraints = setConstraints(row++, 1);
+            gridConstraints = setConstraints(row++, 1, false);
             panel.add(myLibraryTypeComboBox, gridConstraints);
             libraryLabel.setDisplayedMnemonic('i');
             libraryLabel.setLabelFor(myLibraryTypeComboBox);
-        } else {
-            gridConstraints = setConstraints(row, 0);
-            myAddLibraryDirectory = new JBCheckBox("Add library sub-directory:");
-            panel.add(myAddLibraryDirectory, gridConstraints);
 
-            myAddLibraryDirectory.setSelected(projectGenerator.isAddLibraryDirectory());
-
-            myAddLibraryDirectory.addItemListener(e -> {
-                projectGenerator.setAddLibraryDirectory(myAddLibraryDirectory.isSelected());
-                myLibraryDirectory.setEnabled(myAddLibraryDirectory.isSelected());
-            });
-
-            //myLibraryDirectory = new TextFieldWithBrowseButton(
-            //        new JTextField(
-            //                "",
-            //                20)
-            //        , new ActionListener() {
-            //            @Override
-            //            public void actionPerformed(ActionEvent e) {
-            //                int tmp = 0;
-            //            }
-            //        }
-            //);
-            //
-            //myLibraryDirectory.addBrowseFolderListener(
-            //        "Select Library Sub-Directory",
-            //        null,
-            //        null,
-            //        new FileChooserDescriptor(false,
-            //                true,
-            //                false,
-            //                false,
-            //                false,
-            //                false));
-
-            myLibraryDirectory = new JTextField(30);
-            String libraryDirectory = projectGenerator.getLibraryDirectory();
-            if (libraryDirectory == null) {
-                myAddLibraryDirectory.setSelected(false);
-                myLibraryDirectory.setEnabled(false);
-            } else {
-                myLibraryDirectory.setEnabled(myAddLibraryDirectory.isSelected());
-                myLibraryDirectory.setText(libraryDirectory);
+            gridConstraints = setConstraints(row, 0, false);
+            myLibraryCategoryLabel = new JLabel("Category:");
+            panel.add(myLibraryCategoryLabel, gridConstraints);
+            myLibraryCategoriesComboBox = new ComboBox<>(projectGenerator.getLibraryCategories());
+            String libraryCategory = projectGenerator.getLibraryCategory();
+            if (libraryCategory != null) {
+                myLibraryCategoriesComboBox.setSelectedItem(libraryCategory);
             }
 
-            //myLibraryDirectory.getTextField().getDocument().addDocumentListener(new DocumentListener() {
-            myLibraryDirectory.getDocument().addDocumentListener(new DocumentListener() {
+            myLibraryCategoriesComboBox.addItemListener(e -> {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    projectGenerator.setLibraryCategory((String) e.getItem());
+                }
+            });
+
+            gridConstraints = setConstraints(row++, 1, false);
+            panel.add(myLibraryCategoriesComboBox, gridConstraints);
+            myLibraryCategoryLabel.setDisplayedMnemonic('i');
+            myLibraryCategoryLabel.setLabelFor(myLibraryCategoriesComboBox);
+
+            // author name and e-mail
+            gridConstraints = setConstraints(row, 0, false);
+            myAuthorNameLabel = new JLabel("Author name:");
+            panel.add(myAuthorNameLabel, gridConstraints);
+
+            myAuthorName = new JTextField(30);
+            String authorName = projectGenerator.getAuthorName();
+            if (authorName != null) {
+                myAuthorName.setText(authorName);
+            }
+
+            //myAuthorName.getTextField().getDocument().addDocumentListener(new DocumentListener() {
+            myAuthorName.getDocument().addDocumentListener(new DocumentListener() {
                 @Override
                 public void insertUpdate(final DocumentEvent e) {
-                    projectGenerator.setLibraryDirectory(myLibraryDirectory.getText());
+                    projectGenerator.setAuthorName(myAuthorName.getText());
                 }
 
                 @Override
                 public void removeUpdate(final DocumentEvent e) {
-                    projectGenerator.setLibraryDirectory(myLibraryDirectory.getText());
+                    projectGenerator.setAuthorName(myAuthorName.getText());
                 }
 
                 @Override
                 public void changedUpdate(final DocumentEvent e) {
-                    projectGenerator.setLibraryDirectory(myLibraryDirectory.getText());
+                    projectGenerator.setAuthorName(myAuthorName.getText());
                 }
             });
 
-            gridConstraints = setConstraints(row++, 1);
-            panel.add(myLibraryDirectory, gridConstraints);
+            gridConstraints = setConstraints(row++, 1, true);
+            panel.add(myAuthorName, gridConstraints);
+
+            myAuthorNameLabel.setDisplayedMnemonic('n');
+            myAuthorNameLabel.setLabelFor(myAuthorName);
+
+
+            gridConstraints = setConstraints(row, 0, false);
+            myAuthorEMailLabel = new JLabel("e-mail:");
+            panel.add(myAuthorEMailLabel, gridConstraints);
+
+            myAuthorEMail = new JTextField(30);
+            String authorEMail = projectGenerator.getAuthorEMail();
+            if (authorEMail != null) {
+                myAuthorEMail.setText(authorEMail);
+            }
+
+            //myAuthorEMail.getTextField().getDocument().addDocumentListener(new DocumentListener() {
+            myAuthorEMail.getDocument().addDocumentListener(new DocumentListener() {
+                @Override
+                public void insertUpdate(final DocumentEvent e) {
+                    projectGenerator.setAuthorEMail(myAuthorEMail.getText());
+                }
+
+                @Override
+                public void removeUpdate(final DocumentEvent e) {
+                    projectGenerator.setAuthorEMail(myAuthorEMail.getText());
+                }
+
+                @Override
+                public void changedUpdate(final DocumentEvent e) {
+                    projectGenerator.setAuthorEMail(myAuthorEMail.getText());
+                }
+            });
+
+            gridConstraints = setConstraints(row++, 1, true);
+            panel.add(myAuthorEMail, gridConstraints);
+
+            myAuthorEMailLabel.setDisplayedMnemonic('m');
+            myAuthorEMailLabel.setLabelFor(myAuthorEMail);
+
+            updateLibraryOptions(libraryType);
         }
+
+        gridConstraints = setConstraints(row, 0, false);
+        myAddLibraryDirectory = new JBCheckBox("Add library sub-directory:");
+        panel.add(myAddLibraryDirectory, gridConstraints);
+
+        myAddLibraryDirectory.setSelected(projectGenerator.isAddLibraryDirectory());
+
+        myAddLibraryDirectory.addItemListener(e -> {
+            projectGenerator.setAddLibraryDirectory(myAddLibraryDirectory.isSelected());
+            myLibraryDirectory.setEnabled(myAddLibraryDirectory.isSelected());
+        });
+
+        //myLibraryDirectory = new TextFieldWithBrowseButton(
+        //        new JTextField(
+        //                "",
+        //                20)
+        //        , new ActionListener() {
+        //            @Override
+        //            public void actionPerformed(ActionEvent e) {
+        //                int tmp = 0;
+        //            }
+        //        }
+        //);
+        //
+        //myLibraryDirectory.addBrowseFolderListener(
+        //        "Select Library Sub-Directory",
+        //        null,
+        //        null,
+        //        new FileChooserDescriptor(false,
+        //                true,
+        //                false,
+        //                false,
+        //                false,
+        //                false));
+
+        myLibraryDirectory = new JTextField(30);
+        String libraryDirectory = projectGenerator.getLibraryDirectory();
+        if (libraryDirectory == null) {
+            myAddLibraryDirectory.setSelected(false);
+            myLibraryDirectory.setEnabled(false);
+        } else {
+            myLibraryDirectory.setEnabled(myAddLibraryDirectory.isSelected());
+            myLibraryDirectory.setText(libraryDirectory);
+        }
+
+        //myLibraryDirectory.getTextField().getDocument().addDocumentListener(new DocumentListener() {
+        myLibraryDirectory.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(final DocumentEvent e) {
+                projectGenerator.setLibraryDirectory(myLibraryDirectory.getText());
+            }
+
+            @Override
+            public void removeUpdate(final DocumentEvent e) {
+                projectGenerator.setLibraryDirectory(myLibraryDirectory.getText());
+            }
+
+            @Override
+            public void changedUpdate(final DocumentEvent e) {
+                projectGenerator.setLibraryDirectory(myLibraryDirectory.getText());
+            }
+        });
+
+        gridConstraints = setConstraints(row++, 1, true);
+        panel.add(myLibraryDirectory, gridConstraints);
 
         add(panel, "West");
     }
 
-    @NotNull
-    private static GridConstraints setConstraints(int row, int column) {
+    void updateLibraryOptions(final String item) {
+        boolean isArduinoLibrary = ArduinoProjectGeneratorBase.ARDUINO_LIB_TYPE.equals(item);
+        if (myLibraryCategoriesComboBox != null) myLibraryCategoriesComboBox.setVisible(isArduinoLibrary);
+        if (myLibraryCategoryLabel != null) myLibraryCategoryLabel.setVisible(isArduinoLibrary);
+        if (myAuthorName != null) myAuthorName.setVisible(isArduinoLibrary);
+        if (myAuthorNameLabel != null) myAuthorNameLabel.setVisible(isArduinoLibrary);
+        if (myAuthorEMail != null) myAuthorEMail.setVisible(isArduinoLibrary);
+        if (myAuthorEMailLabel != null) myAuthorEMailLabel.setVisible(isArduinoLibrary);
+    }
+
+    private static GridConstraints setConstraints(int row, int column, final boolean fillHorizontal) {
         GridConstraints constraints = new GridConstraints();
         constraints.setRow(row);
         constraints.setColumn(column);
         constraints.setAnchor(8);
+        constraints.setFill(fillHorizontal ? GridConstraints.FILL_HORIZONTAL : GridConstraints.FILL_NONE);
         return constraints;
     }
 }

@@ -12,6 +12,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
@@ -20,6 +21,7 @@ import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.platform.GeneratorPeerImpl;
 import com.intellij.platform.ProjectGeneratorPeer;
+import com.intellij.ui.mac.foundation.Foundation;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.messages.MessageBusConnection;
 import com.jetbrains.cidr.cpp.CPPLog;
@@ -101,6 +103,23 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
     @NotNull
     public String[] getLibraryTypes() {
         return new String[] { ARDUINO_LIB_TYPE, STATIC_LIB_TYPE };
+    }
+
+    @SuppressWarnings("MethodMayBeStatic")
+    @NotNull
+    public String[] getLibraryCategories() {
+        return new String[] {
+                "",
+                "Communications",
+                "Data Processing",
+                "Data Storage",
+                "Device Control",
+                "Display",
+                "Other",
+                "Sensors",
+                "Signal Input/Output",
+                "Timing",
+        };
     }
 
     @NotNull
@@ -195,6 +214,48 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
 
     public void setRecursiveLibrarySources(final boolean recursiveLibrarySources) {
         mySettings.setNestedLibrarySources(recursiveLibrarySources);
+    }
+
+    public String getLibraryCategory() {
+        return mySettings.getLibraryCategory();
+    }
+
+    public void setLibraryCategory(final String category) {
+        mySettings.setLibraryCategory(category);
+    }
+
+    public String getAuthorName() {
+        return mySettings.getAuthorName();
+    }
+
+    public void setAuthorName(final String authorName) {
+        mySettings.setAuthorName(authorName);
+    }
+
+    public String getAuthorEMail() {
+        if (mySettings.getAuthorEMail() == null) {
+            String userName = System.getProperty("user.name");
+
+            if (SystemInfo.isMac) {
+                String fullUserName = Foundation.fullUserName();
+                if (fullUserName != null && !fullUserName.isEmpty()) {
+                    userName = fullUserName;
+                }
+            }
+
+            if (userName == null) {
+                userName = "";
+            }
+
+            mySettings.setAuthorName(userName);
+            return userName;
+        }
+
+        return mySettings.getAuthorEMail();
+    }
+
+    public void setAuthorEMail(final String authorEMail) {
+        mySettings.setAuthorEMail(authorEMail);
     }
 
     @Nullable

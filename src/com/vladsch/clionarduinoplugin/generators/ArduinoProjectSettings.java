@@ -17,6 +17,9 @@ public class ArduinoProjectSettings extends CMakeProjectSettings {
     protected String cpu;
     protected String programmer;
     protected String port;
+    protected String libraryCategory;
+    protected String authorName;
+    protected String authorEMail;
     protected boolean verbose;
     protected HashMap<String, String> boardCpu;
     protected LinkedHashSet<String> portHistory;
@@ -43,6 +46,9 @@ public class ArduinoProjectSettings extends CMakeProjectSettings {
             String cpu,
             String programmer,
             String port,
+            String libraryCategory,
+            String authorName,
+            String authorEMail,
             boolean verbose,
             @Nullable Map<String, String> boardCpu,
             @Nullable Collection<String> portHistory,
@@ -56,6 +62,9 @@ public class ArduinoProjectSettings extends CMakeProjectSettings {
         this.cpu = cpu;
         this.programmer = programmer;
         this.port = port;
+        this.libraryCategory = libraryCategory;
+        this.authorName = authorName;
+        this.authorEMail = authorEMail;
         this.verbose = verbose;
         this.boardCpu = boardCpu == null ? new HashMap<>() : new HashMap<>(boardCpu);
         setPortHistory(portHistory == null ? Collections.EMPTY_LIST : portHistory);
@@ -63,7 +72,7 @@ public class ArduinoProjectSettings extends CMakeProjectSettings {
     }
 
     public ArduinoProjectSettings() {
-        this("", "", false, "", "", "", "", "", false, null, null, false);
+        this("", "", false, "", "", "", "", "", "", "", "", false, null, null, false);
     }
 
     public ArduinoProjectSettings(ArduinoProjectSettings other) {
@@ -75,6 +84,9 @@ public class ArduinoProjectSettings extends CMakeProjectSettings {
                 other.cpu,
                 other.programmer,
                 other.port,
+                other.libraryCategory,
+                other.authorName,
+                other.authorEMail,
                 other.verbose,
                 other.boardCpu,
                 other.portHistory,
@@ -198,5 +210,29 @@ public class ArduinoProjectSettings extends CMakeProjectSettings {
 
     public void setNestedLibrarySources(final boolean nestedLibrarySources) {
         this.nestedLibrarySources = nestedLibrarySources;
+    }
+
+    public String getLibraryCategory() {
+        return libraryCategory;
+    }
+
+    public void setLibraryCategory(final String category) {
+        this.libraryCategory = category;
+    }
+
+    public String getAuthorName() {
+        return authorName;
+    }
+
+    public void setAuthorName(final String authorName) {
+        this.authorName = authorName;
+    }
+
+    public String getAuthorEMail() {
+        return authorEMail;
+    }
+
+    public void setAuthorEMail(final String authorEMail) {
+        this.authorEMail = authorEMail;
     }
 }
