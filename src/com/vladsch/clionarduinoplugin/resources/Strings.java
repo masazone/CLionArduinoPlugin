@@ -6,7 +6,9 @@ public class Strings {
     public static final String DOT_CPP_EXT = "." + CPP_EXT;
     public static final String H_EXT = "h";
     public static final String DOT_H_EXT = "." + H_EXT;
-    public static final String DEFAULT_ARDUINO_SKETCH_CONTENTS = "#include <Arduino.h>\n" +
+    public static final String DEFAULT_ARDUINO_SKETCH_CONTENTS = "" +
+            "#include <Arduino.h>\n" +
+            "#include \"User_Setup.h\"\n" +
             "\n" +
             "void setup() {\n" +
             "\n" +
@@ -14,7 +16,8 @@ public class Strings {
             "\n" +
             "void loop() {\n" +
             "\n" +
-            "}";
+            "}\n" +
+            "";
     public static final String ENTER_FILENAME = "Enter filename";
     public static final String ERROR = "Error";
     public static final String FILE_ALREADY_EXISTS = "File Already Exists";
@@ -25,7 +28,17 @@ public class Strings {
     public static final String DOT_PDE_EXT = "." + PDE_EXT;
     public static final String QUESTION_OVERWRITE = "Do you wish to overwrite the existing file?";
     public static final String SKETCH_NAME = "Sketch Name";
-    public static final String DEFAULT_ARDUINO_LIBRARY_CPP_CONTENTS = "\n";
+    public static final String DEFAULT_ARDUINO_LIBRARY_CPP_CONTENTS = "" +
+            "#include \"<$PROJECT_NAME$>.h\"\n" +
+            "";
+
+    public static final String DEFAULT_ARDUINO_USER_SETUP_H_CONTENTS = "" +
+            "#ifdef _<$FILE_NAME$>_USER_SETUP_H_\n" +
+            "#define _<$FILE_NAME$>_USER_SETUP_H_\n" +
+            "\n" +
+            "#endif //_<$FILE_NAME$>_USER_SETUP_H_\n" +
+            "";
+
     public static final String DEFAULT_ARDUINO_LIBRARY_TEST_CONTENTS = "" +
             "#include <Arduino.h>\n" +
             "#include \"<$PROJECT_NAME$>.h\"\n" +
@@ -36,9 +49,16 @@ public class Strings {
             "\n" +
             "void loop() {\n" +
             "\n" +
-            "}" +
+            "}\n" +
             "";
-    public static final String DEFAULT_ARDUINO_LIBRARY_H_CONTENTS = "\n";
+
+    public static final String DEFAULT_ARDUINO_LIBRARY_H_CONTENTS = "" +
+            "#ifdef _<$FILE_NAME$>_H_\n" +
+            "#define _<$FILE_NAME$>_H_\n" +
+            "\n" +
+            "#endif //_<$FILE_NAME$>_H_\n" +
+            "";
+
     public static final String DEFAULT_ARDUINO_LIBRARY_KEYWORDS_CONTENTS = "" +
             "#######################################\n" +
             "# Syntax Coloring Map For <$PROJECT_NAME$>\n" +

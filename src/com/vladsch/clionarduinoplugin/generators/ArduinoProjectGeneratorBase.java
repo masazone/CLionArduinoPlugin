@@ -411,20 +411,20 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
 
         sb.line();
 
-        if (!isLibrary) {
-            if (isAddLibraryDirectory() && getLibraryDirectory() != null && !getLibraryDirectory().isEmpty()) {
-                sb.appendln("### Additional settings to add non-standard or your own Arduino libraries.");
-                sb.appendln("# An Arduino library my_lib will contain files in " + getLibraryDirectory() + "/my_lib/: my_lib.h, my_lib.cpp + any other cpp files");
-                sb.appendln("link_directories(${CMAKE_CURRENT_SOURCE_DIR}/" + getLibraryDirectory() + ")");
-                sb.line();
-            } else {
-                sb.appendln("### Additional settings to add non-standard or your own Arduino libraries.");
-                sb.appendln("# For this example (libs will contain additional arduino libraries)");
-                sb.appendln("# An Arduino library my_lib will contain files in libs/my_lib/: my_lib.h, my_lib.cpp + any other cpp files");
-                sb.prefix().appendln("link_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs)");
-                sb.line();
-            }
+        if (isAddLibraryDirectory() && getLibraryDirectory() != null && !getLibraryDirectory().isEmpty()) {
+            sb.appendln("### Additional settings to add non-standard or your own Arduino libraries.");
+            sb.appendln("# An Arduino library my_lib will contain files in " + getLibraryDirectory() + "/my_lib/: my_lib.h, my_lib.cpp + any other cpp files");
+            sb.appendln("link_directories(${CMAKE_CURRENT_SOURCE_DIR}/" + getLibraryDirectory() + ")");
+            sb.line();
+        } else {
+            sb.appendln("### Additional settings to add non-standard or your own Arduino libraries.");
+            sb.appendln("# For this example (libs will contain additional arduino libraries)");
+            sb.appendln("# An Arduino library my_lib will contain files in libs/my_lib/: my_lib.h, my_lib.cpp + any other cpp files");
+            sb.prefix().appendln("link_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs)");
+            sb.line();
+        }
 
+        if (!isLibrary) {
             if (sketchFile != null) {
                 sb.appendln("# For nested library sources replace ${LIB_NAME} with library name for each library");
                 sb.prefix().appendln("set(${LIB_NAME}_RECURSE true)");

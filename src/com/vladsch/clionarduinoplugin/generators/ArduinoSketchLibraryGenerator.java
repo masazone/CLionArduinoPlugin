@@ -10,6 +10,7 @@ import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.mac.foundation.Foundation;
 import com.vladsch.clionarduinoplugin.resources.Strings;
+import com.vladsch.clionarduinoplugin.util.StudiedWord;
 import icons.PluginIcons;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -47,17 +48,46 @@ public class ArduinoSketchLibraryGenerator extends ArduinoProjectGeneratorBase {
             }
         }
 
-        VirtualFile[] files = new VirtualFile[] {
-                createProjectFileWithContent(dir, name + Strings.DOT_CPP_EXT, Strings.DEFAULT_ARDUINO_LIBRARY_CPP_CONTENTS)
-                , createProjectFileWithContent(dir, name + Strings.DOT_H_EXT, Strings.DEFAULT_ARDUINO_LIBRARY_H_CONTENTS)
-                , createProjectFileWithContent(dir, name + "_test" + Strings.DOT_CPP_EXT, Strings.DEFAULT_ARDUINO_LIBRARY_TEST_CONTENTS.replace("<$PROJECT_NAME$>", name))
-                , createProjectFileWithContent(dir, "keywords.txt", Strings.DEFAULT_ARDUINO_LIBRARY_KEYWORDS_CONTENTS.replace("<$PROJECT_NAME$>", name))
-                , createProjectFileWithContent(dir, "library.properties", Strings.DEFAULT_ARDUINO_LIBRARY_PROPERTIES_CONTENTS
-                .replace("<$PROJECT_NAME$>", name)
-                .replace("<$LIBRARY_CATEGORY$>", mySettings.getLibraryCategory())
-                .replace("<$USER_NAME$>", userName == null ? "Name" : userName)
-                .replace("<$E_MAIL$>", email == null ? "<email@example.com>" : email)
-        ) };
+        VirtualFile[] files;
+        StudiedWord word = new StudiedWord(name, StudiedWord.DOT | StudiedWord.DASH | StudiedWord.UNDER);
+        String fileName = word.makeScreamingSnakeCase();
+
+        if (ArduinoProjectGeneratorBase.ARDUINO_LIB_TYPE.equals(mySettings.getLibraryType())) {
+            files = new VirtualFile[] {
+                    createProjectFileWithContent(dir, name + Strings.DOT_CPP_EXT, Strings.DEFAULT_ARDUINO_LIBRARY_CPP_CONTENTS
+                            .replace("<$PROJECT_NAME$>", name)
+                            .replace("<$FILE_NAME$>", name)),
+
+                    createProjectFileWithContent(dir, name + Strings.DOT_H_EXT, Strings.DEFAULT_ARDUINO_LIBRARY_H_CONTENTS
+                            .replace("<$PROJECT_NAME$>", name)
+                            .replace("<$FILE_NAME$>", fileName)),
+
+                    createProjectFileWithContent(dir, name + "_test" + Strings.DOT_INO_EXT, Strings.DEFAULT_ARDUINO_LIBRARY_TEST_CONTENTS.replace("<$PROJECT_NAME$>", name)),
+                    createProjectFileWithContent(dir, "keywords.txt", Strings.DEFAULT_ARDUINO_LIBRARY_KEYWORDS_CONTENTS.replace("<$PROJECT_NAME$>", name)),
+
+/*
+                    createProjectFileWithContent(dir, "User_Setup" + Strings.DOT_H_EXT, Strings.DEFAULT_ARDUINO_USER_SETUP_H_CONTENTS
+                            .replace("<$PROJECT_NAME$>", name)
+                            .replace("<$FILE_NAME$>", fileName)),
+*/
+
+                    createProjectFileWithContent(dir, "library.properties", Strings.DEFAULT_ARDUINO_LIBRARY_PROPERTIES_CONTENTS
+                            .replace("<$PROJECT_NAME$>", name)
+                            .replace("<$LIBRARY_CATEGORY$>", mySettings.getLibraryCategory())
+                            .replace("<$USER_NAME$>", userName == null ? "Name" : userName)
+                            .replace("<$E_MAIL$>", email == null ? "<email@example.com>" : email)),
+            };
+        } else {
+            files = new VirtualFile[] {
+                    createProjectFileWithContent(dir, name + Strings.DOT_CPP_EXT, Strings.DEFAULT_ARDUINO_LIBRARY_CPP_CONTENTS
+                            .replace("<$PROJECT_NAME$>", name)
+                            .replace("<$FILE_NAME$>", name)),
+
+                    createProjectFileWithContent(dir, name + Strings.DOT_H_EXT, Strings.DEFAULT_ARDUINO_LIBRARY_H_CONTENTS
+                            .replace("<$PROJECT_NAME$>", name)
+                            .replace("<$FILE_NAME$>", fileName)),
+            };
+        }
         return files;
     }
 }

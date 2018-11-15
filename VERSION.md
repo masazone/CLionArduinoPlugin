@@ -4,6 +4,7 @@
 
 ### Version History
 - [TO DO](#to-do)
+- [1.3.9](#139)
 - [1.3.8](#138)
 - [1.3.6](#136)
 - [1.3.4](#134)
@@ -24,6 +25,14 @@
 
 * [ ] Add: `Generate keywords.txt` action to generate keywords.txt based on contained project
       classes and functions.
+
+### 1.3.9
+
+* Add: `#ifdef/#define/#endif` to library include file
+* Fix: arduino library to add additional library path to `CMakeList.txt`
+* Fix: change arduino library test file to a sketch from cpp
+* Add: `User_Setup.h` to sketch project
+* Fix: `#endif` add comment before trailing text
 
 ### 1.3.8
 
