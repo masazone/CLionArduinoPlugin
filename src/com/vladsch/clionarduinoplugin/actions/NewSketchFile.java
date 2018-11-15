@@ -20,48 +20,51 @@ import java.io.IOException;
 
 public class NewSketchFile extends AnAction {
     public void actionPerformed(AnActionEvent e) {
-        final Project project = e.getRequiredData(CommonDataKeys.PROJECT);
-        final IdeView view = e.getRequiredData(LangDataKeys.IDE_VIEW);
+        final Project project = e.getData(CommonDataKeys.PROJECT);
+        final IdeView view = e.getData(LangDataKeys.IDE_VIEW);
 
-        PsiDirectory directory = view.getOrChooseDirectory();
-        if (directory == null) {
-            return;
-        }
-        final VirtualFile directoryVirtualFile = directory.getVirtualFile();
-
-        boolean loop = false;
-        do {
-            String filename = getDesiredFilename(project);
-            if (filename == null) { //cancel
+        if (project != null && view != null) {
+            PsiDirectory directory = view.getOrChooseDirectory();
+            if (directory == null) {
                 return;
             }
-            if (filename.isEmpty()) { //no name entered
-                showEmptyFilenameError(project);
-                loop = true;
-                continue;
-            }
-            filename = correctExtension(filename); //add .ino if the current filename doesn't end with .ino or .pde
+            final VirtualFile directoryVirtualFile = directory.getVirtualFile();
 
-            VirtualFile existingFile = directoryVirtualFile.findChild(filename);
-            if (existingFile != null) {
-                int overwriteChoice = getOverwriteChoice(project); //ask to overwrite file
-                switch (overwriteChoice) {
-                    case Messages.YES:
-                        deleteVirtualFile(existingFile);
-                        loop = false;
-                        break;
-                    case Messages.NO:
-                        loop = true;
-                        continue;
-                    case Messages.CANCEL:
-                        return;
+            boolean loop = false;
+            do {
+                String filename = getDesiredFilename(project);
+                if (filename == null) { //cancel
+                    return;
                 }
-            }
-            VirtualFile sketch = ArduinoSketchFileCreator
-                    .createSketchFileWithName(project, directoryVirtualFile, filename);
-            //            ArduinoSketchFileCreator.addFileToCMakeLists(project, sketch); //not sure if i need to do this or not
-            FileEditorManager.getInstance(project).openFile(sketch, true, true); //open in editor
-        } while (loop);
+                if (filename.isEmpty()) { //no name entered
+                    showEmptyFilenameError(project);
+                    loop = true;
+                    continue;
+                }
+                filename = correctExtension(filename); //add .ino if the current filename doesn't end with .ino or .pde
+
+                VirtualFile existingFile = directoryVirtualFile.findChild(filename);
+                if (existingFile != null) {
+                    int overwriteChoice = getOverwriteChoice(project); //ask to overwrite file
+                    switch (overwriteChoice) {
+                        case Messages.YES:
+                            deleteVirtualFile(existingFile);
+                            loop = false;
+                            break;
+                        case Messages.NO:
+                            loop = true;
+                            continue;
+                        case Messages.CANCEL:
+                            return;
+                    }
+                }
+                VirtualFile sketch = ArduinoSketchFileCreator
+                        .createSketchFileWithName(project, directoryVirtualFile, filename);
+                //            ArduinoSketchFileCreator.addFileToCMakeLists(project, sketch); //not sure if i need to do this or not
+                FileEditorManager.getInstance(project).openFile(sketch, true, true); //open in editor
+            } while (loop);
+        }
+
     }
 
     private void showEmptyFilenameError(Project project) {

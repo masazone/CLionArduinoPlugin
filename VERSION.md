@@ -25,6 +25,10 @@
 
 * [ ] Add: `Generate keywords.txt` action to generate keywords.txt based on contained project
       classes and functions.
+* [ ] Add: Serial Monitor tool window, current `Serial Monitor` plugin is ok but lacks auto
+      disconnect on project build, does not recognize the enter key as send, cannot send
+      individual keys without having to hit enter (for example in the terminal view would good
+      to be able to type with or without echo, so that individual keys are sent immediately).
 
 ### 1.3.9
 
@@ -33,6 +37,7 @@
 * Fix: change arduino library test file to a sketch from cpp
 * Add: `User_Setup.h` to sketch project
 * Fix: `#endif` add comment before trailing text
+* Fix: exception if new arduino sketch is invoked from non-editor environment
 
 ### 1.3.8
 
