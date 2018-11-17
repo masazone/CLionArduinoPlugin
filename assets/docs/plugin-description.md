@@ -7,6 +7,9 @@ Integrates [Arduino CMake] into the CLion IDE.
 
 * Adds New File Action: `New Arduino Sketch`
 
+* Adds Serial Monitor toolwindow with monitor disconnect on build and reconnect after build to
+  allow seamless build, upload, monitor cycle.
+
 | [Issues][] | [Plugin Source][] |
 
 <br>

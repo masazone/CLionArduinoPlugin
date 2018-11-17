@@ -21,7 +21,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ItemEvent;
 import java.util.List;
 
-public class ArduinoProjectSettingsPanel extends CMakeSettingsPanel {
+public class ArduinoNewProjectSettingsPanel extends CMakeSettingsPanel {
     ComboBox<String> myLanguageVersionComboBox;
     ComboBox<String> myLibraryTypeComboBox;
     ComboBox<String> myBoardsComboBox;
@@ -43,7 +43,7 @@ public class ArduinoProjectSettingsPanel extends CMakeSettingsPanel {
     JTextField myAuthorEMail;
     private JLabel myAuthorEMailLabel;
 
-    public ArduinoProjectSettingsPanel(@NotNull ArduinoProjectGeneratorBase projectGenerator) {
+    public ArduinoNewProjectSettingsPanel(@NotNull ArduinoProjectGeneratorBase projectGenerator) {
         super(projectGenerator);
         init(projectGenerator);
     }

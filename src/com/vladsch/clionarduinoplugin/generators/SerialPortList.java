@@ -55,7 +55,7 @@ public class SerialPortList {
                 break;
             }
             case SerialNativeInterface.OS_MAC_OS_X: {
-                PORTNAMES_REGEXP = Pattern.compile("(cu)\\..*");
+                PORTNAMES_REGEXP = Pattern.compile("(cu|tty)\\..*");
                 PORTNAMES_PATH = "/dev/";
                 break;
             }

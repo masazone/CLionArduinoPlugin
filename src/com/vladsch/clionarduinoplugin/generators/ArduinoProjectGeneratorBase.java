@@ -36,6 +36,7 @@ import com.vladsch.clionarduinoplugin.resources.BuildConfig;
 import com.vladsch.clionarduinoplugin.resources.BuildConfig.Board;
 import com.vladsch.clionarduinoplugin.resources.BuildConfig.Programmer;
 import com.vladsch.clionarduinoplugin.resources.Strings;
+import com.vladsch.clionarduinoplugin.util.Utils;
 import icons.PluginIcons;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -56,12 +57,12 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
     public static final String ARDUINO_LIB_TYPE = "arduino";
     public static final String STATIC_LIB_TYPE = "static";
 
-    private static final ArduinoProjectSettings ARDUINO_MAKE_DEFAULT_PROJECT_SETTINGS = new ArduinoProjectSettings();
+    private static final ArduinoNewProjectSettings ARDUINO_MAKE_DEFAULT_PROJECT_SETTINGS = new ArduinoNewProjectSettings();
 
     final protected boolean isLibrary;
 
     @Nullable final protected BuildConfig buildConfig;
-    final protected ArduinoProjectSettings mySettings;
+    final protected ArduinoNewProjectSettings mySettings;
 
     public ArduinoProjectGeneratorBase(final boolean isLibrary) {
         this.isLibrary = isLibrary;
@@ -70,7 +71,7 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
         String programmersTxt = BuildConfig.getProgrammersTxtString();
         buildConfig = new BuildConfig(buildTxt, programmersTxt);
 
-        mySettings = new ArduinoProjectSettings(ArduinoApplicationSettingsService.getInstance().getState());
+        mySettings = new ArduinoNewProjectSettings(ArduinoApplicationSettingsService.getInstance().getState());
     }
 
     @NotNull
@@ -275,7 +276,7 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
             ports.add(getPort());
         }
         ports.addAll(mySettings.getPortHistory());
-        ports.addAll(Arrays.asList(SerialPortList.getPortNames()));
+        ports.addAll(Utils.getSerialPorts(true));
         return new ArrayList<>(ports);
     }
 
@@ -542,7 +543,7 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
             panel = new JPanel();
         }
 
-        ArduinoProjectSettings projectSettings = getArduinoProjectSettings();
+        ArduinoNewProjectSettings projectSettings = getArduinoProjectSettings();
         if (projectSettings == null) {
             projectSettings = ARDUINO_MAKE_DEFAULT_PROJECT_SETTINGS;
         }
@@ -552,8 +553,8 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
     }
 
     @Nullable
-    public ArduinoProjectSettings getArduinoProjectSettings() {
-        ArduinoProjectSettings projectSettings = createProjectSettings();
+    public ArduinoNewProjectSettings getArduinoProjectSettings() {
+        ArduinoNewProjectSettings projectSettings = createProjectSettings();
         if (projectSettings != null) {
 
             // persist settings
@@ -565,20 +566,20 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
 
     @Nullable
     public JComponent getSettingsPanel() {
-        ArduinoProjectSettingsPanel panel = createSettingsPanel();
+        ArduinoNewProjectSettingsPanel panel = createSettingsPanel();
         if (panel != null) {
             panel.init(this);
         }
         return panel;
     }
 
-    protected ArduinoProjectSettingsPanel createSettingsPanel() {
-        return new ArduinoProjectSettingsPanel(this);
+    protected ArduinoNewProjectSettingsPanel createSettingsPanel() {
+        return new ArduinoNewProjectSettingsPanel(this);
     }
 
     @Nullable
-    public ArduinoProjectSettings createProjectSettings() {
-        return new ArduinoProjectSettings(mySettings);
+    public ArduinoNewProjectSettings createProjectSettings() {
+        return new ArduinoNewProjectSettings(mySettings);
     }
 
     CreatedFilesHolder createFiles(String projectName, VirtualFile rootDir) throws IOException {

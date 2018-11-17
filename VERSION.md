@@ -27,7 +27,7 @@
       classes and functions.
 * [ ] Add: Serial Monitor tool window, current `Serial Monitor` plugin is ok but lacks auto
       disconnect on project build, does not recognize the enter key as send, cannot send
-      individual keys without having to hit enter (for example in the terminal view would good
+      individual keys without having to hit enter (for example in the serial view would good
       to be able to type with or without echo, so that individual keys are sent immediately).
 
 ### 1.3.9
@@ -38,6 +38,8 @@
 * Add: `User_Setup.h` to sketch project
 * Fix: `#endif` add comment before trailing text
 * Fix: exception if new arduino sketch is invoked from non-editor environment
+* Add: Serial Monitor tool window with auto disconnect on build/reconnect after build. No hex
+  view yet.
 
 ### 1.3.8
 

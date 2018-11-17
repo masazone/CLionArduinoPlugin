@@ -11,5 +11,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="commons-io-2.4" level="project" />
     <orderEntry type="library" name="jssc" level="project" />
+    <orderEntry type="library" name="flexmark-util" level="project" />
   </component>
 </module>

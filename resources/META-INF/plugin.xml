@@ -13,8 +13,8 @@
 
     <version>1.3.9</version>
     <description><![CDATA[
-        <p><img src="https://github.com/vsch/CLionArduinoPlugin/raw/master/resources/META-INF/pluginIcon.png" alt="pluginIcon.png" width="50" align="middle" /> Integrates
-            <a href="https://github.com/francoiscampbell/arduino-cmake">Arduino CMake</a> into the CLion IDE.</p>
+        <p><img src="https://github.com/vsch/CLionArduinoPlugin/raw/master/resources/META-INF/pluginIcon.png" alt="pluginIcon.png" width="50" align="middle" />
+            Integrates <a href="https://github.com/francoiscampbell/arduino-cmake">Arduino CMake</a> into the CLion IDE.</p>
         <ul>
             <li>
                 <p>Adds <code>Arduino Sketch</code> and <code>Arduino Library</code> project types to new project wizard</p>
@@ -23,16 +23,31 @@
             <li>
                 <p>Adds New File Action: <code>New Arduino Sketch</code></p>
             </li>
+            <li>
+                <p>Adds Serial Monitor toolwindow with monitor disconnect on build and reconnect after build to
+                    allow seamless build, upload, monitor cycle.</p>
+            </li>
         </ul>
-        <p>| <a href="https://github.com/vsch/CLionArduinoPlugin/issues" class="absent">Issues</a> | <a href="https://github.com/vsch/CLionArduinoPlugin">Plugin Source</a> |</p>
-        <p><br>
-            <img src="https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_NewProject.png" alt="Screenshot_NewProject.png" /></p>
+        <p>| <a href="https://github.com/vsch/CLionArduinoPlugin/issues">Issues</a> | <a href="https://github.com/vsch/CLionArduinoPlugin">Plugin Source</a> |</p>
+        <p><br></p>
+        <p><img src="https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_NewProject.png" alt="Screenshot_NewProject.png" /></p>
         <p><br></p>
         <p><strong>*</strong> This plugin is a fork of <a href="https://github.com/rjuang/CLionArduinoPlugin">rjuang/CLionArduinoPlugin</a> which in turn is a fork of
             <a href="https://github.com/francoiscampbell/CLionArduinoPlugin">Original CLionArduinoPlugin</a> written by Francois Campbell.</p>
         ]]></description>
 
     <change-notes><![CDATA[
+        <h3>1.3.9</h3>
+        <ul>
+            <li>Add: <code>#ifdef/#define/#endif</code> to library include file</li>
+            <li>Fix: arduino library to add additional library path to <code>CMakeList.txt</code></li>
+            <li>Fix: change arduino library test file to a sketch from cpp</li>
+            <li>Add: <code>User_Setup.h</code> to sketch project</li>
+            <li>Fix: <code>#endif</code> add comment before trailing text</li>
+            <li>Fix: exception if new arduino sketch is invoked from non-editor environment</li>
+            <li>Add: Serial Monitor tool window with auto disconnect on build/reconnect after build. No hex
+                view yet.</li>
+        </ul>
         <h3>1.3.8</h3>
         <ul>
             <li>Add: skeleton <code>keywords.txt</code> and <code>library.properties</code> files when creating arduino project.</li>
@@ -106,6 +121,13 @@
         <!--<projectService serviceImplementation="ArduinoProjectSettingsService"/>-->
         <applicationService serviceInterface="com.vladsch.clionarduinoplugin.components.ArduinoApplicationSettingsService"
                             serviceImplementation="com.vladsch.clionarduinoplugin.components.ArduinoApplicationSettingsService"/>
+
+        <projectConfigurable id="com.vladsch.clionarduinoplugin.components.ProjectConfigurable"
+                             groupId="tools"
+                             bundle="com.vladsch.clionarduinoplugin.localization.strings"
+                             key="plugin.name"
+                             nonDefaultProject="false"
+                             instance="com.vladsch.clionarduinoplugin.components.ProjectConfigurable"/>
     </extensions>
 
     <application-components>
@@ -113,10 +135,19 @@
         <component>
             <implementation-class>com.vladsch.clionarduinoplugin.components.ArduinoFileTypeRegistration</implementation-class>
         </component>
+        <component>
+            <implementation-class>com.vladsch.clionarduinoplugin.serial.SerialPortManager</implementation-class>
+        </component>
     </application-components>
 
     <project-components>
         <!-- Add your project components here -->
+        <component>
+            <implementation-class>com.vladsch.clionarduinoplugin.serial.SerialProjectComponent</implementation-class>
+        </component>
+        <component>
+            <implementation-class>com.vladsch.clionarduinoplugin.components.ArduinoProjectSettings</implementation-class>
+        </component>
     </project-components>
 
     <actions>

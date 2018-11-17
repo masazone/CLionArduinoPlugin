@@ -1,5 +1,7 @@
 package com.vladsch.clionarduinoplugin.generators;
 
+import com.intellij.openapi.components.State;
+import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.annotations.XCollection;
 import com.intellij.util.xmlb.annotations.XMap;
 import com.jetbrains.cidr.cpp.cmake.projectWizard.generators.settings.CMakeProjectSettings;
@@ -8,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class ArduinoProjectSettings extends CMakeProjectSettings {
+public class ArduinoNewProjectSettings extends CMakeProjectSettings {
     protected String languageVersion;
     protected String libraryType;
     protected boolean addLibraryDirectory;
@@ -37,7 +39,7 @@ public class ArduinoProjectSettings extends CMakeProjectSettings {
         return CppLanguageVersions.fromDisplayString(languageVersion);
     }
 
-    public ArduinoProjectSettings(
+    public ArduinoNewProjectSettings(
             final String languageVersion,
             final String libraryType,
             final boolean addLibraryDirectory,
@@ -71,11 +73,11 @@ public class ArduinoProjectSettings extends CMakeProjectSettings {
         this.nestedLibrarySources = nestedLibrarySources;
     }
 
-    public ArduinoProjectSettings() {
+    public ArduinoNewProjectSettings() {
         this("", "", false, "", "", "", "", "", "", "", "", false, null, null, false);
     }
 
-    public ArduinoProjectSettings(ArduinoProjectSettings other) {
+    public ArduinoNewProjectSettings(ArduinoNewProjectSettings other) {
         this(other.languageVersion,
                 other.libraryType,
                 other.addLibraryDirectory,

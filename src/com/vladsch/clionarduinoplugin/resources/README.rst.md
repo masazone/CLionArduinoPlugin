@@ -245,8 +245,8 @@ For a more detailed explanation, please read on...
 
 6. Serial output
 
-   If you have some serial output, you can launch a serial terminal from the build system. The
-   command used for executing the serial terminal is user configurable by the following setting:
+   If you have some serial output, you can launch a serial serial from the build system. The
+   command used for executing the serial serial is user configurable by the following setting:
 
    ```
    set(${FIRMWARE_NAME}_SERIAL serial command goes here)
@@ -259,7 +259,7 @@ For a more detailed explanation, please read on...
    ```
 
    That constant will get replaced with the actual serial port used (see uploading). In the case
-   of our example configuration we can get the serial terminal by executing the following:
+   of our example configuration we can get the serial serial by executing the following:
 
    ```
    make blink-serial
@@ -381,7 +381,7 @@ global `upload` target (which will depend on all other upload targets defined in
 
 #### Serial Terminal
 
-To enable serial terminal, use the `SERIAL` option (`@SERIAL_PORT@` will be replaced with the
+To enable serial serial, use the `SERIAL` option (`@SERIAL_PORT@` will be replaced with the
 `PORT` option):
 
 ```
@@ -918,7 +918,7 @@ set(${FIRMWARE_NAME}_PORT /dev/ttyUSB0)
 
 ### Linux Serial Terminals
 
-On Linux a wide range on serial terminal are availabe. Here is a list of a couple:
+On Linux a wide range on serial serial are availabe. Here is a list of a couple:
 
 * `minicom`
 * `picocom`
@@ -966,14 +966,14 @@ set(${FIRMWARE_NAME}_PORT /dev/tty.usbmodem1d11)
 
 ### Mac Serial Terminals
 
-On Mac the easiest way to get a Serial Terminal is to use the `screen` terminal emulator. To
+On Mac the easiest way to get a Serial Terminal is to use the `screen` serial emulator. To
 start a `screen` serial session:
 
 ```
 screen /dev/tty.usbmodemXXX
 ```
 
-Where `/dev/tty.usbmodemXXX` is the terminal device. To exit press `C-a C-\`.
+Where `/dev/tty.usbmodemXXX` is the serial device. To exit press `C-a C-\`.
 
 CMake configuration example:
 
@@ -1047,8 +1047,8 @@ set(${FIRMWARE_NAME}_PORT com3)
 
 ### Windows Serial Terminals
 
-Putty is a great multi-protocol terminal, which supports SSH, Telnet, Serial, and many more...
-The latest development snapshot supports command line options for launching a serial terminal,
+Putty is a great multi-protocol serial, which supports SSH, Telnet, Serial, and many more...
+The latest development snapshot supports command line options for launching a serial serial,
 for example:
 
 ```
