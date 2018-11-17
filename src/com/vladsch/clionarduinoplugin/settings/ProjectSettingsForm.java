@@ -16,17 +16,17 @@ package com.vladsch.clionarduinoplugin.settings;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBTextField;
 import com.vladsch.clionarduinoplugin.components.ArduinoProjectSettings;
+import com.vladsch.clionarduinoplugin.serial.SerialProjectComponent;
 import com.vladsch.clionarduinoplugin.util.ui.Settable;
 import com.vladsch.clionarduinoplugin.util.ui.SettingsComponents;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
+import javax.swing.*;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -44,6 +44,9 @@ public class ProjectSettingsForm implements Disposable, RegExSettingsHolder {
     JBCheckBox myAfterSuccessfulBuild;
     JBCheckBox myLogConnectDisconnect;
     JBCheckBox myActivateOnConnect;
+    private JPanel myBuildControlPanel;
+    private JLabel myNoBuildMonitorLabel;
+    private SendSettingsForm mySendSettings;
 
     private @NotNull String myRegexSampleText;
     SerialPortNames.EnumLike mySerialPortNames;
@@ -63,6 +66,7 @@ public class ProjectSettingsForm implements Disposable, RegExSettingsHolder {
                         component(SerialBaudRates.ADAPTER, myBaudRate, i::getBaudRate, i::setBaudRate),
                         component(myDisconnectOnBuild, i::isDisconnectOnBuild, i::setDisconnectOnBuild),
                         component(myLogConnectDisconnect, i::isLogConnectDisconnect, i::setLogConnectDisconnect),
+                        component(myReconnectAfterBuild, i::isReconnectAfterBuild, i::setReconnectAfterBuild),
                         component(myActivateOnConnect, i::isActivateOnConnect, i::setActivateOnConnect),
                         component(myAfterSuccessfulBuild, i::isAfterSuccessfulBuild, i::setAfterSuccessfulBuild),
                         component(BuildConfigurationPatternType.ADAPTER, myBuildConfigurationPattern, i::getBuildConfigurationPatternType, i::setBuildConfigurationPatternType),
@@ -85,6 +89,25 @@ public class ProjectSettingsForm implements Disposable, RegExSettingsHolder {
             //myRemovePrefixOnPaste.setSelected(valid);
             //myAddPrefixOnPaste.setSelected(valid);
         });
+
+        Project project = settings.getProject();
+        if (project == null || !SerialProjectComponent.getInstance(project).isBuildMonitored()) {
+            disableChildren(myBuildControlPanel);
+        } else {
+            myNoBuildMonitorLabel.setVisible(false);
+        }
+    }
+
+    private void disableChildren(JComponent parent) {
+        int iMax = parent.getComponentCount();
+
+        for (int i = 0; i < iMax; i++) {
+            Component component = parent.getComponent(i);
+            component.setEnabled(false);
+            if (component instanceof JComponent) {
+                disableChildren((JComponent) component);
+            }
+        }
     }
 
     void updateOptions(boolean onInit) {
@@ -131,19 +154,21 @@ public class ProjectSettingsForm implements Disposable, RegExSettingsHolder {
     }
 
     public boolean isModified(@NotNull ArduinoProjectSettings settings) {
-        return components.isModified(settings) || !myRegexSampleText.equals(settings.getRegexSampleText());
+        return components.isModified(settings) || !myRegexSampleText.equals(settings.getRegexSampleText()) || mySendSettings.isModified(settings);
     }
 
     public void apply(@NotNull ArduinoProjectSettings settings) {
-        components.apply(settings);
-        settings.setRegexSampleText(myRegexSampleText);
-        settings.fireSettingsChanged();
+        settings.groupChanges(() -> {
+            components.apply(settings);
+            mySendSettings.apply(settings);
+            settings.setRegexSampleText(myRegexSampleText);
+        });
     }
 
     public void reset(@NotNull ArduinoProjectSettings settings) {
         components.reset(settings);
+        mySendSettings.reset(settings);
         myRegexSampleText = settings.getRegexSampleText();
-        settings.fireSettingsChanged();
     }
 
     @Override

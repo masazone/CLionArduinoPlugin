@@ -40,6 +40,7 @@
 * Fix: exception if new arduino sketch is invoked from non-editor environment
 * Add: Serial Monitor tool window with auto disconnect on build/reconnect after build. No hex
   view yet.
+* Add: EOL options, logging sent text and immediate key sending.
 
 ### 1.3.8
 

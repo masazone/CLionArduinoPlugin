@@ -12,8 +12,9 @@ class SerialMonitorBaudRateActionBase(internal val myBaudRate: Int) : AnAction(I
         val project = e.project
         if (project != null) {
             val projectSettings = ArduinoProjectSettings.getInstance(project)
-            projectSettings.baudRate = myBaudRate
-            projectSettings.fireSettingsChanged();
+            projectSettings.groupChanges {
+                projectSettings.baudRate = myBaudRate
+            }
         }
     }
 

@@ -6,13 +6,6 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.WindowManager;
-import com.intellij.util.messages.MessageBus;
-import com.intellij.util.messages.MessageBusConnection;
-import com.jetbrains.cidr.cpp.cmake.model.CMakeConfiguration;
-import com.jetbrains.cidr.execution.CidrBuildConfiguration;
-import com.jetbrains.cidr.execution.build.CidrBuildEvent;
-import com.jetbrains.cidr.execution.build.CidrBuildListener;
-import com.jetbrains.cidr.execution.build.CidrBuildResult;
 import com.vladsch.clionarduinoplugin.components.ArduinoProjectSettings;
 import com.vladsch.clionarduinoplugin.util.Utils;
 import jssc.SerialPort;
@@ -25,19 +18,19 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class SerialProjectComponent implements ProjectComponent, CidrBuildListener {
+public class SerialProjectComponent implements ProjectComponent, BuildListener {
     private static final Logger LOG = Logger.getInstance("com.vladsch.clionarduinoplugin.serial");
 
     final Project myProject;
     final StatusWidget myStatusWidget;
     final @NotNull ArduinoProjectSettings myProjectSettings;
-    MessageBusConnection myConnection;
     boolean myIsBuilding = false;
     boolean myWasConnected;
     String myConnectedPort;
     int myConnectedBaudRate;
     private SerialPortManager myPortManager;
     SerialMonitorToolWindow mySerialMonitorToolWindow;
+    BuildMonitor myBuildMonitor = null;
 
     SerialPort mySerialPort;
     final Set<SerialPortListener> myListeners = Collections.synchronizedSet(new HashSet<SerialPortListener>());
@@ -52,10 +45,13 @@ public class SerialProjectComponent implements ProjectComponent, CidrBuildListen
     public void projectOpened() {
         StatusBar statusBar = WindowManager.getInstance().getStatusBar(myProject);
         statusBar.addWidget(myStatusWidget, "before Position");
-        MessageBus messageBus = myProject.getMessageBus();
-        myConnection = messageBus.connect(myProject);
-        //myConnection = ApplicationManager.getApplication().getMessageBus().connect();
-        myConnection.subscribe(CidrBuildListener.TOPIC, this);
+        try {
+            myBuildMonitor = new BuildMonitor(myProject, this);
+            myBuildMonitor.projectOpened();
+        } catch (NoClassDefFoundError e) {
+            LOG.debug("Build monitoring not available. Need CLion 2018.3 or later", e);
+            myBuildMonitor = null;
+        }
         myStatusWidget.setStatus(true, false, canConnectPort());
         mySerialMonitorToolWindow = new SerialMonitorToolWindow(myProject);
     }
@@ -64,17 +60,20 @@ public class SerialProjectComponent implements ProjectComponent, CidrBuildListen
     public void projectClosed() {
         //StatusBar statusBar = WindowManager.getInstance().getStatusBar(myProject);
         //statusBar.removeWidget(myStatusWidget.ID());
+        disconnectPort();
+        myListeners.clear();
+
         if (mySerialMonitorToolWindow != null) {
             mySerialMonitorToolWindow.unregisterToolWindow();
             mySerialMonitorToolWindow = null;
         }
 
-        disconnectPort();
+        if (myBuildMonitor != null) {
+            myBuildMonitor.projectClosed();
+            myBuildMonitor = null;
+        }
 
         myStatusWidget.dispose();
-        myConnection.disconnect();
-        myConnection.dispose();
-        myListeners.clear();
 
         SerialPortManager portManager = ApplicationManager.getApplication().getComponent(SerialPortManager.class);
         portManager.removeProjectComponent(this);
@@ -92,16 +91,8 @@ public class SerialProjectComponent implements ProjectComponent, CidrBuildListen
     }
 
     @Override
-    public void beforeStarted(@NotNull final CidrBuildEvent buildEvent) {
-        CidrBuildConfiguration configuration = buildEvent.getBuildConfiguration();
-        String name = configuration.getName();
-        if (configuration instanceof CMakeConfiguration) {
-            CMakeConfiguration makeConfiguration = (CMakeConfiguration) configuration;
-            String targetName = makeConfiguration.getTarget().getName();
-            name = targetName;
-        }
-
-        if (myProjectSettings.isDisconnectOnBuild() && myProjectSettings.isBuildConfigurationMatched(name)) {
+    public void beforeBuildStarted(@NotNull final String targetName) {
+        if (myProjectSettings.isDisconnectOnBuild() && myProjectSettings.isBuildConfigurationMatched(targetName)) {
             boolean wasConnected = isPortConnected();
             myIsBuilding = true;
             myPortManager.disconnectPort(myProjectSettings.getPort());
@@ -109,18 +100,22 @@ public class SerialProjectComponent implements ProjectComponent, CidrBuildListen
         } else {
             myWasConnected = false;
         }
-        myStatusWidget.setStatus(false, myConnectedPort != null, myConnectedPort != null, "In Build: " + name);
+        myStatusWidget.setStatus(false, myConnectedPort != null, myConnectedPort != null, "In Build: " + targetName);
     }
 
     @Override
-    public void afterFinished(@NotNull final CidrBuildEvent buildEvent, @NotNull final CidrBuildResult result) {
+    public void afterBuildFinished(final boolean success) {
         myIsBuilding = false;
         if (myWasConnected && myProjectSettings.isReconnectAfterBuild()) {
-            if (!myProjectSettings.isAfterSuccessfulBuild() || result.getSucceeded()) {
+            if (!myProjectSettings.isAfterSuccessfulBuild() || success) {
                 connectPort(myProjectSettings.getPort(), myProjectSettings.getBaudRate());
             }
         }
         myStatusWidget.setStatus(true, myConnectedPort != null, canConnectPort());
+    }
+
+    public boolean isBuildMonitored() {
+        return myBuildMonitor != null;
     }
 
     public boolean isPortConnected() {
@@ -274,6 +269,9 @@ public class SerialProjectComponent implements ProjectComponent, CidrBuildListen
         if (isPortConnected()) {
             try {
                 mySerialPort.writeBytes(bytes);
+                for (SerialPortListener listener : myListeners) {
+                    listener.onSent(bytes);
+                }
                 return;
             } catch (SerialPortException e) {
                 LOG.error("Send serial port error", e);

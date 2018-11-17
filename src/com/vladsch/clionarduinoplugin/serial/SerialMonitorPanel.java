@@ -16,7 +16,10 @@ import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.components.JBTextField;
 import com.vladsch.clionarduinoplugin.actions.ConnectAction;
 import com.vladsch.clionarduinoplugin.actions.EditSettingsAction;
+import com.vladsch.clionarduinoplugin.actions.ShowSendOptionsAction;
 import com.vladsch.clionarduinoplugin.components.ArduinoProjectSettings;
+import com.vladsch.clionarduinoplugin.settings.SendSettingsForm;
+import com.vladsch.clionarduinoplugin.util.ProjectSettingsListener;
 import jssc.SerialPortEvent;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,26 +34,28 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SerialMonitorPanel implements Disposable, SerialPortListener {
+public class SerialMonitorPanel implements Disposable, SerialPortListener, ProjectSettingsListener {
     private JPanel myPanel;
     private JButton mySendButton;
     private JPanel myConsoleHolder;
     private JPanel myToolbarPanel;
     JBTextField mySendText;
+    SendSettingsForm mySendSettings;
     private ConsoleView myConsoleView;
 
     @NotNull final Project myProject;
+    final ArduinoProjectSettings myProjectSettings;
 
     public SerialMonitorPanel(@NotNull Project project) {
         myProject = project;
         createConsole();
 
+        myProjectSettings = ArduinoProjectSettings.getInstance(myProject);
         mySendButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
                 // send the text
-                SerialProjectComponent.getInstance(myProject).send((mySendText.getText() + "\n").getBytes());
-                mySendText.setText("");
+                handleEnter();
             }
         });
 
@@ -58,22 +63,49 @@ public class SerialMonitorPanel implements Disposable, SerialPortListener {
             @Override
             public void keyTyped(final KeyEvent e) {
                 if (e.getKeyChar() == '\n') {
-                    // its a send
-                    // send the text
-                    SerialProjectComponent.getInstance(myProject).send((mySendText.getText() + "\n").getBytes());
-                    mySendText.setText("");
+                    handleEnter();
                 } else {
                     super.keyTyped(e);
+                    if (myProjectSettings.isImmediateSend()) {
+                        SerialProjectComponent.getInstance(myProject).send(String.valueOf(e.getKeyChar()).getBytes());
+                    }
                 }
             }
         });
 
         mySendText.setEnabled(false);
         mySendButton.setEnabled(false);
+
+        project.getMessageBus().connect(this).subscribe(ProjectSettingsListener.TOPIC, this);
+
+        mySendSettings.getComponent().setVisible(myProjectSettings.isShowSendOptions());
+        mySendSettings.setChangeMonitor(()->{
+            mySendSettings.apply(myProjectSettings);
+        });
+
+        mySendSettings.reset(myProjectSettings);
+    }
+
+    void handleEnter() {
+        String eol = myProjectSettings.getSerialEndOfLineType().eol;
+        if (myProjectSettings.isImmediateSend()) {
+            SerialProjectComponent.getInstance(myProject).send(eol.getBytes());
+        } else {
+            SerialProjectComponent.getInstance(myProject).send((mySendText.getText() + eol).getBytes());
+        }
+        mySendText.setText("");
     }
 
     public ConsoleView getConsoleView() {
         return myConsoleView;
+    }
+
+    @Override
+    public void onSettingsChanged() {
+        mySendSettings.reset(myProjectSettings);
+        mySendSettings.getComponent().setVisible(myProjectSettings.isShowSendOptions());
+
+        //mySendButton.setEnabled(settings.isImmediateSend());
     }
 
     private void createConsole() {
@@ -87,6 +119,7 @@ public class SerialMonitorPanel implements Disposable, SerialPortListener {
         DefaultActionGroup actionGroup = new DefaultActionGroup();
         actionGroup.add(new ConnectAction());
         actionGroup.add(new EditSettingsAction());
+        actionGroup.add(new ShowSendOptionsAction());
         actionGroup.addAll(filterActions(myConsoleView.createConsoleActions()));
 
         ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar("com.vladsch.clionarduinoplugin.SerialMonitor", actionGroup, false);
@@ -103,11 +136,19 @@ public class SerialMonitorPanel implements Disposable, SerialPortListener {
     }
 
     @Override
+    public void onSent(final byte[] buf) {
+        if (myProjectSettings.isLogSentText()) {
+            String s = new String(buf).replaceAll("\r", "");
+            myConsoleView.print(s, ConsoleViewContentType.LOG_INFO_OUTPUT);
+        }
+    }
+
+    @Override
     public void onConnect(final String portName, final int baudRate) {
         mySendText.setEnabled(true);
         mySendButton.setEnabled(true);
 
-        if (ArduinoProjectSettings.getInstance(myProject).isLogConnectDisconnect()) {
+        if (myProjectSettings.isLogConnectDisconnect()) {
             myConsoleView.print("--------------- Connected " + portName + " @ " + baudRate + " ----------------\n", ConsoleViewContentType.LOG_VERBOSE_OUTPUT);
         }
     }
@@ -117,7 +158,7 @@ public class SerialMonitorPanel implements Disposable, SerialPortListener {
         mySendText.setEnabled(false);
         mySendButton.setEnabled(false);
 
-        if (ArduinoProjectSettings.getInstance(myProject).isLogConnectDisconnect()) {
+        if (myProjectSettings.isLogConnectDisconnect()) {
             myConsoleView.print("-------------- Disconnected " + portName + " @ " + baudRate + " --------------\n", ConsoleViewContentType.LOG_VERBOSE_OUTPUT);
         }
     }

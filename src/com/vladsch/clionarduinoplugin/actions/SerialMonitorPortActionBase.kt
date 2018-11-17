@@ -13,8 +13,9 @@ class SerialMonitorPortActionBase(internal val myPort: String) : AnAction(myPort
         val project = e.project
         if (project != null) {
             val projectSettings = ArduinoProjectSettings.getInstance(project)
-            projectSettings.port = myPort
-            projectSettings.fireSettingsChanged();
+            projectSettings.groupChanges {
+                projectSettings.port = myPort
+            }
         }
     }
 

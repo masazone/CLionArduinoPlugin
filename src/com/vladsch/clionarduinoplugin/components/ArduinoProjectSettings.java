@@ -7,6 +7,7 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.vladsch.clionarduinoplugin.settings.BuildConfigurationPatternType;
+import com.vladsch.clionarduinoplugin.settings.SerialEndOfLineTypes;
 import com.vladsch.clionarduinoplugin.util.ProjectSettingsListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,6 +22,7 @@ public class ArduinoProjectSettings implements PersistentStateComponent<ArduinoP
     public static final String TEXT_SPLIT_REGEX = "\\s*\\" + TEXT_DELIMITER + "\\s*";
 
     final private Project myProject;
+    private int myGroupCount = 0;
 
     private String port = "";
     private int baudRate = 9600;
@@ -32,11 +34,55 @@ public class ArduinoProjectSettings implements PersistentStateComponent<ArduinoP
     private @NotNull String buildConfigurationNames = "(^|.+-)upload$";
     private boolean activateOnConnect = true;
     private boolean logConnectDisconnect = true;
+    private boolean myShowSendOptions = true;
+    private int mySerialEndOfLine = SerialEndOfLineTypes.LF.intValue;
+    private boolean myLogSentText = true;
+    private boolean myIsImmediateSend = true;
 
     // cached values
     private @Nullable Pattern myBuildConfigurationNamesPattern = null;
     private @Nullable String[] myBuildConfigurationNamesList = null;
     private @Nullable String[] myRegexSampleList = null;
+
+    public Project getProject() {
+        return myProject;
+    }
+
+    public SerialEndOfLineTypes getSerialEndOfLineType() {
+        return SerialEndOfLineTypes.ADAPTER.get(mySerialEndOfLine);
+    }
+
+    public int getSerialEndOfLine() {
+        return mySerialEndOfLine;
+    }
+
+    public void setSerialEndOfLine(final int serialEndOfLine) {
+        mySerialEndOfLine = serialEndOfLine;
+    }
+
+    public boolean isLogSentText() {
+        return myLogSentText;
+    }
+
+    public void setLogSentText(final boolean logSentText) {
+        myLogSentText = logSentText;
+    }
+
+    public boolean isImmediateSend() {
+        return myIsImmediateSend;
+    }
+
+    public void setImmediateSend(final boolean immediateSend) {
+        myIsImmediateSend = immediateSend;
+    }
+
+    public boolean isShowSendOptions() {
+        return myShowSendOptions;
+    }
+
+    public void setShowSendOptions(final boolean showSendOptions) {
+        this.myShowSendOptions = showSendOptions;
+    }
 
     public String getPort() {
         return port;
@@ -126,8 +172,22 @@ public class ArduinoProjectSettings implements PersistentStateComponent<ArduinoP
         myProject = project;
     }
 
-    public void fireSettingsChanged() {
-        myProject.getMessageBus().syncPublisher(ProjectSettingsListener.TOPIC).onSettingsChanged();
+    public void groupChanges(Runnable grouped) {
+        myGroupCount++;
+        try {
+            grouped.run();
+        } finally {
+            myGroupCount--;
+            if (myGroupCount == 0) {
+                fireSettingsChanged();
+            }
+        }
+    }
+
+    private void fireSettingsChanged() {
+        if (myGroupCount == 0) {
+            myProject.getMessageBus().syncPublisher(ProjectSettingsListener.TOPIC).onSettingsChanged();
+        }
     }
 
     @NotNull

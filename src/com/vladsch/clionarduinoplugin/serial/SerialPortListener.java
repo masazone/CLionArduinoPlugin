@@ -7,5 +7,6 @@ public interface SerialPortListener {
     default void onDisconnect(final String portName, final int baudRate) {};
 
     default void onReceive(final byte[] buf) {};
+    default void onSent(final byte[] buf) {};
     default void onEvent(SerialPortEvent event) {};
 }
