@@ -4,6 +4,7 @@
 
 ### Version History
 - [TO DO](#to-do)
+- [1.3.12](#1312)
 - [1.3.10](#1310)
 - [1.3.8](#138)
 - [1.3.6](#136)
@@ -25,6 +26,10 @@
 
 * [ ] Add: `Generate keywords.txt` action to generate keywords.txt based on contained project
       classes and functions.
+
+### 1.3.12
+
+* Fix: backwards compatibility to 2018.1
 
 ### 1.3.10
 

@@ -28,7 +28,7 @@ communications with the integrated serial monitor tool window.
 #### :warning: `Serial Port Monitor` plugin cannot be used with `Arduino Support`
 
 Both plugins use [jSSC-2.8.0] serial library and only one plugin can load the native libraries.
-Please uninstall or disable `Serial Port Monitor` plugin.
+Please uninstall or disable `Serial Port Monitor` plugin before installing `Arduino Support`.
 
 ## Status
 

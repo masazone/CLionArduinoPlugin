@@ -139,7 +139,7 @@ public class SerialMonitorPanel implements Disposable, SerialPortListener, Proje
     public void onSent(final byte[] buf) {
         if (myProjectSettings.isLogSentText()) {
             String s = new String(buf).replaceAll("\r", "");
-            myConsoleView.print(s, ConsoleViewContentType.LOG_INFO_OUTPUT);
+            myConsoleView.print(s, ConsoleViewContentType.USER_INPUT);
         }
     }
 
@@ -149,7 +149,7 @@ public class SerialMonitorPanel implements Disposable, SerialPortListener, Proje
         mySendButton.setEnabled(true);
 
         if (myProjectSettings.isLogConnectDisconnect()) {
-            myConsoleView.print("--------------- Connected " + portName + " @ " + baudRate + " ----------------\n", ConsoleViewContentType.LOG_VERBOSE_OUTPUT);
+            myConsoleView.print("--------------- Connected " + portName + " @ " + baudRate + " ----------------\n", ConsoleViewContentType.SYSTEM_OUTPUT);
         }
     }
 
@@ -159,7 +159,7 @@ public class SerialMonitorPanel implements Disposable, SerialPortListener, Proje
         mySendButton.setEnabled(false);
 
         if (myProjectSettings.isLogConnectDisconnect()) {
-            myConsoleView.print("-------------- Disconnected " + portName + " @ " + baudRate + " --------------\n", ConsoleViewContentType.LOG_VERBOSE_OUTPUT);
+            myConsoleView.print("-------------- Disconnected " + portName + " @ " + baudRate + " --------------\n", ConsoleViewContentType.SYSTEM_OUTPUT);
         }
     }
 
