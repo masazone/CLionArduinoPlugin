@@ -11,7 +11,7 @@ public class BuildConfig {
     public static final String MENU_CPU = "menu.cpu";
     public static final String PROCESSOR = "Processor";
 
-    public static String getBuildTxtString() {
+    public static String getBoardsTxtString() {
         return ResourceUtils.getResourceFileContent(BuildConfig.class, "config/boards.txt");
     }
 

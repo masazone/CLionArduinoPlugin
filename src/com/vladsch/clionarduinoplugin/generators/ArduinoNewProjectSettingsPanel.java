@@ -3,6 +3,7 @@ package com.vladsch.clionarduinoplugin.generators;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.ui.ComboBox;
+import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.TextFieldWithHistory;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.uiDesigner.core.GridConstraints;
@@ -16,7 +17,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
 import java.awt.event.ItemEvent;
 import java.util.List;
@@ -195,29 +195,6 @@ public class ArduinoNewProjectSettingsPanel extends CMakeSettingsPanel {
             gridConstraints = setConstraints(row, 0, false);
             JLabel labelPort = new JLabel("Port:");
             panel.add(labelPort, gridConstraints);
-            //myPort = new JTextField(30);
-            //String port = projectGenerator.getPort();
-            //if (port != null) {
-            //    myPort.setText(port);
-            //}
-            //
-            ////myPort.getTextField().getDocument().addDocumentListener(new DocumentListener() {
-            //myPort.getDocument().addDocumentListener(new DocumentListener() {
-            //    @Override
-            //    public void insertUpdate(final DocumentEvent e) {
-            //        projectGenerator.setPort(myPort.getText());
-            //    }
-            //
-            //    @Override
-            //    public void removeUpdate(final DocumentEvent e) {
-            //        projectGenerator.setPort(myPort.getText());
-            //    }
-            //
-            //    @Override
-            //    public void changedUpdate(final DocumentEvent e) {
-            //        projectGenerator.setPort(myPort.getText());
-            //    }
-            //});
 
             myPort = new TextFieldWithHistory();
             @Nullable List<String> ports = projectGenerator.getPorts();
@@ -238,19 +215,9 @@ public class ArduinoNewProjectSettingsPanel extends CMakeSettingsPanel {
                 }
             });
 
-            myPort.addDocumentListener(new DocumentListener() {
+            myPort.addDocumentListener(new DocumentAdapter() {
                 @Override
-                public void insertUpdate(final DocumentEvent e) {
-                    projectGenerator.setPort(myPort.getText());
-                }
-
-                @Override
-                public void removeUpdate(final DocumentEvent e) {
-                    projectGenerator.setPort(myPort.getText());
-                }
-
-                @Override
-                public void changedUpdate(final DocumentEvent e) {
+                protected void textChanged(@NotNull final DocumentEvent e) {
                     projectGenerator.setPort(myPort.getText());
                 }
             });
@@ -276,7 +243,7 @@ public class ArduinoNewProjectSettingsPanel extends CMakeSettingsPanel {
             myLibraryTypeComboBox = new ComboBox<>(projectGenerator.getLibraryTypes());
             String libraryType = projectGenerator.getLibraryType();
 
-            if (libraryType == null) {
+            if (libraryType == null || libraryType.isEmpty()) {
                 libraryType = ArduinoProjectGeneratorBase.ARDUINO_LIB_TYPE;
             }
 
@@ -327,20 +294,9 @@ public class ArduinoNewProjectSettingsPanel extends CMakeSettingsPanel {
                 myAuthorName.setText(authorName);
             }
 
-            //myAuthorName.getTextField().getDocument().addDocumentListener(new DocumentListener() {
-            myAuthorName.getDocument().addDocumentListener(new DocumentListener() {
+            myAuthorName.getDocument().addDocumentListener(new DocumentAdapter() {
                 @Override
-                public void insertUpdate(final DocumentEvent e) {
-                    projectGenerator.setAuthorName(myAuthorName.getText());
-                }
-
-                @Override
-                public void removeUpdate(final DocumentEvent e) {
-                    projectGenerator.setAuthorName(myAuthorName.getText());
-                }
-
-                @Override
-                public void changedUpdate(final DocumentEvent e) {
+                protected void textChanged(@NotNull final DocumentEvent e) {
                     projectGenerator.setAuthorName(myAuthorName.getText());
                 }
             });
@@ -350,7 +306,6 @@ public class ArduinoNewProjectSettingsPanel extends CMakeSettingsPanel {
 
             myAuthorNameLabel.setDisplayedMnemonic('n');
             myAuthorNameLabel.setLabelFor(myAuthorName);
-
 
             gridConstraints = setConstraints(row, 0, false);
             myAuthorEMailLabel = new JLabel("e-mail:");
@@ -362,20 +317,9 @@ public class ArduinoNewProjectSettingsPanel extends CMakeSettingsPanel {
                 myAuthorEMail.setText(authorEMail);
             }
 
-            //myAuthorEMail.getTextField().getDocument().addDocumentListener(new DocumentListener() {
-            myAuthorEMail.getDocument().addDocumentListener(new DocumentListener() {
+            myAuthorEMail.getDocument().addDocumentListener(new DocumentAdapter() {
                 @Override
-                public void insertUpdate(final DocumentEvent e) {
-                    projectGenerator.setAuthorEMail(myAuthorEMail.getText());
-                }
-
-                @Override
-                public void removeUpdate(final DocumentEvent e) {
-                    projectGenerator.setAuthorEMail(myAuthorEMail.getText());
-                }
-
-                @Override
-                public void changedUpdate(final DocumentEvent e) {
+                protected void textChanged(@NotNull final DocumentEvent e) {
                     projectGenerator.setAuthorEMail(myAuthorEMail.getText());
                 }
             });
@@ -433,20 +377,9 @@ public class ArduinoNewProjectSettingsPanel extends CMakeSettingsPanel {
             myLibraryDirectory.setText(libraryDirectory);
         }
 
-        //myLibraryDirectory.getTextField().getDocument().addDocumentListener(new DocumentListener() {
-        myLibraryDirectory.getDocument().addDocumentListener(new DocumentListener() {
+        myLibraryDirectory.getDocument().addDocumentListener(new DocumentAdapter() {
             @Override
-            public void insertUpdate(final DocumentEvent e) {
-                projectGenerator.setLibraryDirectory(myLibraryDirectory.getText());
-            }
-
-            @Override
-            public void removeUpdate(final DocumentEvent e) {
-                projectGenerator.setLibraryDirectory(myLibraryDirectory.getText());
-            }
-
-            @Override
-            public void changedUpdate(final DocumentEvent e) {
+            protected void textChanged(@NotNull final DocumentEvent e) {
                 projectGenerator.setLibraryDirectory(myLibraryDirectory.getText());
             }
         });

@@ -4,7 +4,7 @@
 
 ### Version History
 - [TO DO](#to-do)
-- [1.3.9](#139)
+- [1.3.10](#1310)
 - [1.3.8](#138)
 - [1.3.6](#136)
 - [1.3.4](#134)
@@ -25,12 +25,8 @@
 
 * [ ] Add: `Generate keywords.txt` action to generate keywords.txt based on contained project
       classes and functions.
-* [ ] Add: Serial Monitor tool window, current `Serial Monitor` plugin is ok but lacks auto
-      disconnect on project build, does not recognize the enter key as send, cannot send
-      individual keys without having to hit enter (for example in the serial view would good
-      to be able to type with or without echo, so that individual keys are sent immediately).
 
-### 1.3.9
+### 1.3.10
 
 * Add: `#ifdef/#define/#endif` to library include file
 * Fix: arduino library to add additional library path to `CMakeList.txt`
@@ -40,7 +36,12 @@
 * Fix: exception if new arduino sketch is invoked from non-editor environment
 * Add: Serial Monitor tool window with auto disconnect on build/reconnect after build. No hex
   view yet.
-* Add: EOL options, logging sent text and immediate key sending.
+* Add: Serial port monitor EOL options, logging sent text and immediate key sending.
+* Add: Plugin Config in settings (preferences on OS X) in `Languages & Frameworks > Arduino`
+* Add: Settings options for boards.txt and programmers.txt file location, if not give or not
+  valid then bundled ones will be used.
+* Add: Right click on serial monitor widget to change settings. Click will connect/disconnect.
+* Fix: new project default serial monitor settings not saving
 
 ### 1.3.8
 

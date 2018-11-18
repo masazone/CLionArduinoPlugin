@@ -91,7 +91,7 @@ public class ProjectSettingsForm implements Disposable, RegExSettingsHolder {
         });
 
         Project project = settings.getProject();
-        if (project == null || !SerialProjectComponent.getInstance(project).isBuildMonitored()) {
+        if (project != null && !project.isDefault() && !SerialProjectComponent.getInstance(project).isBuildMonitored()) {
             disableChildren(myBuildControlPanel);
         } else {
             myNoBuildMonitorLabel.setVisible(false);
@@ -144,7 +144,7 @@ public class ProjectSettingsForm implements Disposable, RegExSettingsHolder {
             public void actionPerformed(final ActionEvent e) {updateOptions(false);}
         };
 
-        mySerialPortNames = new SerialPortNames.EnumLike(false);
+        mySerialPortNames = new SerialPortNames.EnumLike(true);
 
         myPort = mySerialPortNames.ADAPTER.createComboBox();
         myBaudRate = SerialBaudRates.ADAPTER.createComboBox();

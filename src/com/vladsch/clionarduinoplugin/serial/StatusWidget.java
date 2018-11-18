@@ -32,9 +32,10 @@ import javax.swing.JComponent;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class StatusWidget implements CustomStatusBarWidget, StatusBarWidget.IconPresentation, StatusBarWidget.MultipleTextValuesPresentation, ProjectSettingsListener  {
+public class StatusWidget implements CustomStatusBarWidget, StatusBarWidget.IconPresentation, StatusBarWidget.MultipleTextValuesPresentation, ProjectSettingsListener {
     SerialProjectComponent mySerialProjectComponent;
     private StatusBar myStatusBar;
     private Alarm myUpdate;
@@ -58,24 +59,33 @@ public class StatusWidget implements CustomStatusBarWidget, StatusBarWidget.Icon
             }
         };
 
-        new ClickListener() {
+        myComponent.addMouseListener(new MouseAdapter() {
             @Override
-            public boolean onClick(@NotNull MouseEvent e, int clickCount) {
-                if (myActionEnabled) {
-                    if (myIsConnected) {
-                        mySerialProjectComponent.disconnectPort();
-                    } else {
-                        if (myCanConnect) {
-                            mySerialProjectComponent.connectPort();
+            public void mouseClicked(final MouseEvent e) {
+                int button = e.getButton();
+                int clickCount = e.getClickCount();
+                if (button == 1) {
+                    if (myActionEnabled) {
+                        if (myIsConnected) {
+                            mySerialProjectComponent.disconnectPort();
                         } else {
-                            update(null);
-                            showPopup(e);
+                            if (myCanConnect) {
+                                mySerialProjectComponent.connectPort();
+                            } else {
+                                update(null);
+                                showPopup(e);
+                            }
                         }
                     }
+                    e.consume();
+                } else if (button == 3) {
+                    // show popup
+                    update(null);
+                    showPopup(e);
+                    e.consume();
                 }
-                return true;
             }
-        }.installOn(myComponent);
+        });
 
         serialProjectComponent.getProject().getMessageBus().connect(this).subscribe(ProjectSettingsListener.TOPIC, this);
 
@@ -84,7 +94,7 @@ public class StatusWidget implements CustomStatusBarWidget, StatusBarWidget.Icon
 
     @Override
     public void onSettingsChanged() {
-         update(null);
+        update(null);
     }
 
     @Override
@@ -110,7 +120,7 @@ public class StatusWidget implements CustomStatusBarWidget, StatusBarWidget.Icon
             @NotNull
             @Override
             public AnAction[] getChildren(@Nullable final AnActionEvent e) {
-                return new AnAction[]{
+                return new AnAction[] {
                         SerialMonitorPortActionBase.Companion.createSerialPortsActionGroup(),
                         SerialMonitorBaudRateActionBase.Companion.createBaudRateActionGroup(),
                 };
@@ -136,8 +146,8 @@ public class StatusWidget implements CustomStatusBarWidget, StatusBarWidget.Icon
     @Override
     public @Nullable String getTooltipText() {
         ArduinoProjectSettings settings = ArduinoProjectSettings.getInstance(mySerialProjectComponent.getProject());
-        return myActionEnabled ? (myIsConnected ? Bundle.message("widget.connected.2.label",settings.getPort(), Integer.toString(settings.getBaudRate()))
-                : Bundle.message("widget.disconnected.2.label",settings.getPort(), Integer.toString(settings.getBaudRate())))
+        return myActionEnabled ? (myIsConnected ? Bundle.message("widget.connected.2.label", settings.getPort(), Integer.toString(settings.getBaudRate()))
+                : Bundle.message("widget.disconnected.2.label", settings.getPort(), Integer.toString(settings.getBaudRate())))
                 : myTooltip;
     }
 

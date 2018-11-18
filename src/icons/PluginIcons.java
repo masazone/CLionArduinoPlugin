@@ -17,4 +17,5 @@ public class PluginIcons {
     public static final Icon serial_port_send = IconLoader.getIcon("/icons/serial_port_send.png");
     public static final Icon serial_port_monitor = IconLoader.getIcon("/icons/serial_port_monitor.png");
     public static final Icon show_send_options = IconLoader.getIcon("/icons/show_send_options.png");
+    public static final Icon serial_port_tool = IconLoader.getIcon("/icons/serial_port_tool.png");
 }

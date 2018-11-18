@@ -44,7 +44,13 @@ public class SerialProjectComponent implements ProjectComponent, BuildListener {
     @Override
     public void projectOpened() {
         StatusBar statusBar = WindowManager.getInstance().getStatusBar(myProject);
-        statusBar.addWidget(myStatusWidget, "before Position");
+        //statusBar.addWidget(myStatusWidget, "before ToolWindows Widget");
+        //statusBar.addWidget(myStatusWidget, "after ToolWindows Widget");
+        //statusBar.addWidget(myStatusWidget, "before Memory");
+        //statusBar.addWidget(myStatusWidget, "after Memory");
+        //statusBar.addWidget(myStatusWidget, "before InfoAndProgress");
+        //statusBar.addWidget(myStatusWidget, "after InfoAndProgress");
+        statusBar.addWidget(myStatusWidget, "__AUTODETECT__");
         try {
             myBuildMonitor = new BuildMonitor(myProject, this);
             myBuildMonitor.projectOpened();
@@ -201,7 +207,7 @@ public class SerialProjectComponent implements ProjectComponent, BuildListener {
     }
 
     public boolean canConnectPort() {
-        return !myIsBuilding && Utils.getSerialPorts(false).contains(myProjectSettings.getPort());
+        return !myIsBuilding && Utils.getSerialPorts(true).contains(myProjectSettings.getPort());
     }
 
     public Project getProject() {

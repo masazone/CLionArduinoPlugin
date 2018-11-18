@@ -34,7 +34,7 @@ class SerialMonitorPortActionBase(internal val myPort: String) : AnAction(myPort
 
     companion object {
         fun createSerialPortsActionGroup(): ActionGroup {
-            val serialPorts = Utils.getSerialPorts(false)
+            val serialPorts = Utils.getSerialPorts(true)
             val portActions = serialPorts.map { SerialMonitorPortActionBase(it) }
 
             val group = object : ActionGroup("Port", true) {

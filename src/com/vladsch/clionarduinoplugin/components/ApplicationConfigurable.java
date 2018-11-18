@@ -19,6 +19,8 @@ import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.vladsch.clionarduinoplugin.Bundle;
+import com.vladsch.clionarduinoplugin.generators.ArduinoNewProjectSettings;
+import com.vladsch.clionarduinoplugin.settings.ApplicationSettingsForm;
 import com.vladsch.clionarduinoplugin.settings.ProjectSettingsForm;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -26,20 +28,18 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 
-public class ProjectConfigurable implements SearchableConfigurable {
-    @NotNull final protected Project myProject;
-    @Nullable private ProjectSettingsForm myForm = null;
-    @Nullable final private ArduinoProjectSettings mySettings;
+public class ApplicationConfigurable implements SearchableConfigurable {
+    @Nullable private ApplicationSettingsForm myForm = null;
+    @NotNull final private ArduinoNewProjectSettings mySettings;
 
-    private ProjectConfigurable(@NotNull Project project) {
-        this.myProject = project;
-        this.mySettings = ArduinoProjectSettings.getInstance(project);
+    private ApplicationConfigurable() {
+        this.mySettings = ArduinoApplicationSettingsService.getInstance().getState();
     }
 
     @NotNull
     @Override
     public String getId() {
-        return "com.vladsch.clionarduinoplugin.components.ProjectConfigurable";
+        return "com.vladsch.clionarduinoplugin.components.ApplicationConfigurable";
     }
 
     @Nullable
@@ -62,7 +62,7 @@ public class ProjectConfigurable implements SearchableConfigurable {
     @Nls
     @Override
     public String getDisplayName() {
-        return Bundle.message("toolwindow.serial-monitor.title");
+        return Bundle.message("plugin.name");
     }
 
     @Nullable
@@ -78,9 +78,9 @@ public class ProjectConfigurable implements SearchableConfigurable {
     }
 
     @NotNull
-    public ProjectSettingsForm getForm() {
+    public ApplicationSettingsForm getForm() {
         if (myForm == null) {
-            myForm = new ProjectSettingsForm(mySettings);
+            myForm = new ApplicationSettingsForm(mySettings);
         }
         return myForm;
     }

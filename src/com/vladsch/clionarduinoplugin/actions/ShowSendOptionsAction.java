@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class ShowSendOptionsAction extends ToggleAction implements DumbAware {
     public ShowSendOptionsAction() {
-        super(Bundle.message("action.connect.label"), Bundle.message("actions.show-send-options.description"), PluginIcons.show_send_options);
+        super(Bundle.message("action.show-send-options.label"), Bundle.message("actions.show-send-options.description"), PluginIcons.show_send_options);
     }
 
     @Override

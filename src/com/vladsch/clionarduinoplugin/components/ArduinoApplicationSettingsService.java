@@ -11,7 +11,11 @@ import org.jetbrains.annotations.NotNull;
         storages = @Storage("arduino-plugin-settings.xml")
 )
 public class ArduinoApplicationSettingsService implements PersistentStateComponent<ArduinoNewProjectSettings> {
-    private ArduinoNewProjectSettings state;
+    final private ArduinoNewProjectSettings state;
+
+    public ArduinoApplicationSettingsService() {
+        state = new ArduinoNewProjectSettings();
+    }
 
     public static ArduinoApplicationSettingsService getInstance() {
         return ServiceManager.getService(ArduinoApplicationSettingsService.class);
@@ -25,11 +29,11 @@ public class ArduinoApplicationSettingsService implements PersistentStateCompone
 
     @Override
     public void loadState(@NotNull ArduinoNewProjectSettings configurationState) {
-        state = configurationState;
+        state.copyFrom(configurationState);
     }
 
-    @Override
-    public void noStateLoaded() {
-        state = new ArduinoNewProjectSettings();
-    }
+    //@Override
+    //public void noStateLoaded() {
+    //    state = new ArduinoNewProjectSettings();
+    //}
 }

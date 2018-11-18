@@ -8,22 +8,22 @@ A JetBrains CLion plugin to integrate
 Create an Arduino CMake project in one click with new project wizard types and view
 communications with the integrated serial monitor tool window.
 
-* Adds `Arduino Sketch` and `Arduino Library` project types to new project wizard, with Options
-  to select board type, cpu, programmer and port
+* `Arduino Sketch` and `Arduino Library` project types to new project wizard, with Options to
+  select board type, cpu, programmer and port
 
-* Adds New File Action: `New Arduino Sketch`
+* `Arduino Sketch` new file action
 
-* Adds serial port monitor tool window with options to disconnect on build start and
-  reconnect on build complete.
+* Serial port monitor tool window with options to disconnect on build start and reconnect on
+  build complete.
 
   :warning: Build events are only available in CLion 2018.3 (or later) so these options are
   disabled if you are running an earlier version of CLion.
 
-![Screenshot_NewProject.png](https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_NewProject.png)
+![Screenshot_NewProject.png](assets/images/Screenshot_NewProject.png)
 
-![Screenshot_ProjectSettings](https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_ProjectSettings.png)
+![Screenshot_ProjectSettings](assets/images/Screenshot_ProjectSettings.png)
 
-![Screenshot_SerialMonitor](https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_SerialMonitor.png)
+![Screenshot_SerialMonitor](assets/images/Screenshot_SerialMonitor.png)
 
 #### :warning: `Serial Port Monitor` plugin cannot be used with `Arduino Support`
 
@@ -49,10 +49,12 @@ interest. Then maybe someone else will pick up the torch at take it further.
 * [x] Add Configuration options:
   * [x] Board selection
   * [x] CPU selection
-  * [x] Port selection using jssc [jSSC-2.8.0]
-        Patched for Arduino by Cristian Maglie
+  * [x] Port selection using jssc [jSSC-2.8.0] Patched for Arduino by Cristian Maglie
         https://raw.githubusercontent.com/arduino/Arduino/master/arduino-core/src/processing/app/SerialPortList.java
   * [x] Persistence for new project options, since these are most likely to be re-used.
+  * [x] Allow additional Library directories
+* [x] User selectable boards.txt and programmers.txt location. By default the plugin will use
+      embedded version of these files.
 * [x] Add: Serial Terminal tool window, current
       [`Serial Monitor` plugin](https://plugins.jetbrains.com/plugin/8031-serial-port-monitor)
       is functional but prevents JSSC native libraries from being used to list available ports,
@@ -66,14 +68,11 @@ interest. Then maybe someone else will pick up the torch at take it further.
         coordinated highlighting carets between the two. That way text view is not mangled into
         a block but naturally flows as you would expect, while hex view can be either a block or
         flow to match the text.
-  * [ ] Display of ascii codes without resorting to hex display.
-* [ ] User selectable boards.txt and programmers.txt location. Currently, the plugin contains
-  a copy of these from Arduino IDE 1.8.6
+  * [ ] Display of ascii codes without resorting to hex display in text mode console.
 * [ ] Add UI for changing existing CMakeLists.txt configuration
   * [ ] Change board, cpu, programmer, port, etc. All options which were available on project
         creation.
   * [ ] Load Additional Libraries from URLs
-  * [ ] Allow additional Library directories
 * [ ] Refactoring support which CLion does not handle:
   * [ ] Add file to sources or headers (CLion cannot make sense of the Arduino project file)
   * [ ] Add updating of `keywords.txt` when identifiers in source or headers are renamed.
@@ -95,9 +94,9 @@ written by Francois Campbell.
 
 ## Notes
 
-For serial port list and functionality the plugin uses
-[jSSC-2.8.0], Licensed under
-[GNU Lesser GPL](http://www.gnu.org/licenses/lgpl.html)
-
+For serial port list and functionality the plugin uses [jSSC-2.8.0], Licensed under
+[GNU Lesser GPL]
 
 [jSSC-2.8.0]: https://github.com/scream3r/java-simple-serial-connector
+[GNU Lesser GPL]: http://www.gnu.org/licenses/lgpl.html
+

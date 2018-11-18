@@ -1,9 +1,6 @@
 package com.vladsch.clionarduinoplugin.components;
 
-import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ProjectComponent;
-import com.intellij.openapi.components.State;
-import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.components.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.vladsch.clionarduinoplugin.settings.BuildConfigurationPatternType;
@@ -15,9 +12,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.regex.Pattern;
 
 @State(name = "Arduino Project Settings",
-        storages = @Storage("arduino-project-settings.xml")
+          storages = @Storage(value = "arduino-project-settings.xml")
 )
-public class ArduinoProjectSettings implements PersistentStateComponent<ArduinoProjectSettings>, ProjectComponent {
+public class ArduinoProjectSettings implements PersistentStateComponent<ArduinoProjectSettings> {
     public static final String TEXT_DELIMITER = "|";
     public static final String TEXT_SPLIT_REGEX = "\\s*\\" + TEXT_DELIMITER + "\\s*";
 
@@ -185,14 +182,14 @@ public class ArduinoProjectSettings implements PersistentStateComponent<ArduinoP
     }
 
     private void fireSettingsChanged() {
-        if (myGroupCount == 0) {
+        if (myGroupCount == 0 && myProject != null) {
             myProject.getMessageBus().syncPublisher(ProjectSettingsListener.TOPIC).onSettingsChanged();
         }
     }
 
     @NotNull
     public static ArduinoProjectSettings getInstance(@NotNull Project project) {
-        return project.getComponent(ArduinoProjectSettings.class);
+        return ServiceManager.getService(project, ArduinoProjectSettings.class);
     }
 
     @NotNull
