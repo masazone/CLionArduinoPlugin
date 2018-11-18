@@ -1,21 +1,30 @@
 <p><img src="https://github.com/vsch/CLionArduinoPlugin/raw/master/resources/META-INF/pluginIcon.png" alt="pluginIcon.png" width="50" align="middle" />
 Integrates <a href="https://github.com/francoiscampbell/arduino-cmake">Arduino CMake</a> into the CLion IDE.</p>
+<p>Create an Arduino CMake project in one click with new project wizard types and view
+communications with the integrated serial monitor tool window.</p>
 <ul>
   <li>
-    <p>Adds <code>Arduino Sketch</code> and <code>Arduino Library</code> project types to new project wizard</p>
-    <p>Options to select board type, cpu, programmer and port</p>
+    <p><code>Arduino Sketch</code> and <code>Arduino Library</code> project types to new project wizard, with Options to
+    select board type, cpu, programmer and port</p>
   </li>
   <li>
-    <p>Adds New File Action: <code>New Arduino Sketch</code></p>
+    <p><code>Arduino Sketch</code> new file action</p>
   </li>
   <li>
-    <p>Adds Serial Monitor toolwindow with monitor disconnect on build and reconnect after build to
-    allow seamless build, upload, monitor cycle.</p>
+    <p>Serial port monitor tool window with options to disconnect on build start and reconnect on
+    build complete.</p>
+    <p><strong>NOTE:</strong> Build events are only available in CLion 2018.3 (or later) so these options are disabled
+    if you are running an earlier version of CLion.</p>
   </li>
 </ul>
+<h4>** <code>Serial Port Monitor</code> plugin cannot be used with <code>Arduino Support</code></h4>
+<p>Both plugins use <a href="https://github.com/scream3r/java-simple-serial-connector">jSSC-2.8.0</a> serial library and only one plugin can load the native libraries.
+Please uninstall or disable <code>Serial Port Monitor</code> plugin.</p>
 <p>| <a href="https://github.com/vsch/CLionArduinoPlugin/issues">Issues</a> | <a href="https://github.com/vsch/CLionArduinoPlugin">Plugin Source</a> |</p>
 <p><br></p>
 <p><img src="https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_NewProject.png" alt="Screenshot_NewProject.png" /></p>
+<p><img src="https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_ProjectSettings.png" alt="Screenshot_ProjectSettings" /></p>
+<p><img src="https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_SerialMonitor.png" alt="Screenshot_SerialMonitor" /></p>
 <p><br></p>
 <p><strong>*</strong> This plugin is a fork of <a href="https://github.com/rjuang/CLionArduinoPlugin">rjuang/CLionArduinoPlugin</a> which in turn is a fork of
 <a href="https://github.com/francoiscampbell/CLionArduinoPlugin">Original CLionArduinoPlugin</a> written by Francois Campbell.</p>

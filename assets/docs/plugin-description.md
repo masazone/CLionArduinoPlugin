@@ -4,15 +4,15 @@ Integrates [Arduino CMake] into the CLion IDE.
 Create an Arduino CMake project in one click with new project wizard types and view
 communications with the integrated serial monitor tool window.
 
-* Adds `Arduino Sketch` and `Arduino Library` project types to new project wizard, with Options
-  to select board type, cpu, programmer and port
+* `Arduino Sketch` and `Arduino Library` project types to new project wizard, with Options to
+  select board type, cpu, programmer and port
 
-* Adds New File Action: `New Arduino Sketch`
+* `Arduino Sketch` new file action
 
-* Adds serial port monitor tool window with options to disconnect on build start and
-  reconnect on build complete.
+* Serial port monitor tool window with options to disconnect on build start and reconnect on
+  build complete.
 
-  NOTE: Build events are only available in CLion 2018.3 (or later) so these options are disabled
+  **NOTE:** Build events are only available in CLion 2018.3 (or later) so these options are disabled
   if you are running an earlier version of CLion.
 
 #### ** `Serial Port Monitor` plugin cannot be used with `Arduino Support`
@@ -37,10 +37,8 @@ Please uninstall or disable `Serial Port Monitor` plugin.
 
 [Arduino CMake]: https://github.com/francoiscampbell/arduino-cmake
 [Issues]: https://github.com/vsch/CLionArduinoPlugin/issues
+[jSSC-2.8.0]: https://github.com/scream3r/java-simple-serial-connector
 [Original CLionArduinoPlugin]: https://github.com/francoiscampbell/CLionArduinoPlugin
 [Plugin Source]: https://github.com/vsch/CLionArduinoPlugin
 [rjuang/CLionArduinoPlugin]: https://github.com/rjuang/CLionArduinoPlugin
 
-
-
-[jSSC-2.8.0]: https://github.com/scream3r/java-simple-serial-connector
