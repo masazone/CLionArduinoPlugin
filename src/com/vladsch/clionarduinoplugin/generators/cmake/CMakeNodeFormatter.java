@@ -1,5 +1,6 @@
 package com.vladsch.clionarduinoplugin.generators.cmake;
 
+import com.vladsch.clionarduinoplugin.generators.cmake.CMakeFormatter.CMakeFormatterContext;
 import com.vladsch.clionarduinoplugin.generators.cmake.ast.*;
 import com.vladsch.flexmark.ast.Node;
 import com.vladsch.flexmark.formatter.CustomNodeFormatter;
@@ -18,10 +19,10 @@ import java.util.Set;
 public class CMakeNodeFormatter implements NodeFormatter {
 
     private final CMakeFormatterOptions formatterOptions;
-    private int blankLines;
+    private final int blankLines;
 
     public CMakeNodeFormatter(DataHolder options) {
-        this.formatterOptions = new CMakeFormatterOptions(options);
+        formatterOptions = new CMakeFormatterOptions(options);
         blankLines = 0;
     }
 
@@ -35,19 +36,32 @@ public class CMakeNodeFormatter implements NodeFormatter {
     }
 
     private void render(final BlankLine node, final NodeFormatterContext context, final MarkdownWriter markdown) {
-        markdown.blankLine();
+        if (formatterOptions.preserveLineBreaks) {
+            markdown.blankLine();
+        }
     }
 
     private void render(final Command node, final NodeFormatterContext context, final MarkdownWriter markdown) {
         markdown.append(node.getCommand());
-        if (formatterOptions.spaceAfterCommandName.contains(node.getCommand().toString())) {
+        if (formatterOptions.preserveWhitespace) {
+            CMakeFormatterContext.appendWhiteSpaceBetween(markdown, node.getCommand(), node.getOpeningMarker(), formatterOptions.preserveWhitespace, formatterOptions.collapseWhitespace, true);
+        } else if (formatterOptions.spaceAfterCommandName.contains(node.getCommand().toString())) {
             markdown.append(' ');
         }
         markdown.append(node.getOpeningMarker());
-        markdown.pushPrefix();
-        if (formatterOptions.indentSpaces > 0) markdown.addPrefix(RepeatedCharSequence.of(' ', formatterOptions.indentSpaces));
-        context.renderChildren(node);
-        markdown.popPrefix();
+        if (!formatterOptions.preserveWhitespace) {
+            markdown.pushPrefix();
+            if (formatterOptions.indentSpaces > 0) markdown.addPrefix(RepeatedCharSequence.of(' ', formatterOptions.indentSpaces));
+            context.renderChildren(node);
+            markdown.popPrefix();
+        } else {
+            context.renderChildren(node);
+        }
+        if (formatterOptions.preserveWhitespace) {
+            Node lastNode = node.getLastChild();
+            BasedSequence prevSeq = lastNode == null ? node.getOpeningMarker() : lastNode.getChars();
+            CMakeFormatterContext.appendWhiteSpaceBetween(markdown, prevSeq, node.getClosingMarker(), formatterOptions.preserveWhitespace, formatterOptions.collapseWhitespace, true);
+        }
         markdown.append(node.getClosingMarker()).line();
     }
 
@@ -56,60 +70,52 @@ public class CMakeNodeFormatter implements NodeFormatter {
         Node prevArg = node.getPreviousAny(Argument.class);
         Node nextArg = node.getNextAny(Argument.class);
 
-        if (prevArg == null) {
+        if (!formatterOptions.preserveWhitespace && prevArg == null) {
             // first arg
             markdown.append(formatterOptions.argumentListPrefix);
         }
 
-        if (formatterOptions.argumentListMaxLine > 0 && formatterOptions.argumentListMaxLine < 1000) {
-            int col = markdown.columnWith(node.getChars(), 0, node.getChars().length());
-            if (col > formatterOptions.argumentListMaxLine) {
-                // we break, parent should have setup indent prefix
-                markdown.line();
-                hadLine = true;
+        if (!formatterOptions.preserveLineBreaks) {
+            if (formatterOptions.argumentListMaxLine > 0 && formatterOptions.argumentListMaxLine < 1000) {
+                int col = markdown.columnWith(node.getChars(), 0, node.getChars().length());
+                if (col > formatterOptions.argumentListMaxLine) {
+                    // we break, parent should have setup indent prefix
+                    markdown.line();
+                    hadLine = true;
+                }
             }
         }
 
-        if (!hadLine && prevArg != null) {
-            // add separator
-            if (prevArg.getChars().equals("(") || node.getChars().equals(")")) {
-                markdown.append(formatterOptions.argumentParensSeparator);
-            } else {
-                markdown.append(formatterOptions.argumentSeparator);
+        if (!formatterOptions.preserveWhitespace) {
+            if (!hadLine && prevArg != null && !(node.getPrevious() instanceof Separator && formatterOptions.preserveArgumentSeparator)) {
+                // add separator
+                if (prevArg.getChars().equals("(") || node.getChars().equals(")")) {
+                    markdown.append(formatterOptions.argumentParensSeparator);
+                } else {
+                    markdown.append(formatterOptions.argumentSeparator);
+                }
             }
         }
 
-        // prevent prefixes from getting into quoted or bracketed params
-        markdown.flushWhitespaces(); // save any space arg list prefix
-        markdown.openPreFormatted(true); // leading spaces allowed
-        markdown.append(node.getChars());
-        markdown.closePreFormatted();
+        // if quoted or bracketed then need to output first line with prefix and the rest with 0 prefix
+        CMakeFormatterContext.appendQuotedContent(markdown, node.getChars());
 
-        if (nextArg == null) {
+        if (!formatterOptions.preserveWhitespace && nextArg == null) {
             // last arg
             markdown.append(formatterOptions.argumentListSuffix);
         }
     }
 
     private void render(final BracketComment node, final NodeFormatterContext context, final MarkdownWriter markdown) {
-        markdown.append(node.getChars());
-
-        if (formatterOptions.preserveCommentWhitespace || formatterOptions.collapseCommentWhitespace) {
-            Node next = node.getNext();
-            if (next != null) {
-                BasedSequence sequence = node.getChars().baseSubSequence(node.getEndOffset(), next.getStartOffset());
-                if (!sequence.isEmpty() && sequence.isBlank()) {
-                    if (!formatterOptions.preserveCommentWhitespace) {
-                        if (sequence.indexOfAny(BasedSequence.EOL_CHARS) != -1) {
-                            markdown.append('\n');
-                        } else {
-                            markdown.append(' ');
-                        }
-                    } else {
-                        markdown.append(sequence);
-                    }
-                }
+        if (!formatterOptions.preserveWhitespace) {
+            // need to preserve whitespace between us and surrounding nodes if not already done
+            CMakeFormatterContext.appendWhiteSpaceBetween(markdown, node.getPrevious(), node, formatterOptions.preserveWhitespace, formatterOptions.collapseWhitespace, true);
+            markdown.append(node.getChars());
+            if (!(node.getNext() instanceof LineComment)) {
+                CMakeFormatterContext.appendWhiteSpaceBetween(markdown, node, node.getNext(), formatterOptions.preserveWhitespace, formatterOptions.collapseWhitespace, true);
             }
+        } else {
+            markdown.append(node.getChars());
         }
     }
 
@@ -118,34 +124,23 @@ public class CMakeNodeFormatter implements NodeFormatter {
     }
 
     private void render(final LineComment node, final NodeFormatterContext context, final MarkdownWriter markdown) {
-        // need to preserve whitespace between us and previous node
-        if (formatterOptions.preserveCommentWhitespace || formatterOptions.collapseCommentWhitespace) {
-            Node prev = node.getPrevious();
-            if (prev != null) {
-                BasedSequence sequence = node.getChars().baseSubSequence(prev.getEndOffset(), node.getStartOffset());
-                if (!sequence.isEmpty() && sequence.isBlank()) {
-                    if (!formatterOptions.preserveCommentWhitespace) {
-                        if (sequence.indexOfAny(BasedSequence.EOL_CHARS) != -1) {
-                            markdown.append('\n');
-                        } else {
-                            markdown.append(' ');
-                        }
-                    } else {
-                        markdown.append(sequence);
-                    }
-                }
-            }
+        if (!formatterOptions.preserveWhitespace) {
+            // need to preserve whitespace between us and previous node if not already done
+            CMakeFormatterContext.appendWhiteSpaceBetween(markdown, node.getPrevious(), node, formatterOptions.preserveWhitespace, formatterOptions.collapseWhitespace, true);
         }
-
         markdown.append(node.getChars());
     }
 
     private void render(final LineEnding node, final NodeFormatterContext context, final MarkdownWriter markdown) {
-        markdown.append(node.getChars());
+        if (formatterOptions.preserveLineBreaks) {
+            markdown.line();
+        }
     }
 
     private void render(final Separator node, final NodeFormatterContext context, final MarkdownWriter markdown) {
-        //markdown.append(node.getChars());
+        if (formatterOptions.preserveArgumentSeparator) {
+            markdown.append(node.getChars());
+        }
     }
 
     private void render(final UnrecognizedInput node, final NodeFormatterContext context, final MarkdownWriter markdown) {

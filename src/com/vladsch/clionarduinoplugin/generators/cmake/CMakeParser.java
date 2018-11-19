@@ -361,8 +361,14 @@ public class CMakeParser {
         }
 
         chars = toEOL();
+        int offset = chars.charAt(chars.length() - 1) == '\n' ? 1 : 0;
+
         if (options.astComments) {
             LineComment node = new LineComment(chars);
+            parent.appendChild(node);
+        } else if (options.astLineEndEol && offset > 0 && !(parent.getLastChild() instanceof LineEnding)) {
+            // remove trailing EOL from comment and add it as separate
+            LineEnding node = new LineEnding(chars.subSequence(chars.length() - offset));
             parent.appendChild(node);
         }
         return true;

@@ -33,6 +33,8 @@
 * Add: CMake file parser and formatter, needed for UI to modify existing file. Will also be used
   for generating the `CMakeLists.txt` for new projects and fixing up one that is messed up in
   terms of required order of lines.
+* Fix: CMakeFormatter and CMakeParser to handle preserving original file when recreated from
+  AST.
 
 ### 1.3.12
 

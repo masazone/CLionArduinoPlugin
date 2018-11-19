@@ -438,8 +438,8 @@ endforeach()
 
 .
 .
-CMakeFile[0, 143]
-  Command[0, 108] text:[0, 7, "foreach"] open:[7, 8, "("] arguments:[8, 107, "arg\n    NoSpace\n    Escaped\ Space\n    This;Divides;Into;Five;Arguments\n    Escaped\;Semicolon\n    "] close:[107, 108, ")"]
+CMakeFile[0, 151]
+  Command[0, 113] text:[0, 7, "foreach"] open:[7, 8, "("] arguments:[8, 112, "arg\n    NoSpace\n    Escaped\ Space\n    This;Divides;Into;Five;Arguments\n    \n    Escaped\;Semicolon\n    "] close:[112, 113, ")"]
     Argument[8, 11] text:[8, 11, "arg"]
     Argument[16, 23] text:[16, 23, "NoSpace"]
     Argument[28, 42] text:[28, 42, "Escaped\ Space"]
@@ -448,10 +448,13 @@ CMakeFile[0, 143]
     Argument[60, 64] text:[60, 64, "Into"]
     Argument[65, 69] text:[65, 69, "Five"]
     Argument[70, 79] text:[70, 79, "Arguments"]
-    Argument[84, 102] text:[84, 102, "Escaped\;Semicolon"]
-  Command[111, 128] text:[111, 118, "message"] open:[118, 119, "("] arguments:[119, 127, "\"${arg}\""] close:[127, 128, ")"]
-    Argument[119, 127] open:[119, 120, "\""] text:[120, 126, "${arg}"] close:[126, 127, "\""]
-  Command[129, 141] text:[129, 139, "endforeach"] open:[139, 140, "("] arguments:[140, 140] close:[140, 141, ")"]
+    BlankLine[84, 85]
+    Argument[89, 107] text:[89, 107, "Escaped\;Semicolon"]
+  Command[116, 133] text:[116, 123, "message"] open:[123, 124, "("] arguments:[124, 132, "\"${arg}\""] close:[132, 133, ")"]
+    Argument[124, 132] open:[124, 125, "\""] text:[125, 131, "${arg}"] close:[131, 132, "\""]
+  BlankLine[136, 137]
+  Command[137, 149] text:[137, 147, "endforeach"] open:[147, 148, "("] arguments:[148, 148] close:[148, 149, ")"]
+  BlankLine[150, 151]
 ````````````````````````````````
 
 
@@ -535,6 +538,49 @@ CMakeFile[0, 143]
   Command[111, 128] text:[111, 118, "message"] open:[118, 119, "("] arguments:[119, 127, "\"${arg}\""] close:[127, 128, ")"]
     Argument[119, 127] open:[119, 120, "\""] text:[120, 126, "${arg}"] close:[126, 127, "\""]
   Command[129, 141] text:[129, 139, "endforeach"] open:[139, 140, "("] arguments:[140, 140] close:[140, 141, ")"]
+````````````````````````````````
+
+
+several args with seps
+
+```````````````````````````````` example(Commands: 20) options(ast-arg-seps, ast-line-eol)
+foreach(arg
+    NoSpace       # comment
+    Escaped\ Space
+    This;Divides;Into;Five;Arguments
+    Escaped\;Semicolon
+    )
+  message("${arg}")
+endforeach()
+
+.
+.
+CMakeFile[0, 159]
+  Command[0, 124] text:[0, 7, "foreach"] open:[7, 8, "("] arguments:[8, 123, "arg\n    NoSpace       # comment\n    Escaped\ Space\n    This;Divides;Into;Five;Arguments\n    Escaped\;Semicolon\n    "] close:[123, 124, ")"]
+    Argument[8, 11] text:[8, 11, "arg"]
+    LineEnding[11, 12]
+    Argument[16, 23] text:[16, 23, "NoSpace"]
+    LineEnding[39, 40]
+    Argument[44, 58] text:[44, 58, "Escaped\ Space"]
+    LineEnding[58, 59]
+    Argument[63, 67] text:[63, 67, "This"]
+    Separator[67, 68]
+    Argument[68, 75] text:[68, 75, "Divides"]
+    Separator[75, 76]
+    Argument[76, 80] text:[76, 80, "Into"]
+    Separator[80, 81]
+    Argument[81, 85] text:[81, 85, "Five"]
+    Separator[85, 86]
+    Argument[86, 95] text:[86, 95, "Arguments"]
+    LineEnding[95, 96]
+    Argument[100, 118] text:[100, 118, "Escaped\;Semicolon"]
+    LineEnding[118, 119]
+  LineEnding[124, 125]
+  Command[127, 144] text:[127, 134, "message"] open:[134, 135, "("] arguments:[135, 143, "\"${arg}\""] close:[143, 144, ")"]
+    Argument[135, 143] open:[135, 136, "\""] text:[136, 142, "${arg}"] close:[142, 143, "\""]
+  LineEnding[144, 145]
+  Command[145, 157] text:[145, 155, "endforeach"] open:[155, 156, "("] arguments:[156, 156] close:[156, 157, ")"]
+  LineEnding[157, 158]
 ````````````````````````````````
 
 
@@ -867,6 +913,89 @@ CMakeFile[0, 717]
     Argument[634, 636] text:[634, 636, "-v"]
   LineEnding[637, 638]
   LineComment[638, 668] open:[638, 639, "#"] text:[639, 668, " set(pro.upload.speed 57600)\n"]
+  BlankLine[668, 669]
+  Command[669, 717] text:[669, 694, "generate_arduino_firmware"] open:[694, 695, "("] arguments:[695, 716, "${CMAKE_PROJECT_NAME}"] close:[716, 717, ")"]
+    Argument[695, 716] text:[695, 716, "${CMAKE_PROJECT_NAME}"]
+````````````````````````````````
+
+
+actual file no comments
+
+```````````````````````````````` example(Arduno: 3) options(auto-config, ast-blank, ast-line-eol, ast-arg-seps)
+cmake_minimum_required(VERSION 2.8.4)
+set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/cmake/ArduinoToolchain.cmake")
+set(PROJECT_NAME tft_life)
+
+## This must be set before project call
+set(${CMAKE_PROJECT_NAME}_BOARD pro)
+set(ARDUINO_CPU 8MHzatmega328)
+
+project(${PROJECT_NAME})
+
+# Define the source code
+set(${PROJECT_NAME}_SRCS tft_life.cpp)
+#set(${CMAKE_PROJECT_NAME}_SKETCH tft_life.cpp)
+link_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
+
+#### Uncomment below additional settings as needed.
+set(${CMAKE_PROJECT_NAME}_PROGRAMMER avrispmkii)
+set(${CMAKE_PROJECT_NAME}_PORT /dev/cu.usbserial-00000000)
+set (${CMAKE_PROJECT_NAME}_AFLAGS -v)
+# set(pro.upload.speed 57600)
+
+generate_arduino_firmware(${CMAKE_PROJECT_NAME})
+.
+.
+CMakeFile[0, 717]
+  Command[0, 37] text:[0, 22, "cmake_minimum_required"] open:[22, 23, "("] arguments:[23, 36, "VERSION 2.8.4"] close:[36, 37, ")"]
+    Argument[23, 30] text:[23, 30, "VERSION"]
+    Argument[31, 36] text:[31, 36, "2.8.4"]
+  LineEnding[37, 38]
+  Command[38, 114] text:[38, 41, "set"] open:[41, 42, "("] arguments:[42, 113, "CMAKE_TOOLCHAIN_FILE \"${CMAKE_SOURCE_DIR}/cmake/ArduinoToolchain.cmake\""] close:[113, 114, ")"]
+    Argument[42, 62] text:[42, 62, "CMAKE_TOOLCHAIN_FILE"]
+    Argument[63, 113] open:[63, 64, "\""] text:[64, 112, "${CMAKE_SOURCE_DIR}/cmake/ArduinoToolchain.cmake"] close:[112, 113, "\""]
+  LineEnding[114, 115]
+  Command[115, 141] text:[115, 118, "set"] open:[118, 119, "("] arguments:[119, 140, "PROJECT_NAME tft_life"] close:[140, 141, ")"]
+    Argument[119, 131] text:[119, 131, "PROJECT_NAME"]
+    Argument[132, 140] text:[132, 140, "tft_life"]
+  LineEnding[141, 142]
+  BlankLine[142, 143]
+  LineEnding[182, 183]
+  Command[183, 219] text:[183, 186, "set"] open:[186, 187, "("] arguments:[187, 218, "${CMAKE_PROJECT_NAME}_BOARD pro"] close:[218, 219, ")"]
+    Argument[187, 214] text:[187, 214, "${CMAKE_PROJECT_NAME}_BOARD"]
+    Argument[215, 218] text:[215, 218, "pro"]
+  LineEnding[219, 220]
+  Command[220, 250] text:[220, 223, "set"] open:[223, 224, "("] arguments:[224, 249, "ARDUINO_CPU 8MHzatmega328"] close:[249, 250, ")"]
+    Argument[224, 235] text:[224, 235, "ARDUINO_CPU"]
+    Argument[236, 249] text:[236, 249, "8MHzatmega328"]
+  LineEnding[250, 251]
+  BlankLine[251, 252]
+  Command[252, 276] text:[252, 259, "project"] open:[259, 260, "("] arguments:[260, 275, "${PROJECT_NAME}"] close:[275, 276, ")"]
+    Argument[260, 275] text:[260, 275, "${PROJECT_NAME}"]
+  LineEnding[276, 277]
+  BlankLine[277, 278]
+  LineEnding[302, 303]
+  Command[303, 341] text:[303, 306, "set"] open:[306, 307, "("] arguments:[307, 340, "${PROJECT_NAME}_SRCS tft_life.cpp"] close:[340, 341, ")"]
+    Argument[307, 327] text:[307, 327, "${PROJECT_NAME}_SRCS"]
+    Argument[328, 340] text:[328, 340, "tft_life.cpp"]
+  LineEnding[341, 342]
+  Command[390, 438] text:[390, 406, "link_directories"] open:[406, 407, "("] arguments:[407, 437, "${CMAKE_CURRENT_SOURCE_DIR}/.."] close:[437, 438, ")"]
+    Argument[407, 437] text:[407, 437, "${CMAKE_CURRENT_SOURCE_DIR}/.."]
+  LineEnding[438, 439]
+  BlankLine[439, 440]
+  LineEnding[491, 492]
+  Command[492, 540] text:[492, 495, "set"] open:[495, 496, "("] arguments:[496, 539, "${CMAKE_PROJECT_NAME}_PROGRAMMER avrispmkii"] close:[539, 540, ")"]
+    Argument[496, 528] text:[496, 528, "${CMAKE_PROJECT_NAME}_PROGRAMMER"]
+    Argument[529, 539] text:[529, 539, "avrispmkii"]
+  LineEnding[540, 541]
+  Command[541, 599] text:[541, 544, "set"] open:[544, 545, "("] arguments:[545, 598, "${CMAKE_PROJECT_NAME}_PORT /dev/cu.usbserial-00000000"] close:[598, 599, ")"]
+    Argument[545, 571] text:[545, 571, "${CMAKE_PROJECT_NAME}_PORT"]
+    Argument[572, 598] text:[572, 598, "/dev/cu.usbserial-00000000"]
+  LineEnding[599, 600]
+  Command[600, 637] text:[600, 603, "set"] open:[604, 605, "("] arguments:[605, 636, "${CMAKE_PROJECT_NAME}_AFLAGS -v"] close:[636, 637, ")"]
+    Argument[605, 633] text:[605, 633, "${CMAKE_PROJECT_NAME}_AFLAGS"]
+    Argument[634, 636] text:[634, 636, "-v"]
+  LineEnding[637, 638]
   BlankLine[668, 669]
   Command[669, 717] text:[669, 694, "generate_arduino_firmware"] open:[694, 695, "("] arguments:[695, 716, "${CMAKE_PROJECT_NAME}"] close:[716, 717, ")"]
     Argument[695, 716] text:[695, 716, "${CMAKE_PROJECT_NAME}"]

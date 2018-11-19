@@ -12,7 +12,9 @@ import com.vladsch.flexmark.formatter.internal.Formatter;
 import com.vladsch.flexmark.util.collection.DynamicDefaultKey;
 import com.vladsch.flexmark.util.collection.NodeCollectingVisitor;
 import com.vladsch.flexmark.util.collection.SubClassingBag;
+import com.vladsch.flexmark.util.html.FormattingAppendable;
 import com.vladsch.flexmark.util.options.*;
+import com.vladsch.flexmark.util.sequence.BasedSequence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,8 +44,10 @@ public class CMakeFormatter implements IRender {
     final static public DataKey<String> ARGUMENT_SEPARATOR = new DataKey<>("ARGUMENT_SEPARATOR", " ");
     final static public DataKey<String> ARGUMENT_PARENS_SEPARATOR = new DataKey<>("ARGUMENT_PARENS_SEPARATOR", " ");
     final static public DataKey<Integer> ARGUMENT_LIST_MAX_LINE = new DataKey<>("ARGUMENT_LIST_MAX_LINE", 80);
-    final static public DataKey<Boolean> COLLAPSE_COMMENT_WHITESPACE = new DataKey<>("COLLAPSE_COMMENT_WHITESPACE", false);
-    final static public DataKey<Boolean> PRESERVE_COMMENT_WHITESPACE = new DataKey<>("PRESERVE_COMMENT_WHITESPACE", true);
+    final static public DataKey<Boolean> COLLAPSE_WHITESPACE = new DataKey<>("COLLAPSE_WHITESPACE", false);
+    final static public DataKey<Boolean> PRESERVE_WHITESPACE = new DataKey<>("PRESERVE_WHITESPACE", true);
+    final static public DataKey<Boolean> PRESERVE_ARGUMENT_SEPARATOR = new DataKey<>("PRESERVE_ARGUMENT_SEPARATOR", true);
+    final static public DataKey<Boolean> PRESERVE_LINE_BREAKS = new DataKey<>("PRESERVE_LINE_BREAKS", true);
 
     // convenience copies
     final static public DataKey<Integer> FORMAT_FLAGS = Formatter.FORMAT_FLAGS;
@@ -82,22 +86,24 @@ public class CMakeFormatter implements IRender {
         renderer.flush(formatterOptions.maxTrailingBlankLines);
     }
 
-    static class CMakeFormatterContext extends NodeFormatterSubContext {
+    public static class CMakeFormatterContext extends NodeFormatterSubContext {
         // inner stuff
-        private final Map<Class<?>, NodeFormattingHandler> renderers;
-        final private CMakeParserOptions formatterOptions;
-        private final DataHolder options;
-        private final CMakeFile document;
-        private final SubClassingBag<Node> collectedNodes;
-        private final Set<FormattingPhase> renderingPhases;
-        private final List<PhasedNodeFormatter> phasedFormatters;
+        final private Map<Class<?>, NodeFormattingHandler> renderers;
+        final private CMakeFormatterOptions formatterOptions;
+        final private DataHolder options;
+        final private CMakeFile document;
+        final private SubClassingBag<Node> collectedNodes;
+        final private Set<FormattingPhase> renderingPhases;
+        final private List<PhasedNodeFormatter> phasedFormatters;
         private FormattingPhase phase;
+
+        private Node lastRenderedNode;
 
         CMakeFormatterContext(@Nullable DataHolder options, @NotNull MarkdownWriter out, final CMakeFile document) {
             super(out);
             this.options = options == null ? new MutableDataSet() : new MutableDataSet(options);
             this.document = document;
-            this.formatterOptions = new CMakeParserOptions(options);
+            this.formatterOptions = new CMakeFormatterOptions(options);
             this.renderers = new HashMap<Class<?>, NodeFormattingHandler>(32);
             NodeFormatter nodeFormatter = new CMakeNodeFormatter(this.options);
             final Set<Class> collectNodeTypes = new HashSet<Class>(20);
@@ -210,7 +216,13 @@ public class CMakeFormatter implements IRender {
                 if (nodeRenderer != null) {
                     Node oldNode = this.getRenderingNode();
                     subContext.setRenderingNode(node);
+
+                    if (formatterOptions.preserveWhitespace) {
+                        appendWhiteSpaceBetween(markdown, lastRenderedNode, node, true, false, false);
+                    }
+
                     nodeRenderer.render(node, subContext, subContext.getMarkdown());
+                    lastRenderedNode = node;
                     subContext.setRenderingNode(oldNode);
                 } else {
                     // default behavior is controlled by generic Node.class that is implemented in CoreNodeFormatter
@@ -248,7 +260,7 @@ public class CMakeFormatter implements IRender {
             return null;
         }
 
-        public CMakeParserOptions getCMakeOptions() {
+        public CMakeFormatterOptions getCMakeOptions() {
             return formatterOptions;
         }
 
@@ -260,6 +272,53 @@ public class CMakeFormatter implements IRender {
         @Override
         public Node getCurrentNode() {
             return getRenderingNode();
+        }
+
+        public static void appendWhiteSpaceBetween(final MarkdownWriter markdown, Node prev, Node next, boolean preserve, boolean collapse, boolean collapseToEOL) {
+            if (next != null && prev != null && (preserve || collapse)) {
+                appendWhiteSpaceBetween(markdown, prev.getChars(), next.getChars(), preserve, collapse, collapseToEOL);
+            }
+        }
+
+        public static void appendWhiteSpaceBetween(final MarkdownWriter markdown, BasedSequence prev, BasedSequence next, boolean preserve, boolean collapse, boolean collapseToEOL) {
+            if (next != null && prev != null && (preserve || collapse)) {
+                BasedSequence sequence = prev.baseSubSequence(prev.getEndOffset(), next.getStartOffset());
+                if (!sequence.isEmpty() && sequence.isBlank()) {
+                    if (!preserve) {
+                        if (collapseToEOL && sequence.indexOfAny(BasedSequence.EOL_CHARS) != -1) {
+                            markdown.append('\n');
+                        } else {
+                            markdown.append(' ');
+                        }
+                    } else {
+                        // need to set preformatted or spaces after eol are ignored assuming prefixes are used
+                        int saved = markdown.getOptions();
+                        markdown.setOptions(saved | FormattingAppendable.ALLOW_LEADING_WHITESPACE);
+                        markdown.append(sequence);
+                        markdown.setOptions(saved);
+                    }
+                }
+            }
+        }
+
+        /**
+         * Output first line as is, the rest with no prefix
+         *
+         * @param markdown
+         * @param text
+         */
+        public static void appendQuotedContent(final MarkdownWriter markdown, BasedSequence text) {
+            int pos = text.indexOfAny('\r', '\n');
+            if (pos == -1) {
+                markdown.append(text);
+            } else {
+                markdown.append(text, 0, pos); // output up to eol
+                // output the rest without prefix
+                markdown.pushPrefix();
+                markdown.setPrefix("");
+                markdown.append(text, pos, text.length());
+                markdown.popPrefix();
+            }
         }
 
         // Unused

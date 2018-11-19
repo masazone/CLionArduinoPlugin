@@ -19,9 +19,9 @@ public class CMakeFormatterSpecTest extends ComboSpecTestCase {
             //.set(FormattingRenderer.INDENT_SIZE, 2)
             //.set(HtmlRenderer.PERCENT_ENCODE_URLS, true)
             //.set(Parser.EXTENSIONS, Collections.singleton(FormatterExtension.create()))
-            //.set(CMakeParser.AST_BLANK_LINES, true)
-            //.set(CMakeParser.AST_LINE_END_EOL, true)
-            //.set(CMakeParser.AST_ARGUMENT_SEPARATORS, true)
+            .set(CMakeParser.AST_BLANK_LINES, true)
+            .set(CMakeParser.AST_LINE_END_EOL, true)
+            .set(CMakeParser.AST_ARGUMENT_SEPARATORS, true)
             ;
 
     private static final Map<String, DataHolder> optionsMap = new HashMap<String, DataHolder>();
@@ -29,6 +29,16 @@ public class CMakeFormatterSpecTest extends ComboSpecTestCase {
         optionsMap.put("auto-config", new MutableDataSet().set(CMakeParser.AUTO_CONFIG, true));
         optionsMap.put("bracket-comments", new MutableDataSet().set(CMakeParser.BRACKET_COMMENTS, true));
         optionsMap.put("line-cont", new MutableDataSet().set(CMakeParser.LINE_CONTINUATION, true));
+
+        optionsMap.put("no-preserve-whitespace", new MutableDataSet().set(CMakeFormatter.PRESERVE_WHITESPACE, false));
+        optionsMap.put("no-preserve-seps", new MutableDataSet().set(CMakeFormatter.PRESERVE_ARGUMENT_SEPARATOR, false));
+        optionsMap.put("no-preserve-breaks", new MutableDataSet().set(CMakeFormatter.PRESERVE_LINE_BREAKS, false));
+        optionsMap.put("split-seps", new MutableDataSet()
+                .set(CMakeFormatter.ARGUMENT_LIST_PREFIX, "\n")
+                .set(CMakeFormatter.ARGUMENT_LIST_SUFFIX, "\n")
+                .set(CMakeFormatter.ARGUMENT_SEPARATOR, "\n")
+        );
+        optionsMap.put("collapse-whitespace", new MutableDataSet().set(CMakeFormatter.COLLAPSE_WHITESPACE, true));
 
         optionsMap.put("ast-line-eol", new MutableDataSet().set(CMakeParser.AST_LINE_END_EOL, true));
         optionsMap.put("ast-comments", new MutableDataSet().set(CMakeParser.AST_COMMENTS, true));

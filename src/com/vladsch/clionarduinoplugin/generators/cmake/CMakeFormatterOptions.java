@@ -1,6 +1,5 @@
 package com.vladsch.clionarduinoplugin.generators.cmake;
 
-import com.vladsch.flexmark.formatter.internal.Formatter;
 import com.vladsch.flexmark.util.options.DataHolder;
 import com.vladsch.flexmark.util.options.MutableDataHolder;
 import com.vladsch.flexmark.util.options.MutableDataSetter;
@@ -18,8 +17,10 @@ public class CMakeFormatterOptions implements MutableDataSetter {
     public final int maxBlankLines;
     public final int maxTrailingBlankLines;
     public final Set<String> spaceAfterCommandName;
-    public boolean collapseCommentWhitespace;
-    public boolean preserveCommentWhitespace;
+    public boolean collapseWhitespace;
+    public boolean preserveWhitespace;
+    public boolean preserveArgumentSeparator;
+    public boolean preserveLineBreaks;
 
     CMakeFormatterOptions() {
         this((DataHolder) null);
@@ -36,8 +37,10 @@ public class CMakeFormatterOptions implements MutableDataSetter {
         maxBlankLines = other.maxBlankLines;
         maxTrailingBlankLines = other.maxTrailingBlankLines;
         spaceAfterCommandName = other.spaceAfterCommandName;
-        collapseCommentWhitespace = other.collapseCommentWhitespace;
-        preserveCommentWhitespace = other.preserveCommentWhitespace;
+        collapseWhitespace = other.collapseWhitespace;
+        preserveWhitespace = other.preserveWhitespace;
+        preserveArgumentSeparator = other.preserveArgumentSeparator;
+        preserveLineBreaks = other.preserveLineBreaks;
     }
 
     CMakeFormatterOptions(DataHolder options) {
@@ -51,8 +54,10 @@ public class CMakeFormatterOptions implements MutableDataSetter {
         maxBlankLines = CMakeFormatter.MAX_BLANK_LINES.getFrom(options);
         maxTrailingBlankLines = CMakeFormatter.MAX_TRAILING_BLANK_LINES.getFrom(options);
         spaceAfterCommandName = CMakeFormatter.SPACE_AFTER_COMMAND_NAME.getFrom(options);
-        collapseCommentWhitespace = CMakeFormatter.COLLAPSE_COMMENT_WHITESPACE.getFrom(options);
-        preserveCommentWhitespace = CMakeFormatter.PRESERVE_COMMENT_WHITESPACE.getFrom(options);
+        collapseWhitespace = CMakeFormatter.COLLAPSE_WHITESPACE.getFrom(options);
+        preserveWhitespace = CMakeFormatter.PRESERVE_WHITESPACE.getFrom(options);
+        preserveArgumentSeparator = CMakeFormatter.PRESERVE_ARGUMENT_SEPARATOR.getFrom(options);
+        preserveLineBreaks = CMakeFormatter.PRESERVE_LINE_BREAKS.getFrom(options);
     }
 
     @Override
@@ -67,8 +72,10 @@ public class CMakeFormatterOptions implements MutableDataSetter {
         dataHolder.set(CMakeFormatter.MAX_BLANK_LINES, maxBlankLines);
         dataHolder.set(CMakeFormatter.MAX_TRAILING_BLANK_LINES, maxTrailingBlankLines);
         dataHolder.set(CMakeFormatter.SPACE_AFTER_COMMAND_NAME, spaceAfterCommandName);
-        dataHolder.set(CMakeFormatter.COLLAPSE_COMMENT_WHITESPACE, collapseCommentWhitespace);
-        dataHolder.set(CMakeFormatter.PRESERVE_COMMENT_WHITESPACE, preserveCommentWhitespace);
+        dataHolder.set(CMakeFormatter.COLLAPSE_WHITESPACE, collapseWhitespace);
+        dataHolder.set(CMakeFormatter.PRESERVE_WHITESPACE, preserveWhitespace);
+        dataHolder.set(CMakeFormatter.PRESERVE_ARGUMENT_SEPARATOR, preserveArgumentSeparator);
+        dataHolder.set(CMakeFormatter.PRESERVE_LINE_BREAKS, preserveLineBreaks);
         return dataHolder;
     }
 }
