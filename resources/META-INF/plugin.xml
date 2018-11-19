@@ -12,7 +12,7 @@
     <depends>com.intellij.modules.clion</depends>
 
     <description><![CDATA[
-        <p><img src="https://github.com/vsch/CLionArduinoPlugin/raw/master/resources/META-INF/pluginIcon.png" alt="pluginIcon.png" width="50" align="middle" />
+        <p><img src="https://github.com/vsch/CLionArduinoPlugin/raw/master/resources/META-INF/pluginIcon.png" alt="pluginIcon.png" width="50" align="middle"/>
             Integrates <a href="https://github.com/francoiscampbell/arduino-cmake">Arduino CMake</a> into the CLion IDE.</p>
         <p>Create an Arduino CMake project in one click with new project wizard types and view
             communications with the integrated serial monitor tool window.</p>
@@ -33,12 +33,12 @@
         </ul>
         <h4>** <code>Serial Port Monitor</code> plugin cannot be used with <code>Arduino Support</code></h4>
         <p>Both plugins use <a href="https://github.com/scream3r/java-simple-serial-connector">jSSC-2.8.0</a> serial library and only one plugin can load the native libraries.
-            Please uninstall or disable <code>Serial Port Monitor</code> plugin.</p>
+            Please uninstall or disable <code>Serial Port Monitor</code> plugin before installing <code>Arduino Support</code>.</p>
         <p>| <a href="https://github.com/vsch/CLionArduinoPlugin/issues">Issues</a> | <a href="https://github.com/vsch/CLionArduinoPlugin">Plugin Source</a> |</p>
         <p><br></p>
-        <p><img src="https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_NewProject.png" alt="Screenshot_NewProject.png" width="400px" /></p>
-        <p><img src="https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_ProjectSettings.png" alt="Screenshot_ProjectSettings" width="400px" /></p>
-        <p><img src="https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_SerialMonitor.png" alt="Screenshot_SerialMonitor" width="400px" /></p>
+        <p><img src="https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_NewProject.png" alt="Screenshot_NewProject.png" width="400px"/></p>
+        <p><img src="https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_ProjectSettings.png" alt="Screenshot_ProjectSettings" width="400px"/></p>
+        <p><img src="https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_SerialMonitor.png" alt="Screenshot_SerialMonitor" width="400px"/></p>
         <p><br></p>
         <p><strong>*</strong> This plugin is a fork of <a href="https://github.com/rjuang/CLionArduinoPlugin">rjuang/CLionArduinoPlugin</a> which in turn is a fork of
             <a href="https://github.com/francoiscampbell/CLionArduinoPlugin">Original CLionArduinoPlugin</a> written by Francois Campbell.</p>
@@ -60,11 +60,13 @@
             <li>Fix: <code>#endif</code> add comment before trailing text</li>
             <li>Fix: exception if new arduino sketch is invoked from non-editor environment</li>
             <li>Add: Serial Monitor tool window with auto disconnect on build/reconnect after build. No hex
-                view yet.</li>
+                view yet.
+            </li>
             <li>Add: Serial port monitor EOL options, logging sent text and immediate key sending.</li>
             <li>Add: Plugin Config in settings (preferences on OS X) in <code>Languages &amp; Frameworks &gt; Arduino</code></li>
             <li>Add: Settings options for boards.txt and programmers.txt file location, if not give or not
-                valid then bundled ones will be used.</li>
+                valid then bundled ones will be used.
+            </li>
             <li>Add: Right click on serial monitor widget to change settings. Click will connect/disconnect.</li>
             <li>Fix: new project default serial monitor settings not saving</li>
         </ul>
@@ -76,27 +78,30 @@
                     <li>Add: library test cpp file</li>
                     <li>Add: options for <code>library.properties</code>
                         <ul>
-                            <li>Add: library category dropdown.<br />
-                                <img src="file:///Users/vlad/src/projects/CLionArduinoPlugin/assets/images/Screenshot_Categories.png" alt="Screenshot_Categories" class="local-only" title=" **Link will only resolve locally.**" /></li>
+                            <li>Add: library category dropdown.<br/>
+                                <img src="file:///Users/vlad/src/projects/CLionArduinoPlugin/assets/images/Screenshot_Categories.png" alt="Screenshot_Categories" class="local-only" title=" **Link will only resolve locally.**"/></li>
                             <li>Add: author name and e-mail</li>
                         </ul>
                     </li>
                 </ul>
             </li>
             <li>Fix: language standard missing option if none was previously selected or persisted option was
-                empty.</li>
+                empty.
+            </li>
         </ul>
         <h3>1.3.6</h3>
         <ul>
             <li>Fix: CPU selection line in <code>CMakeLists.txt</code> would be commented out if a new board is selected
-                and the CPU was left as default.</li>
+                and the CPU was left as default.
+            </li>
             <li>Add: static library changes to <code>CMakeLists.txt</code>, using <code>generate_arduino_library()</code></li>
         </ul>
         <h3>1.3.4</h3>
         <ul>
             <li>Fix: change plugin name for JetBrains requirements</li>
             <li>Fix: reload CMakeLists.txt after project creation otherwise generated files don&rsquo;t have the
-                <code>-mmcu</code> set.</li>
+                <code>-mmcu</code> set.
+            </li>
             <li>Fix: add port drop down using jssc <a href="https://github.com/scream3r/java-simple-serial-connector">https://github.com/scream3r/java-simple-serial-connector</a>,
                 with <code>SerialPorts</code> Patched for Arduino by Cristian Maglie
                 <a href="https://raw.githubusercontent.com/arduino/Arduino/master/arduino-core/src/processing/app/SerialPortList.java">https://raw.githubusercontent.com/arduino/Arduino/master/arduino-core/src/processing/app/SerialPortList.java</a></li>
@@ -113,7 +118,8 @@
             <li>Fix: remove arduino new project action</li>
             <li>Add: arduino library. Adds .cpp and .h file named as project directory,</li>
             <li>Add: boards project option and cpu option (from boards.txt stored in resources). TODO: add
-                config for boards.txt path</li>
+                config for boards.txt path
+            </li>
             <li>Add: programmers (from boards.txt stored in resources). TODO: add config for boards.txt path</li>
             <li>Add: Port option, for now manually set. TODO: add code to scan available ports</li>
             <li>Add: verbose build option</li>

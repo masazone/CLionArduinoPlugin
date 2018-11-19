@@ -53,3 +53,4 @@ crashlytics-build.properties
 
 
 /CLionArduinoPlugin.zip
+/src/com/vladsch/clionarduinoplugin/serial/BuildListenerProjectComponent.java

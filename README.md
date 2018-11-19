@@ -83,7 +83,7 @@ interest. Then maybe someone else will pick up the torch at take it further.
 
 ## Release notes
 
-[CLionArduinoPlugin Version Notes](VERSION.md)
+[Version Notes](VERSION.md)
 
 ## History
 

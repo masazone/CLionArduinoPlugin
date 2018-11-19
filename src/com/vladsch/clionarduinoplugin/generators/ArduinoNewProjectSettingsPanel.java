@@ -67,14 +67,12 @@ public class ArduinoNewProjectSettingsPanel extends CMakeSettingsPanel {
         myLanguageVersionComboBox = new ComboBox<>(languageVersions);
         String languageVersion = projectGenerator.getLanguageVersion();
 
-        if (languageVersion == null || languageVersion.isEmpty() && languageVersions.length > 0) {
+        if (languageVersion.isEmpty() && languageVersions.length > 0) {
             languageVersion = languageVersions[0];
             projectGenerator.setLanguageVersion(languageVersion);
         }
 
-        if (languageVersion != null) {
-            myLanguageVersionComboBox.setSelectedItem(languageVersion);
-        }
+        myLanguageVersionComboBox.setSelectedItem(languageVersion);
 
         myLanguageVersionComboBox.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
@@ -343,29 +341,6 @@ public class ArduinoNewProjectSettingsPanel extends CMakeSettingsPanel {
             projectGenerator.setAddLibraryDirectory(myAddLibraryDirectory.isSelected());
             myLibraryDirectory.setEnabled(myAddLibraryDirectory.isSelected());
         });
-
-        //myLibraryDirectory = new TextFieldWithBrowseButton(
-        //        new JTextField(
-        //                "",
-        //                20)
-        //        , new ActionListener() {
-        //            @Override
-        //            public void actionPerformed(ActionEvent e) {
-        //                int tmp = 0;
-        //            }
-        //        }
-        //);
-        //
-        //myLibraryDirectory.addBrowseFolderListener(
-        //        "Select Library Sub-Directory",
-        //        null,
-        //        null,
-        //        new FileChooserDescriptor(false,
-        //                true,
-        //                false,
-        //                false,
-        //                false,
-        //                false));
 
         myLibraryDirectory = new JTextField(30);
         String libraryDirectory = projectGenerator.getLibraryDirectory();
