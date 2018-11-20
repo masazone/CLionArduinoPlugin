@@ -26,6 +26,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JComboBox;
 
 public interface ComboBoxAdaptable<E extends ComboBoxAdaptable<E>> {
+    ComboBoxAdaptable[] EMPTY = new ComboBoxAdaptable[0];
+
     String getDisplayName();
     String name();
     int getIntValue();

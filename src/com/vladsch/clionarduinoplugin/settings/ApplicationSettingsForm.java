@@ -28,7 +28,7 @@ import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.components.JBCheckBox;
 import com.vladsch.clionarduinoplugin.Bundle;
-import com.vladsch.clionarduinoplugin.generators.ArduinoNewProjectSettings;
+import com.vladsch.clionarduinoplugin.components.ArduinoApplicationSettings;
 import com.vladsch.clionarduinoplugin.resources.BuildConfig;
 import com.vladsch.clionarduinoplugin.resources.ResourceUtils;
 import com.vladsch.clionarduinoplugin.util.ui.Settable;
@@ -62,15 +62,15 @@ public class ApplicationSettingsForm implements Disposable {
         return myMainPanel;
     }
 
-    private final SettingsComponents<ArduinoNewProjectSettings> components;
+    private final SettingsComponents<ArduinoApplicationSettings> components;
 
-    public ApplicationSettingsForm(ArduinoNewProjectSettings settings) {
+    public ApplicationSettingsForm(ArduinoApplicationSettings settings) {
         final String boardsTxt = BuildConfig.getBoardsTxtString();
         final String programmersTxt = BuildConfig.getProgrammersTxtString();
         myBuildConfig = new BuildConfig(boardsTxt, programmersTxt);
-        components = new SettingsComponents<ArduinoNewProjectSettings>() {
+        components = new SettingsComponents<ArduinoApplicationSettings>() {
             @Override
-            protected Settable[] getComponents(ArduinoNewProjectSettings i) {
+            protected Settable[] getComponents(ArduinoApplicationSettings i) {
                 return new Settable[] {
                         component(myAuthorName, i::getAuthorName, i::setAuthorName),
                         component(myAuthorEMail, i::getAuthorEMail, i::setAuthorEMail),
@@ -255,15 +255,15 @@ public class ApplicationSettingsForm implements Disposable {
         }
     }
 
-    public boolean isModified(@NotNull ArduinoNewProjectSettings settings) {
+    public boolean isModified(@NotNull ArduinoApplicationSettings settings) {
         return components.isModified(settings);
     }
 
-    public void apply(@NotNull ArduinoNewProjectSettings settings) {
+    public void apply(@NotNull ArduinoApplicationSettings settings) {
         components.apply(settings);
     }
 
-    public void reset(@NotNull ArduinoNewProjectSettings settings) {
+    public void reset(@NotNull ArduinoApplicationSettings settings) {
         components.reset(settings);
         updateOptions(true);
     }

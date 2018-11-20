@@ -9,6 +9,7 @@ package com.vladsch.clionarduinoplugin.generators;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.mac.foundation.Foundation;
+import com.vladsch.clionarduinoplugin.components.ArduinoApplicationSettings;
 import com.vladsch.clionarduinoplugin.resources.Strings;
 import com.vladsch.clionarduinoplugin.util.StudiedWord;
 import icons.PluginIcons;
@@ -52,7 +53,7 @@ public class ArduinoSketchLibraryGenerator extends ArduinoProjectGeneratorBase {
         StudiedWord word = new StudiedWord(name, StudiedWord.DOT | StudiedWord.DASH | StudiedWord.UNDER);
         String fileName = word.makeScreamingSnakeCase();
 
-        if (ArduinoProjectGeneratorBase.ARDUINO_LIB_TYPE.equals(mySettings.getLibraryType())) {
+        if (ArduinoApplicationSettings.ARDUINO_LIB_TYPE.equals(mySettings.getLibraryType())) {
             files = new VirtualFile[] {
                     createProjectFileWithContent(dir, name + Strings.DOT_CPP_EXT, Strings.DEFAULT_ARDUINO_LIBRARY_CPP_CONTENTS
                             .replace("<$PROJECT_NAME$>", name)

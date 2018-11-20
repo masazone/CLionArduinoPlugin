@@ -10,35 +10,21 @@ import org.jetbrains.annotations.NotNull;
 public class ArduinoFileTypeRegistration implements BaseComponent {
 
     public void initComponent() {
-        ApplicationManager.getApplication().invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                ApplicationManager.getApplication().runWriteAction(new Runnable() {
-                    @Override
-                    public void run() {
-                        FileType cpp = FileTypeManager.getInstance().getFileTypeByExtension(Strings.CPP_EXT);
-                        FileTypeManager.getInstance().associateExtension(cpp, Strings.INO_EXT);
-                        FileTypeManager.getInstance().associateExtension(cpp, Strings.PDE_EXT);
-                    }
-                });
-            }
-        });
+        ApplicationManager.getApplication().invokeLater(() ->
+                ApplicationManager.getApplication().runWriteAction(() -> {
+                    FileType cpp = FileTypeManager.getInstance().getFileTypeByExtension(Strings.CPP_EXT);
+                    FileTypeManager.getInstance().associateExtension(cpp, Strings.INO_EXT);
+                    FileTypeManager.getInstance().associateExtension(cpp, Strings.PDE_EXT);
+                }));
     }
 
     public void disposeComponent() {
-        ApplicationManager.getApplication().invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                ApplicationManager.getApplication().runWriteAction(new Runnable() {
-                    @Override
-                    public void run() {
-                        FileType cpp = FileTypeManager.getInstance().getFileTypeByExtension(Strings.CPP_EXT);
-                        FileTypeManager.getInstance().removeAssociatedExtension(cpp, Strings.INO_EXT);
-                        FileTypeManager.getInstance().removeAssociatedExtension(cpp, Strings.PDE_EXT);
-                    }
-                });
-            }
-        });
+        ApplicationManager.getApplication().invokeLater(() ->
+                ApplicationManager.getApplication().runWriteAction(() -> {
+                    FileType cpp = FileTypeManager.getInstance().getFileTypeByExtension(Strings.CPP_EXT);
+                    FileTypeManager.getInstance().removeAssociatedExtension(cpp, Strings.INO_EXT);
+                    FileTypeManager.getInstance().removeAssociatedExtension(cpp, Strings.PDE_EXT);
+                }));
     }
 
     @NotNull

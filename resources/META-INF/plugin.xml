@@ -144,9 +144,7 @@
         <!-- Add your extensions here -->
         <directoryProjectGenerator implementation="com.vladsch.clionarduinoplugin.generators.ArduinoSketchProjectGenerator"/>
         <directoryProjectGenerator implementation="com.vladsch.clionarduinoplugin.generators.ArduinoSketchLibraryGenerator"/>
-        <!--<projectService serviceImplementation="ArduinoProjectSettingsService"/>-->
-        <applicationService serviceInterface="com.vladsch.clionarduinoplugin.components.ArduinoApplicationSettingsService"
-                            serviceImplementation="com.vladsch.clionarduinoplugin.components.ArduinoApplicationSettingsService"/>
+        <applicationService serviceImplementation="com.vladsch.clionarduinoplugin.components.ArduinoApplicationSettings"/>
         <projectService serviceImplementation="com.vladsch.clionarduinoplugin.components.ArduinoProjectSettings"/>
 
         <applicationConfigurable id="com.vladsch.clionarduinoplugin.components.ApplicationConfigurable"

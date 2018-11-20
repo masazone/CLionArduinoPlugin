@@ -28,12 +28,11 @@ import com.jetbrains.cidr.cpp.cmake.projectWizard.generators.CMakeProjectGenerat
 import com.jetbrains.cidr.cpp.cmake.projectWizard.generators.settings.CMakeProjectSettings;
 import com.jetbrains.cidr.cpp.cmake.workspace.CMakeWorkspace;
 import com.jetbrains.cidr.cpp.cmake.workspace.CMakeWorkspaceListener;
-import com.vladsch.clionarduinoplugin.components.ArduinoApplicationSettingsService;
+import com.vladsch.clionarduinoplugin.components.ArduinoApplicationSettings;
 import com.vladsch.clionarduinoplugin.resources.ArduinoToolchainFiles;
 import com.vladsch.clionarduinoplugin.resources.BuildConfig;
 import com.vladsch.clionarduinoplugin.resources.BuildConfig.Board;
 import com.vladsch.clionarduinoplugin.resources.BuildConfig.Programmer;
-import com.vladsch.clionarduinoplugin.resources.ResourceUtils;
 import com.vladsch.clionarduinoplugin.resources.Strings;
 import com.vladsch.clionarduinoplugin.util.Utils;
 import icons.PluginIcons;
@@ -53,76 +52,20 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
     public static final String ARDUINO_PROJECTS_GROUP_NAME = "Arduino";
     public static final String ARDUINO_SKETCH_PROJECT_GENERATOR_NAME = "Arduino Sketch";
     public static final String ARDUINO_SKETCH_LIBRARY_GENERATOR_NAME = "Arduino Library";
-    public static final String ARDUINO_LIB_TYPE = "arduino";
-    public static final String STATIC_LIB_TYPE = "static";
-    public static final String[] LIBRARY_TYPES = { ARDUINO_LIB_TYPE, STATIC_LIB_TYPE };
-
-    private static final ArduinoNewProjectSettings ARDUINO_MAKE_DEFAULT_PROJECT_SETTINGS = new ArduinoNewProjectSettings();
-    public static final String[] LIBRARY_CATEGORIES = new String[] {
-            "",
-            "Communications",
-            "Data Processing",
-            "Data Storage",
-            "Device Control",
-            "Display",
-            "Other",
-            "Sensors",
-            "Signal Input/Output",
-            "Timing",
-    };
-    public static final @NotNull String[] LANGUAGE_VERSIONS = ContainerUtil.map2Array(CppLanguageVersions.values(), String.class, CppLanguageVersions::getDisplayString);
 
     final protected boolean isLibrary;
 
     @Nullable protected BuildConfig myBuildConfig;
-    final protected ArduinoNewProjectSettings mySettings;
+    final protected ArduinoApplicationSettings mySettings;
 
     public ArduinoProjectGeneratorBase(final boolean isLibrary) {
         this.isLibrary = isLibrary;
-        mySettings = new ArduinoNewProjectSettings(ArduinoApplicationSettingsService.getInstance().getState());
-
-        initBuildConfig();
+        mySettings = ArduinoApplicationSettings.getInstance().getState();
+        myBuildConfig = mySettings.getBuildConfig();
     }
 
-    void initBuildConfig() {
-        String boardsTxt = BuildConfig.getBoardsTxtString();
-        String programmersTxt = BuildConfig.getProgrammersTxtString();
-
-        if (!mySettings.isBundledBoardsTxt()) {
-            String otherBoardsTxt = getFileContent(mySettings.getBoardsTxtPath());
-            BuildConfig buildConfig = new BuildConfig(otherBoardsTxt, "");
-            if (!buildConfig.getBoards().isEmpty()) {
-                boardsTxt = otherBoardsTxt;
-            }
-        }
-
-        if (!mySettings.isBundledProgrammersTxt()) {
-            String otherProgrammerTxt = getFileContent(mySettings.getProgrammersTxtPath());
-            BuildConfig buildConfig = new BuildConfig(otherProgrammerTxt, "");
-            if (!buildConfig.getProgrammers().isEmpty()) {
-                programmersTxt = otherProgrammerTxt;
-            }
-        }
-
-        myBuildConfig = new BuildConfig(boardsTxt, programmersTxt);
-    }
-
-    private String getFileContent(String path) {
-        if (!path.isEmpty()) {
-            File file = new File(path);
-            if (!file.exists()) {
-            } else if (file.isDirectory()) {
-            } else {
-                return ResourceUtils.getFileContent(file);
-            }
-        }
-        return null;
-    }
-
-    @NotNull
-    @Override
-    protected String getCMakeFileContent(@NotNull final String projectName) {
-        return "";
+    public ArduinoApplicationSettings getSettings() {
+        return mySettings;
     }
 
     @NotNull
@@ -146,13 +89,19 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
     }
 
     @NotNull
+    @Override
+    protected String getCMakeFileContent(@NotNull final String projectName) {
+        return "";
+    }
+
+    @NotNull
     public String[] getLibraryTypes() {
-        return LIBRARY_TYPES;
+        return ArduinoApplicationSettings.LIBRARY_TYPES;
     }
 
     @NotNull
     public String[] getLibraryCategories() {
-        return LIBRARY_CATEGORIES;
+        return ArduinoApplicationSettings.LIBRARY_CATEGORIES;
     }
 
     @Override
@@ -209,7 +158,7 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
 
     public void setBoard(@NotNull final String board) {
         mySettings.setBoard(board);
-        mySettings.setCpu(mySettings.boardCpu.get(board));
+        mySettings.setCpu(mySettings.getBoardCpu().get(board));
     }
 
     @Nullable
@@ -224,7 +173,7 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
 
     @Nullable
     public String getProgrammer() {
-        return mySettings.programmer;
+        return mySettings.getProgrammer();
     }
 
     public void setProgrammer(@NotNull final String programmer) {
@@ -307,9 +256,9 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
     }
 
     @NotNull
-    public static List<String> getPorts(final ArduinoNewProjectSettings settings) {
+    public static List<String> getPorts(final ArduinoApplicationSettings settings) {
         HashSet<String> ports = new LinkedHashSet<>();
-        if (settings.getPort() != null && !settings.getPort().isEmpty()) {
+        if (!settings.getPort().isEmpty()) {
             ports.add(settings.getPort());
         }
         ports.addAll(settings.getPortHistory());
@@ -319,7 +268,7 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
 
     @Override
     public String[] getLanguageVersions() {
-        return LANGUAGE_VERSIONS;
+        return ArduinoApplicationSettings.LANGUAGE_VERSIONS;
     }
 
     @Nullable
@@ -593,60 +542,25 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
     @Override
     @NotNull
     public ProjectGeneratorPeer<CMakeProjectSettings> createPeer() {
-        JComponent panel = getSettingsPanel(true);
+        JComponent panel = getSettingsPanel();
         if (panel == null) {
             panel = new JPanel();
         }
 
-        ArduinoNewProjectSettings projectSettings = getArduinoProjectSettings();
-        if (projectSettings == null) {
-            projectSettings = ARDUINO_MAKE_DEFAULT_PROJECT_SETTINGS;
-        }
-
-        GeneratorPeerImpl<CMakeProjectSettings> peer = new GeneratorPeerImpl<>(projectSettings, panel);
+        GeneratorPeerImpl<CMakeProjectSettings> peer = new GeneratorPeerImpl<>(mySettings, panel);
         return peer;
     }
 
     @Nullable
-    public ArduinoNewProjectSettings getArduinoProjectSettings() {
-        ArduinoNewProjectSettings projectSettings = createProjectSettings();
-        if (projectSettings != null) {
-
-            // persist settings
-            ArduinoApplicationSettingsService.getInstance().loadState(projectSettings);
-        }
-
-        return projectSettings;
-    }
-
-    @Nullable
     public JComponent getSettingsPanel() {
-        return getSettingsPanel(false);
-    }
-
-    @Nullable
-    public JComponent getSettingsPanel(boolean forPeer) {
         // need to update our settings and build information here
-        initBuildConfig();
+        myBuildConfig = mySettings.getBuildConfig();
 
-        if (!forPeer) {
-            mySettings.copyFrom(ArduinoApplicationSettingsService.getInstance().getState());
-        }
-
-        ArduinoNewProjectSettingsPanel panel = createSettingsPanel();
+        ArduinoNewProjectSettingsPanel panel = new ArduinoNewProjectSettingsPanel(this);
         if (panel != null) {
             panel.init(this);
         }
         return panel;
-    }
-
-    protected ArduinoNewProjectSettingsPanel createSettingsPanel() {
-        return new ArduinoNewProjectSettingsPanel(this);
-    }
-
-    @Nullable
-    public ArduinoNewProjectSettings createProjectSettings() {
-        return new ArduinoNewProjectSettings(mySettings);
     }
 
     CreatedFilesHolder createFiles(String projectName, VirtualFile rootDir) throws IOException {

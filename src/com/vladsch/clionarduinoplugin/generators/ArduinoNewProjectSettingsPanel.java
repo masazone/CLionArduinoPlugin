@@ -9,6 +9,7 @@ import com.intellij.ui.components.JBCheckBox;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.jetbrains.cidr.cpp.cmake.projectWizard.generators.settings.ui.CMakeSettingsPanel;
+import com.vladsch.clionarduinoplugin.components.ArduinoApplicationSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -242,7 +243,7 @@ public class ArduinoNewProjectSettingsPanel extends CMakeSettingsPanel {
             String libraryType = projectGenerator.getLibraryType();
 
             if (libraryType == null || libraryType.isEmpty()) {
-                libraryType = ArduinoProjectGeneratorBase.ARDUINO_LIB_TYPE;
+                libraryType = ArduinoApplicationSettings.ARDUINO_LIB_TYPE;
             }
 
             myLibraryTypeComboBox.setSelectedItem(libraryType);
@@ -366,7 +367,7 @@ public class ArduinoNewProjectSettingsPanel extends CMakeSettingsPanel {
     }
 
     void updateLibraryOptions(final String item) {
-        boolean isArduinoLibrary = ArduinoProjectGeneratorBase.ARDUINO_LIB_TYPE.equals(item);
+        boolean isArduinoLibrary = ArduinoApplicationSettings.ARDUINO_LIB_TYPE.equals(item);
         if (myLibraryCategoriesComboBox != null) myLibraryCategoriesComboBox.setVisible(isArduinoLibrary);
         if (myLibraryCategoryLabel != null) myLibraryCategoryLabel.setVisible(isArduinoLibrary);
         if (myAuthorName != null) myAuthorName.setVisible(isArduinoLibrary);

@@ -21,6 +21,7 @@ import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBTextField;
 import com.vladsch.clionarduinoplugin.components.ArduinoProjectSettings;
 import com.vladsch.clionarduinoplugin.serial.SerialProjectComponent;
+import com.vladsch.clionarduinoplugin.util.ui.EnumLike;
 import com.vladsch.clionarduinoplugin.util.ui.Settable;
 import com.vladsch.clionarduinoplugin.util.ui.SettingsComponents;
 import org.jetbrains.annotations.NotNull;
@@ -49,7 +50,7 @@ public class ProjectSettingsForm implements Disposable, RegExSettingsHolder {
     private SendSettingsForm mySendSettings;
 
     private @NotNull String myRegexSampleText;
-    SerialPortNames.EnumLike mySerialPortNames;
+    EnumLike mySerialPortNames;
 
     public JComponent getComponent() {
         return myMainPanel;
@@ -144,7 +145,7 @@ public class ProjectSettingsForm implements Disposable, RegExSettingsHolder {
             public void actionPerformed(final ActionEvent e) {updateOptions(false);}
         };
 
-        mySerialPortNames = new SerialPortNames.EnumLike(true);
+        mySerialPortNames = SerialPortNames.createEnum(true);
 
         myPort = mySerialPortNames.ADAPTER.createComboBox();
         myBaudRate = SerialBaudRates.ADAPTER.createComboBox();
