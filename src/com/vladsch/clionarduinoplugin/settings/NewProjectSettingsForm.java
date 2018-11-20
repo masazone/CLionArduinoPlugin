@@ -54,9 +54,14 @@ public class NewProjectSettingsForm implements Disposable, ApplicationSettingsLi
     final ArduinoApplicationSettings mySettings;
 
     private final SettingsComponents<ArduinoApplicationSettings> components;
+    private final boolean myIsLibrary;
+    private final boolean myIsImmediateUpdate;
 
     public NewProjectSettingsForm(boolean isLibrary, boolean immediateUpdate) {
         mySettings = ServiceManager.getService(ArduinoApplicationSettings.class);
+        myIsLibrary = isLibrary;
+        myIsImmediateUpdate = immediateUpdate;
+
 
         components = new SettingsComponents<ArduinoApplicationSettings>() {
             @Override
@@ -86,18 +91,19 @@ public class NewProjectSettingsForm implements Disposable, ApplicationSettingsLi
         }
 
         myCpuLabel.setText(mySettings.getCpuLabel());
-        setVisibility(isLibrary);
+        updateArduinoLibraryVisible();
     }
 
-    void setVisibility(boolean isLibrary) {
-        myLibraryCategories.setVisible(isLibrary);
-        myLibraryDirectory.setVisible(isLibrary);
-        myAuthorName.setVisible(isLibrary);
-        myAuthorEMail.setVisible(isLibrary);
-        myLibraryCategoryLabel.setVisible(isLibrary);
-        myLibraryTypeLabel.setVisible(isLibrary);
-        myAuthorNameLabel.setVisible(isLibrary);
-        myAuthorEMailLabel.setVisible(isLibrary);
+    void updateArduinoLibraryVisible() {
+        boolean isArduinoLibrary = myIsLibrary && ArduinoApplicationSettings.ARDUINO_LIB_TYPE.equals(mySettings.getLibraryType());
+        myLibraryCategories.setVisible(isArduinoLibrary);
+        myLibraryDirectory.setVisible(isArduinoLibrary);
+        myAuthorName.setVisible(isArduinoLibrary);
+        myAuthorEMail.setVisible(isArduinoLibrary);
+        myLibraryCategoryLabel.setVisible(isArduinoLibrary);
+        myLibraryTypeLabel.setVisible(isArduinoLibrary);
+        myAuthorNameLabel.setVisible(isArduinoLibrary);
+        myAuthorEMailLabel.setVisible(isArduinoLibrary);
     }
 
     void guard(Runnable runnable) {
@@ -162,6 +168,7 @@ public class NewProjectSettingsForm implements Disposable, ApplicationSettingsLi
             components.reset(settings);
 
             updateEnums();
+            updateArduinoLibraryVisible();
 
             myCpuLabel.setText(mySettings.getCpuLabel());
 
