@@ -16,6 +16,7 @@ public class ResourceUtils {
         }
         return null;
     }
+
     public static String getResourceFileContent(Class clazz, String resourcePath) {
         StringWriter writer = new StringWriter();
         InputStream inputStream = clazz.getResourceAsStream(resourcePath);

@@ -79,7 +79,7 @@ public class SendSettingsForm implements Disposable {
     }
 
     public void apply(@NotNull ArduinoProjectSettings settings) {
-        settings.groupChanges(()->{
+        settings.groupChanges(() -> {
             components.apply(settings);
         });
     }

@@ -31,12 +31,8 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.content.ContentManager;
 import com.vladsch.clionarduinoplugin.Bundle;
-import com.vladsch.clionarduinoplugin.settings.ProjectSettingsForm;
 import icons.PluginIcons;
 
-import javax.swing.BorderFactory;
-import javax.swing.JPanel;
-import java.awt.BorderLayout;
 import java.util.HashMap;
 
 public class SerialMonitorToolWindow {
@@ -56,7 +52,7 @@ public class SerialMonitorToolWindow {
 
         //JPanel mainPanel = new JPanel(new BorderLayout());
         //mainPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        SimpleToolWindowPanel mainPanel = new SimpleToolWindowPanel(false,true);
+        SimpleToolWindowPanel mainPanel = new SimpleToolWindowPanel(false, true);
 
         mySerialMonitorPanel = new SerialMonitorPanel(project);
         mainPanel.add(mySerialMonitorPanel.getComponent());

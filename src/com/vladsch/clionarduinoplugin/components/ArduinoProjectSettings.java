@@ -1,6 +1,9 @@
 package com.vladsch.clionarduinoplugin.components;
 
-import com.intellij.openapi.components.*;
+import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.components.State;
+import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.vladsch.clionarduinoplugin.settings.BuildConfigurationPatternType;
@@ -12,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.regex.Pattern;
 
 @State(name = "Arduino Project Settings",
-          storages = @Storage(value = "arduino-project-settings.xml")
+        storages = @Storage(value = "arduino-project-settings.xml")
 )
 public class ArduinoProjectSettings implements PersistentStateComponent<ArduinoProjectSettings> {
     public static final String TEXT_DELIMITER = "|";

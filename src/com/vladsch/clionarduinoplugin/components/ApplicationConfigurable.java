@@ -16,12 +16,10 @@ package com.vladsch.clionarduinoplugin.components;
 
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.vladsch.clionarduinoplugin.Bundle;
 import com.vladsch.clionarduinoplugin.generators.ArduinoNewProjectSettings;
 import com.vladsch.clionarduinoplugin.settings.ApplicationSettingsForm;
-import com.vladsch.clionarduinoplugin.settings.ProjectSettingsForm;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

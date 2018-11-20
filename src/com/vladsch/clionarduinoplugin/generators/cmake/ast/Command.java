@@ -21,7 +21,6 @@ public class Command extends Node {
         return new BasedSequence[] { command, openingMarker, arguments, closingMarker };
     }
 
-
     @Override
     public void getAstExtra(StringBuilder out) {
         segmentSpanChars(out, command, "text");

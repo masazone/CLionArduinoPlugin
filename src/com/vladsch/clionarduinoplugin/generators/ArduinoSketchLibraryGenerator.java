@@ -65,11 +65,11 @@ public class ArduinoSketchLibraryGenerator extends ArduinoProjectGeneratorBase {
                     createProjectFileWithContent(dir, name + "_test" + Strings.DOT_INO_EXT, Strings.DEFAULT_ARDUINO_LIBRARY_TEST_CONTENTS.replace("<$PROJECT_NAME$>", name)),
                     createProjectFileWithContent(dir, "keywords.txt", Strings.DEFAULT_ARDUINO_LIBRARY_KEYWORDS_CONTENTS.replace("<$PROJECT_NAME$>", name)),
 
-/*
-                    createProjectFileWithContent(dir, "User_Setup" + Strings.DOT_H_EXT, Strings.DEFAULT_ARDUINO_USER_SETUP_H_CONTENTS
-                            .replace("<$PROJECT_NAME$>", name)
-                            .replace("<$FILE_NAME$>", fileName)),
-*/
+                    /*
+                                        createProjectFileWithContent(dir, "User_Setup" + Strings.DOT_H_EXT, Strings.DEFAULT_ARDUINO_USER_SETUP_H_CONTENTS
+                                                .replace("<$PROJECT_NAME$>", name)
+                                                .replace("<$FILE_NAME$>", fileName)),
+                    */
 
                     createProjectFileWithContent(dir, "library.properties", Strings.DEFAULT_ARDUINO_LIBRARY_PROPERTIES_CONTENTS
                             .replace("<$PROJECT_NAME$>", name)

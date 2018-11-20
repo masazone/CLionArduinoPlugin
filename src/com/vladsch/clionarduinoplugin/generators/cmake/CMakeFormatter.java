@@ -7,8 +7,8 @@ import com.vladsch.flexmark.ast.Node;
 import com.vladsch.flexmark.formatter.RenderPurpose;
 import com.vladsch.flexmark.formatter.TranslatingSpanRender;
 import com.vladsch.flexmark.formatter.TranslationPlaceholderGenerator;
-import com.vladsch.flexmark.formatter.internal.*;
 import com.vladsch.flexmark.formatter.internal.Formatter;
+import com.vladsch.flexmark.formatter.internal.*;
 import com.vladsch.flexmark.util.collection.DynamicDefaultKey;
 import com.vladsch.flexmark.util.collection.NodeCollectingVisitor;
 import com.vladsch.flexmark.util.collection.SubClassingBag;
@@ -25,7 +25,7 @@ import static com.vladsch.flexmark.formatter.internal.Formatter.NULL_ITERABLE;
 public class CMakeFormatter implements IRender {
 
     // syntax options
-    final static public DataKey<Set<String>> SPACE_AFTER_COMMAND_NAME = new DynamicDefaultKey<Set<String>>("SPACE_AFTER_COMMAND_NAME", (dataHolder)->{
+    final static public DataKey<Set<String>> SPACE_AFTER_COMMAND_NAME = new DynamicDefaultKey<Set<String>>("SPACE_AFTER_COMMAND_NAME", (dataHolder) -> {
         return new HashSet<>(Arrays.asList(
                 "if",
                 "elseif",
@@ -58,7 +58,7 @@ public class CMakeFormatter implements IRender {
     final private CMakeFormatterOptions formatterOptions;
 
     private CMakeFormatter(final DataHolder options) {
-        this.options = options == null ? new DataSet():new DataSet(options);
+        this.options = options == null ? new DataSet() : new DataSet(options);
         this.formatterOptions = new CMakeFormatterOptions(options);
     }
 
@@ -75,7 +75,7 @@ public class CMakeFormatter implements IRender {
 
     public String render(@NotNull final Node node) {
         StringBuilder sb = new StringBuilder();
-        render(node,sb);
+        render(node, sb);
         return sb.toString();
     }
 

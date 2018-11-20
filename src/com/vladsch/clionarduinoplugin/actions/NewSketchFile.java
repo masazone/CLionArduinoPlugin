@@ -64,7 +64,6 @@ public class NewSketchFile extends AnAction {
                 FileEditorManager.getInstance(project).openFile(sketch, true, true); //open in editor
             } while (loop);
         }
-
     }
 
     private void showEmptyFilenameError(Project project) {

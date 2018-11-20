@@ -81,14 +81,14 @@ public class Strings {
             "#######################################\n" +
             "";
     public static final String DEFAULT_ARDUINO_LIBRARY_PROPERTIES_CONTENTS = "" +
-            "name=<$PROJECT_NAME$>\n"+
-            "version=0.0.0\n"+
-            "author=<$USER_NAME$>\n"+
-            "maintainer=<$USER_NAME$> <$E_MAIL$>\n"+
-            "sentence=Summary\n"+
-            "paragraph=Description\n"+
-            "category=<$LIBRARY_CATEGORY$>\n"+
-            "url=URL\n"+
-            "architectures=*\n"+
+            "name=<$PROJECT_NAME$>\n" +
+            "version=0.0.0\n" +
+            "author=<$USER_NAME$>\n" +
+            "maintainer=<$USER_NAME$> <$E_MAIL$>\n" +
+            "sentence=Summary\n" +
+            "paragraph=Description\n" +
+            "category=<$LIBRARY_CATEGORY$>\n" +
+            "url=URL\n" +
+            "architectures=*\n" +
             "";
 }

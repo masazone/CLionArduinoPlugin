@@ -126,6 +126,26 @@ public class CMakeParserPatternTest {
         assertFails(CMakeParser.UNQUOTED_LEGACY, " -Da=$(v)");
         assertFails(CMakeParser.UNQUOTED_LEGACY, " a\" \"b\"c\"d");
 
+    }
 
+    @Test
+    public void test_realValues() {
+        assertMatches(CMakeParser.UNQUOTED_ARGUMENT, "${CMAKE_PROJECT_NAME}_PROGRAMMER","${CMAKE_PROJECT_NAME}_PROGRAMMER");
+        assertMatches(CMakeParser.UNQUOTED_LEGACY, "${CMAKE_PROJECT_NAME}_PROGRAMMER", "${CMAKE_PROJECT_NAME}_PROGRAMMER");
+    }
+
+    @Test
+    public void test_argText() {
+        // unquoted
+        assertEquals("", CMakeParser.getArgText(""));
+        assertEquals("a", CMakeParser.getArgText("a"));
+        assertEquals("abc", CMakeParser.getArgText("abc"));
+
+        // quoted
+        assertEquals("\" \"", CMakeParser.getArgText(" "));
+        assertEquals("\"abc\\tdef\"", CMakeParser.getArgText("abc\tdef"));
+        assertEquals("\"abc\\rdef\"", CMakeParser.getArgText("abc\rdef"));
+        assertEquals("\"abc\\ndef\"", CMakeParser.getArgText("abc\ndef"));
+        assertEquals("\"abc\\\\def\"", CMakeParser.getArgText("abc\\def"));
     }
 }

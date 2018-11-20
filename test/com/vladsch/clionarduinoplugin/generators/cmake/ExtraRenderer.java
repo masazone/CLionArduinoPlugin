@@ -43,6 +43,8 @@ class ExtraRenderer extends IRenderBase {
                 output.append(message).append(": ")
                         .append(Integer.toString(line)).append(":").append(Integer.toString(col)).append(": ")
                         .append(location);
+
+                if (location.length() > 0 && location.charAt(location.length()-1) != '\n') output.append('\n');
             }
 
             if (DUMP_OPTIONS.getFrom(getOptions())) {
@@ -58,8 +60,6 @@ class ExtraRenderer extends IRenderBase {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
     }
 
     @Override

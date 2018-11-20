@@ -41,6 +41,13 @@ public class CMakeNodeFormatter implements NodeFormatter {
         }
     }
 
+    private void render(final CommandBlock node, final NodeFormatterContext context, final MarkdownWriter markdown) {
+        markdown.pushPrefix();
+        markdown.addPrefix(RepeatedCharSequence.of(' ', formatterOptions.indentSpaces));
+        context.renderChildren(node);
+        markdown.popPrefix();
+    }
+
     private void render(final Command node, final NodeFormatterContext context, final MarkdownWriter markdown) {
         markdown.append(node.getCommand());
         if (formatterOptions.preserveWhitespace) {
@@ -147,10 +154,6 @@ public class CMakeNodeFormatter implements NodeFormatter {
         markdown.append(node.getChars());
     }
 
-    private void render(final VariableReference node, final NodeFormatterContext context, final MarkdownWriter markdown) {
-        markdown.append(node.getChars());
-    }
-
     @Override
     public Set<NodeFormattingHandler<?>> getNodeFormattingHandlers() {
         return new HashSet<NodeFormattingHandler<? extends Node>>(Arrays.asList(
@@ -209,15 +212,15 @@ public class CMakeNodeFormatter implements NodeFormatter {
                         CMakeNodeFormatter.this.render(node, context, markdown);
                     }
                 }),
-                new NodeFormattingHandler<UnrecognizedInput>(UnrecognizedInput.class, new CustomNodeFormatter<UnrecognizedInput>() {
+                new NodeFormattingHandler<CommandBlock>(CommandBlock.class, new CustomNodeFormatter<CommandBlock>() {
                     @Override
-                    public void render(UnrecognizedInput node, NodeFormatterContext context, MarkdownWriter markdown) {
+                    public void render(CommandBlock node, NodeFormatterContext context, MarkdownWriter markdown) {
                         CMakeNodeFormatter.this.render(node, context, markdown);
                     }
                 }),
-                new NodeFormattingHandler<VariableReference>(VariableReference.class, new CustomNodeFormatter<VariableReference>() {
+                new NodeFormattingHandler<UnrecognizedInput>(UnrecognizedInput.class, new CustomNodeFormatter<UnrecognizedInput>() {
                     @Override
-                    public void render(VariableReference node, NodeFormatterContext context, MarkdownWriter markdown) {
+                    public void render(UnrecognizedInput node, NodeFormatterContext context, MarkdownWriter markdown) {
                         CMakeNodeFormatter.this.render(node, context, markdown);
                     }
                 })

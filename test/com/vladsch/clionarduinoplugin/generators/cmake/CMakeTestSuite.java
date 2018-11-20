@@ -7,6 +7,7 @@ import org.junit.runners.Suite;
         CMakeParserPatternTest.class,
         CMakeParserSpecTest.class,
         CMakeFormatterSpecTest.class,
+        CMakeBuilderSpecTest.class,
 })
 public class CMakeTestSuite {
 }

@@ -79,7 +79,7 @@ public class SerialMonitorPanel implements Disposable, SerialPortListener, Proje
         project.getMessageBus().connect(this).subscribe(ProjectSettingsListener.TOPIC, this);
 
         mySendSettings.getComponent().setVisible(myProjectSettings.isShowSendOptions());
-        mySendSettings.setChangeMonitor(()->{
+        mySendSettings.setChangeMonitor(() -> {
             mySendSettings.apply(myProjectSettings);
         });
 

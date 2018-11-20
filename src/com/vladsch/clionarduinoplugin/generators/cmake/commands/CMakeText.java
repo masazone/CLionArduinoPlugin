@@ -1,0 +1,48 @@
+package com.vladsch.clionarduinoplugin.generators.cmake.commands;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.io.IOException;
+import java.util.Map;
+
+public class CMakeText implements CMakeElement {
+    final protected @NotNull String myText;
+    protected boolean myAddEOL;
+
+    public CMakeText(@NotNull final String text) {
+        this(text, false);
+    }
+
+    public CMakeText(@NotNull final String text, boolean addEOL) {
+        myText = text;
+        myAddEOL = addEOL;
+    }
+
+    @Override
+    public @NotNull String getText(@Nullable Map<String, Object> valueSet) {
+        return myText;
+    }
+
+    public boolean isAddEOL() {
+        return myAddEOL;
+    }
+
+    public void setAddEOL(final boolean addEOL) {
+        myAddEOL = addEOL;
+    }
+
+    @Override
+    public void appendTo(StringBuilder out, @Nullable Map<String, Object> valueSet) throws IOException {
+        out.append(myText);
+        if (myAddEOL) out.append("\n");
+    }
+
+    @Override
+    public String toString() {
+        return "CMakeText{" +
+                ", " + myAddEOL +
+                "'" + myText + '\'' +
+                '}';
+    }
+}

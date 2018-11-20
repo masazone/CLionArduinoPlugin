@@ -622,7 +622,6 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
     @Nullable
     public JComponent getSettingsPanel() {
         return getSettingsPanel(false);
-
     }
 
     @Nullable

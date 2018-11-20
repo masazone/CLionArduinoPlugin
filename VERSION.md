@@ -35,6 +35,8 @@
   terms of required order of lines.
 * Fix: CMakeFormatter and CMakeParser to handle preserving original file when recreated from
   AST.
+* Add: `CMakeListsBuilder` for parsing existing file, modifying values and regenerating the new
+  content based on new values but preserving unchanged lines.
 
 ### 1.3.12
 

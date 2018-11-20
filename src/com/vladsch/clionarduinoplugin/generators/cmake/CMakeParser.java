@@ -19,6 +19,8 @@ import java.util.regex.Pattern;
 public class CMakeParser {
     final static public String _EOL = "(?:\r\n|\r|\n|$)";
     final static public String _ESCAPABLE = "[()#\"\\\\ $@^trn;]";
+    final static public String _NEEDS_QUOTING = "[()#\"\\\\ ^\t\r\n;]";
+    final static public String _NEEDS_QUOTED_ESCAPING = "[\"\\\\\t\n\r]";
     final static public String _COMMAND = "(?:[A-Za-z_][A-Za-z0-9_]*)";
     final static public String _ESCAPED_CHAR = "(?:\\\\" + _ESCAPABLE + ")";
     final static public String _QUOTED_ARGUMENT_LINE_CONT = "(?:\"(?:" + _ESCAPED_CHAR + "|\\\\" + _EOL + "|[^\"\\x00\\\\])*\")";
@@ -29,7 +31,8 @@ public class CMakeParser {
     final static public String _UNQUOTED_LEGACY = "(?:" + _LEGACY_CHARS + "(?:" + _QUOTED_ARGUMENT_NO_LINE_CONT + "|" + _ESCAPED_CHAR + "|" + _LEGACY_CHARS + "|\\(" + _LEGACY_CHARS + "+\\))*)";
 
     final static public Pattern SP = Pattern.compile("^(?:[ \t])*");
-    final static public Pattern ESCAPABLE = Pattern.compile('^' + _ESCAPABLE);
+    final static public Pattern NEEDS_QUOTING = Pattern.compile(_NEEDS_QUOTING);
+    final static public Pattern NEEDS_ESCAPING = Pattern.compile(_NEEDS_QUOTED_ESCAPING);
     final static public Pattern REST_OF_LINE = Pattern.compile("^.*" + _EOL);
     final static public Pattern COMMAND = Pattern.compile("^" + _COMMAND);
     final static public Pattern EOL = Pattern.compile("^" + _EOL);
@@ -40,11 +43,13 @@ public class CMakeParser {
     final static public Pattern UNQUOTED_LEGACY = Pattern.compile("^" + _UNQUOTED_LEGACY);
 
     // syntax options
+    final static public DataKey<Integer> MAX_ERROR_LINE_RECOVERIES = new DataKey<>("MAX_ERROR_LINE_RECOVERIES", 5);
     final static public DataKey<Boolean> AUTO_CONFIG = new DataKey<>("AUTO_CONFIG", true);
     final static public DataKey<Boolean> BRACKET_COMMENTS = new DataKey<>("BRACKET_COMMENTS", false);
     final static public DataKey<Boolean> LINE_CONTINUATION = new DataKey<>("LINE_CONTINUATION", false);
 
     // optional ast node inclusion
+    final static public DataKey<Boolean> AST_COMMAND_BLOCKS = new DataKey<>("AST_COMMAND_BLOCKS", false);
     final static public DataKey<Boolean> AST_COMMENTS = new DataKey<>("AST_COMMENTS", false);
     final static public DataKey<Boolean> AST_BLANK_LINES = new DataKey<>("AST_BLANK_LINES", false);
     final static public DataKey<Boolean> AST_LINE_END_EOL = new DataKey<>("AST_LINE_END_EOL", false);
@@ -68,6 +73,45 @@ public class CMakeParser {
 
     public CMakeFile getDocument() {
         return document;
+    }
+
+    public static @NotNull String getArgText(@NotNull String arg) {
+        return getArgText((CharSequence) arg).toString();
+    }
+
+    public static @NotNull CharSequence getArgText(@NotNull CharSequence arg) {
+        // wrap in quotes or brackets as needed
+        if (NEEDS_QUOTING.matcher(arg).find()) {
+            StringBuffer sb = new StringBuffer();
+            sb.append("\"");
+
+            Matcher matcher = NEEDS_ESCAPING.matcher(arg);
+            while (matcher.find()) {
+                char c = arg.charAt(matcher.start());
+                switch (c) {
+                    case '\t':
+                        matcher.appendReplacement(sb, "\\\\t");
+                        break;
+                    case '\r':
+                        matcher.appendReplacement(sb, "\\\\r");
+                        break;
+                    case '\n':
+                        matcher.appendReplacement(sb, "\\\\n");
+                        break;
+                    default:
+                        matcher.appendReplacement(sb, "");
+                        sb.append("\\").append(matcher.group());
+                        break;
+                }
+            }
+            matcher.appendTail(sb);
+
+            sb.append("\"");
+
+            return sb;
+        } else {
+            return arg;
+        }
     }
 
     protected void addError(final Node parent, @NotNull String message) {
@@ -94,12 +138,20 @@ public class CMakeParser {
             if (!res) {
                 // see if parsed the whole file
                 if (peek() != '\0') {
-                    addError(document, "Unrecognized input");
-                    // try to continue
-                    res = parseElement();
-                    if (!res) {
-                        break;
+                    // try to continue by removing lines until we succeed up to a max count
+                    int errorLines = options.maxErrorLineRecoveries;
+
+                    while (!res && errorLines-- > 0) {
+                        addError(document, "Unrecognized input");
+
+                        if (peek() == '\0') {
+                            break;
+                        }
+
+                        res = parseElement();
                     }
+
+                    if (!res) break;
                 }
             }
         } while (res);
@@ -185,7 +237,14 @@ public class CMakeParser {
                                         Node minVersionArg = firstArg.getNext();
                                         if (minVersionArg != null) {
                                             // TODO: figure out if need to unescape
-                                            Version minVersion = new Version(minVersionArg.getChars());
+                                            BasedSequence version = minVersionArg.getChars();
+                                            BasedSequence[] minMaxVersions = version.split("...", 2);
+
+                                            // use max version if given
+                                            Version minVersion = new Version(minMaxVersions[0]);
+                                            Version maxVersion = new Version(minMaxVersions.length > 1 ? minMaxVersions[1] : minMaxVersions[0]);
+                                            if (minVersion.compareTo(maxVersion) < 0) minVersion = maxVersion;
+
                                             if (minVersion.compareTo("3.0.0") >= 0) {
                                                 // all on
                                                 options.lineContinuation = true;
@@ -331,8 +390,9 @@ public class CMakeParser {
     public boolean parseLineEnding(Node parent) {
         BasedSequence chars;
 
-        char c = peek();
+        sp();
 
+        char c = peek();
         if (c == '\0') {
             return true;        // valid end of line for the file
         } else if (c == '#') {

@@ -31,7 +31,7 @@ public class ShowSendOptionsAction extends ToggleAction implements DumbAware {
         boolean selected = false;
         if (project != null) {
             ArduinoProjectSettings projectSettings = ArduinoProjectSettings.getInstance(project);
-            projectSettings.groupChanges(()->{
+            projectSettings.groupChanges(() -> {
                 projectSettings.setShowSendOptions(state);
             });
         }

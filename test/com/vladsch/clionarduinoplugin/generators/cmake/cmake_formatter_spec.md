@@ -989,10 +989,18 @@ the source code uses line continuation.\
 .
 "\
 message("\
+This is the first line of a quoted argument. \
+In fact it is the only line but since it is long \
+the source code uses line continuation.\
+")
 .
 CMakeFile[0, 153]
   UnrecognizedInput[8, 11]
   UnrecognizedInput[0, 11]
+  UnrecognizedInput[11, 58]
+  UnrecognizedInput[58, 109]
+  UnrecognizedInput[109, 150]
+  UnrecognizedInput[150, 153]
 ````````````````````````````````
 
 
@@ -1072,6 +1080,10 @@ the source code uses line continuation.\
 cmake_minimum_required(VERSION 2.99.99)
 "\
 message("\
+This is the first line of a quoted argument. \
+In fact it is the only line but since it is long \
+the source code uses line continuation.\
+")
 .
 CMakeFile[0, 192]
   Command[0, 39] text:[0, 22, "cmake_minimum_required"] open:[22, 23, "("] arguments:[23, 38, "VERSION 2.99.99"] close:[38, 39, ")"]
@@ -1080,6 +1092,10 @@ CMakeFile[0, 192]
   LineEnding[39, 40]
   UnrecognizedInput[48, 51]
   UnrecognizedInput[40, 51]
+  UnrecognizedInput[51, 98]
+  UnrecognizedInput[98, 149]
+  UnrecognizedInput[149, 190]
+  UnrecognizedInput[190, 192]
 ````````````````````````````````
 
 
