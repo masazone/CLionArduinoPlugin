@@ -25,7 +25,7 @@ public class ProjectSettingsDialog extends DialogWrapper {
         setTitle(Bundle.message("settings.project-settings.title"));
 
         ArduinoProjectSettings projectSettings = ArduinoProjectSettings.getInstance(project);
-        myProjectSettingsForm = new ProjectSettingsForm(projectSettings);
+        myProjectSettingsForm = new ProjectSettingsForm(projectSettings, true);
         myMainPanel.add(myProjectSettingsForm.getComponent(), BorderLayout.CENTER);
         myProjectSettingsForm.reset(projectSettings);
 

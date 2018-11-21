@@ -28,7 +28,7 @@ public class EnumLike<E extends ComboBoxAdaptable<E>> {
         E dummy = factory.create(this, 0, "");
 
         //noinspection unchecked
-        values = (E[]) Array.newInstance(dummy.getClass(), valueList.length + 1);
+        values = (E[]) Array.newInstance(dummy.getClass(), valueList.length + (addEmpty ? 1 : 0));
 
         int i = 0;
         if (addEmpty) {
@@ -48,7 +48,7 @@ public class EnumLike<E extends ComboBoxAdaptable<E>> {
         E dummy = factory.create(this, 0, "");
 
         //noinspection unchecked
-        values = (E[]) Array.newInstance(dummy.getClass(), valueList.size() + 1);
+        values = (E[]) Array.newInstance(dummy.getClass(), valueList.size() + (addEmpty ? 1 : 0));
 
         int i = 0;
         if (addEmpty) {

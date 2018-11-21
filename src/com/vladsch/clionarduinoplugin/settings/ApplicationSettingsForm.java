@@ -20,6 +20,7 @@ import com.intellij.diff.contents.DiffContent;
 import com.intellij.diff.requests.DiffRequest;
 import com.intellij.diff.requests.SimpleDiffRequest;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileTypes.PlainTextFileType;
@@ -29,8 +30,9 @@ import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.components.JBCheckBox;
 import com.vladsch.clionarduinoplugin.Bundle;
 import com.vladsch.clionarduinoplugin.components.ArduinoApplicationSettings;
-import com.vladsch.clionarduinoplugin.resources.BuildConfig;
+import com.vladsch.clionarduinoplugin.resources.ArduinoConfig;
 import com.vladsch.clionarduinoplugin.resources.ResourceUtils;
+import com.vladsch.clionarduinoplugin.util.ApplicationSettingsListener;
 import com.vladsch.clionarduinoplugin.util.ui.Settable;
 import com.vladsch.clionarduinoplugin.util.ui.SettingsComponents;
 import org.jetbrains.annotations.NotNull;
@@ -41,7 +43,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 
-public class ApplicationSettingsForm implements Disposable {
+public class ApplicationSettingsForm implements Disposable, ApplicationSettingsListener {
     private static final Logger logger = Logger.getInstance("com.vladsch.clionarduinoplugin.settings");
 
     JPanel myMainPanel;
@@ -56,21 +58,27 @@ public class ApplicationSettingsForm implements Disposable {
     private JButton myBoardsTxtDiff;
     private JButton myProgrammersTxtDiff;
 
-    @NotNull BuildConfig myBuildConfig;
+    //NewProjectSettingsForm myNewSketchForm;
+    //NewProjectSettingsForm myNewLibraryForm;
+
+    @NotNull ArduinoConfig myArduinoConfig;
 
     public JComponent getComponent() {
         return myMainPanel;
     }
 
     private final SettingsComponents<ArduinoApplicationSettings> components;
+    final ArduinoApplicationSettings mySettings;
 
     public ApplicationSettingsForm(ArduinoApplicationSettings settings) {
-        final String boardsTxt = BuildConfig.getBoardsTxtString();
-        final String programmersTxt = BuildConfig.getProgrammersTxtString();
-        myBuildConfig = new BuildConfig(boardsTxt, programmersTxt);
+        mySettings = settings;
+
+        final String boardsTxt = ArduinoConfig.Companion.getBoardsTxtString();
+        final String programmersTxt = ArduinoConfig.Companion.getProgrammersTxtString();
+        myArduinoConfig = new ArduinoConfig(boardsTxt, programmersTxt);
         components = new SettingsComponents<ArduinoApplicationSettings>() {
             @Override
-            protected Settable[] getComponents(ArduinoApplicationSettings i) {
+            protected Settable[] createComponents(ArduinoApplicationSettings i) {
                 return new Settable[] {
                         component(myAuthorName, i::getAuthorName, i::setAuthorName),
                         component(myAuthorEMail, i::getAuthorEMail, i::setAuthorEMail),
@@ -78,9 +86,13 @@ public class ApplicationSettingsForm implements Disposable {
                         component(myBundledProgrammersTxt, i::isBundledProgrammersTxt, i::setBundledProgrammersTxt),
                         component(myBoardsTxtPath.getTextField(), i::getBoardsTxtPath, i::setBoardsTxtPath),
                         component(myProgrammersTxtPath.getTextField(), i::getProgrammersTxtPath, i::setProgrammersTxtPath),
+                        //component(myNewSketchForm, i),
+                        //component(myNewLibraryForm, i),
                 };
             }
         };
+
+        ApplicationManager.getApplication().getMessageBus().connect(this).subscribe(ApplicationSettingsListener.TOPIC, this);
 
         ActionListener listener = new ActionListener() {
             @Override
@@ -195,8 +207,8 @@ public class ApplicationSettingsForm implements Disposable {
                     error = "<html><body><span style='color: red'>" + Bundle.message("settings.directory-boards-txt.message") + "</span></body></html>";
                 } else {
                     String fileTxt = ResourceUtils.getFileContent(file);
-                    BuildConfig buildConfig = new BuildConfig(fileTxt, "");
-                    if (buildConfig.getBoards().size() == 0) {
+                    ArduinoConfig arduinoConfig = new ArduinoConfig(fileTxt, "");
+                    if (arduinoConfig.getBoardIdMap().size() == 0) {
                         // invalid
                         error = "<html><body><span style='color: red'>" + Bundle.message("settings.invalid-boards-txt.message") + "</span></body></html>";
                     }
@@ -233,8 +245,8 @@ public class ApplicationSettingsForm implements Disposable {
                     error = "<html><body><span style='color: red'>" + Bundle.message("settings.directory-programmers-txt.message") + "</span></body></html>";
                 } else {
                     String fileTxt = ResourceUtils.getFileContent(file);
-                    BuildConfig buildConfig = new BuildConfig("", fileTxt);
-                    if (buildConfig.getProgrammers().size() == 0) {
+                    ArduinoConfig arduinoConfig = new ArduinoConfig("", fileTxt);
+                    if (arduinoConfig.getProgrammerIdMap().size() == 0) {
                         // invalid
                         error = "<html><body><span style='color: red'>" + Bundle.message("settings.invalid-programmers-txt.message") + "</span></body></html>";
                     }
@@ -255,21 +267,36 @@ public class ApplicationSettingsForm implements Disposable {
         }
     }
 
+    @Override
+    public void onSettingsChanged() {
+        reset(mySettings);
+    }
+
     public boolean isModified(@NotNull ArduinoApplicationSettings settings) {
         return components.isModified(settings);
     }
 
     public void apply(@NotNull ArduinoApplicationSettings settings) {
-        components.apply(settings);
+        if (isModified(settings)) {
+            components.apply(settings);
+        }
     }
 
     public void reset(@NotNull ArduinoApplicationSettings settings) {
-        components.reset(settings);
-        updateOptions(true);
+        if (isModified(settings)) {
+            components.reset(settings);
+            updateOptions(true);
+        }
     }
 
     @Override
     public void dispose() {
 
+    }
+
+    private void createUIComponents() {
+        // TODO: place custom component creation code here
+        //myNewSketchForm = new NewProjectSettingsForm(false,true);
+        //myNewLibraryForm = new NewProjectSettingsForm(true,true);
     }
 }

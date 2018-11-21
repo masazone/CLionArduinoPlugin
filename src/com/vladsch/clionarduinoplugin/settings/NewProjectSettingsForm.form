@@ -1,177 +1,172 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.vladsch.clionarduinoplugin.settings.NewProjectSettingsForm">
-  <grid id="27dc6" binding="myMainPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="myMainPanel" layout-manager="GridLayoutManager" row-count="13" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="590" height="542"/>
+      <xy x="20" y="20" width="455" height="542"/>
     </constraints>
     <properties/>
     <border type="none"/>
     <children>
-      <grid id="21814" layout-manager="GridLayoutManager" row-count="12" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-        <margin top="0" left="0" bottom="0" right="0"/>
+      <component id="469a9" class="javax.swing.JLabel">
         <constraints>
-          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.new-project.language-standard.label"/>
+        </properties>
+      </component>
+      <component id="a58e5" class="javax.swing.JComboBox" binding="myLanguageVersion" custom-create="true">
+        <constraints>
+          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
-        <border type="none"/>
-        <children>
-          <component id="469a9" class="javax.swing.JLabel">
-            <constraints>
-              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.new-project.language-standard.label"/>
-            </properties>
-          </component>
-          <component id="a58e5" class="javax.swing.JComboBox" binding="myLanguageVersion" custom-create="true">
-            <constraints>
-              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties/>
-          </component>
-          <component id="cbdc0" class="javax.swing.JLabel">
-            <constraints>
-              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.new-project.board.label"/>
-            </properties>
-          </component>
-          <component id="90ce7" class="javax.swing.JComboBox" binding="myBoards" custom-create="true">
-            <constraints>
-              <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties/>
-          </component>
-          <component id="fbd03" class="javax.swing.JLabel" binding="myCpuLabel">
-            <constraints>
-              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.new-project.cpu.label"/>
-            </properties>
-          </component>
-          <component id="bf372" class="javax.swing.JComboBox" binding="myCpus" custom-create="true">
-            <constraints>
-              <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties/>
-          </component>
-          <component id="b9143" class="javax.swing.JLabel">
-            <constraints>
-              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.new-project.programmer.label"/>
-            </properties>
-          </component>
-          <component id="50e98" class="javax.swing.JComboBox" binding="myProgrammers" custom-create="true">
-            <constraints>
-              <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties/>
-          </component>
-          <component id="b4e31" class="javax.swing.JLabel">
-            <constraints>
-              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.new-project.port.label"/>
-            </properties>
-          </component>
-          <component id="2ac07" class="com.intellij.ui.TextFieldWithHistory" binding="myPort">
-            <constraints>
-              <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties/>
-          </component>
-          <component id="14cd" class="javax.swing.JLabel" binding="myLibraryCategoryLabel">
-            <constraints>
-              <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.new-project.library-category.label"/>
-            </properties>
-          </component>
-          <component id="8175d" class="javax.swing.JLabel" binding="myLibraryTypeLabel">
-            <constraints>
-              <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.new-project.library-type.label"/>
-            </properties>
-          </component>
-          <component id="14c7f" class="javax.swing.JComboBox" binding="myLibraryType" custom-create="true">
-            <constraints>
-              <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties/>
-          </component>
-          <component id="2b467" class="javax.swing.JComboBox" binding="myLibraryCategories" custom-create="true">
-            <constraints>
-              <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties/>
-          </component>
-          <component id="fe708" class="javax.swing.JLabel" binding="myAuthorNameLabel">
-            <constraints>
-              <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.author-name.label"/>
-            </properties>
-          </component>
-          <component id="2a5b6" class="javax.swing.JTextField" binding="myAuthorName">
-            <constraints>
-              <grid row="7" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                <preferred-size width="150" height="-1"/>
-              </grid>
-            </constraints>
-            <properties/>
-          </component>
-          <component id="8c7c7" class="javax.swing.JLabel" binding="myAuthorEMailLabel">
-            <constraints>
-              <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.author-email.label"/>
-            </properties>
-          </component>
-          <component id="340c7" class="javax.swing.JTextField" binding="myAuthorEMail">
-            <constraints>
-              <grid row="8" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                <preferred-size width="150" height="-1"/>
-              </grid>
-            </constraints>
-            <properties/>
-          </component>
-          <component id="ebfba" class="com.intellij.ui.components.JBCheckBox" binding="myVerbose">
-            <constraints>
-              <grid row="9" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.new-project.verbose.label"/>
-            </properties>
-          </component>
-          <component id="58a3" class="com.intellij.ui.components.JBCheckBox" binding="myAddLibraryDirectory">
-            <constraints>
-              <grid row="10" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.new-project.add-library.label"/>
-            </properties>
-          </component>
-          <component id="2a6ff" class="javax.swing.JTextField" binding="myLibraryDirectory">
-            <constraints>
-              <grid row="11" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                <preferred-size width="150" height="-1"/>
-              </grid>
-            </constraints>
-            <properties/>
-          </component>
-        </children>
-      </grid>
+      </component>
+      <component id="cbdc0" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.new-project.board.label"/>
+        </properties>
+      </component>
+      <component id="90ce7" class="javax.swing.JComboBox" binding="myBoards" custom-create="true">
+        <constraints>
+          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="fbd03" class="javax.swing.JLabel" binding="myCpuLabel">
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.new-project.cpu.label"/>
+        </properties>
+      </component>
+      <component id="bf372" class="javax.swing.JComboBox" binding="myCpus" custom-create="true">
+        <constraints>
+          <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="b9143" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.new-project.programmer.label"/>
+        </properties>
+      </component>
+      <component id="50e98" class="javax.swing.JComboBox" binding="myProgrammers" custom-create="true">
+        <constraints>
+          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="b4e31" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.new-project.port.label"/>
+        </properties>
+      </component>
+      <component id="2ac07" class="com.intellij.ui.TextFieldWithHistory" binding="myPort">
+        <constraints>
+          <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="14cd" class="javax.swing.JLabel" binding="myLibraryCategoryLabel">
+        <constraints>
+          <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.new-project.library-category.label"/>
+        </properties>
+      </component>
+      <component id="8175d" class="javax.swing.JLabel" binding="myLibraryTypeLabel">
+        <constraints>
+          <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.new-project.library-type.label"/>
+        </properties>
+      </component>
+      <component id="14c7f" class="javax.swing.JComboBox" binding="myLibraryType" custom-create="true">
+        <constraints>
+          <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="2b467" class="javax.swing.JComboBox" binding="myLibraryCategories" custom-create="true">
+        <constraints>
+          <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="fe708" class="javax.swing.JLabel" binding="myAuthorNameLabel">
+        <constraints>
+          <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.author-name.label"/>
+        </properties>
+      </component>
+      <component id="2a5b6" class="javax.swing.JTextField" binding="myAuthorName">
+        <constraints>
+          <grid row="7" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="-1"/>
+          </grid>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="8c7c7" class="javax.swing.JLabel" binding="myAuthorEMailLabel">
+        <constraints>
+          <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.author-email.label"/>
+        </properties>
+      </component>
+      <component id="340c7" class="javax.swing.JTextField" binding="myAuthorEMail">
+        <constraints>
+          <grid row="8" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="-1"/>
+          </grid>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="ebfba" class="com.intellij.ui.components.JBCheckBox" binding="myVerbose">
+        <constraints>
+          <grid row="9" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.new-project.verbose.label"/>
+        </properties>
+      </component>
+      <component id="58a3" class="com.intellij.ui.components.JBCheckBox" binding="myAddLibraryDirectory">
+        <constraints>
+          <grid row="10" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.new-project.add-library.label"/>
+        </properties>
+      </component>
+      <component id="2a6ff" class="javax.swing.JTextField" binding="myLibraryDirectory">
+        <constraints>
+          <grid row="11" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="-1"/>
+          </grid>
+        </constraints>
+        <properties/>
+      </component>
+      <vspacer id="f637e">
+        <constraints>
+          <grid row="12" column="1" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </vspacer>
     </children>
   </grid>
 </form>

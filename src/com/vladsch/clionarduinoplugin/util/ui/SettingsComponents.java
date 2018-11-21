@@ -21,6 +21,9 @@
 
 package com.vladsch.clionarduinoplugin.util.ui;
 
+import com.intellij.openapi.Disposable;
+import com.vladsch.flexmark.util.ValueRunnable;
+import org.gradle.internal.impldep.com.google.api.services.storage.model.Objects;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JCheckBox;
@@ -28,40 +31,76 @@ import javax.swing.JComboBox;
 import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.text.JTextComponent;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
-public abstract class SettingsComponents<T> implements SettingsConfigurable<T> {
+public abstract class SettingsComponents<T> implements SettingsConfigurable<T>, Disposable {
+    protected Settable<T>[] mySettables;
+
     public SettingsComponents() {
+        mySettables = null;
     }
 
-    protected abstract Settable[] getComponents(T i);
-
     @Override
-    public void reset(T instance) {
-        int index = 0;
-        for (Settable settable : getComponents(instance)) {
-            settable.reset();
-            index++;
+    public void dispose() {
+        mySettables = null;
+    }
+
+    protected Settable<T>[] getComponents(T i) {
+        if (mySettables == null) {
+            mySettables = createComponents(i);
+        }
+        return mySettables;
+    }
+
+    protected abstract Settable<T>[] createComponents(T i);
+
+    public Set<Settable<T>> getComponentSet(T i) {
+        return new LinkedHashSet<>(Arrays.asList(getComponents(i)));
+    }
+
+    public void forAllComponents(T i, ValueRunnable<Settable<T>> runnable) {
+        for (Settable<T> settable : getComponents(i)) {
+            runnable.run(settable);
         }
     }
 
-    @Override
-    public T apply(T instance) {
-        int index = 0;
-        for (Settable settable : getComponents(instance)) {
-            settable.apply();
-            index++;
-        }
-        return instance;
+    public void forAllTargets(T i, Object[] targets, ValueRunnable<Settable<T>> runnable) {
+        Set<Object> targetSet = new LinkedHashSet<>();
+        Collections.addAll(targetSet, targets);
+
+        forAllComponents(i, settable -> {
+            if (targetSet.contains(settable.getComponent())) runnable.run(settable);
+        });
     }
 
     @Override
-    public boolean isModified(T instance) {
-        int index = 0;
-        for (Settable settable : getComponents(instance)) {
+    public void reset(T i) {
+        forAllComponents(i, Settable::reset);
+    }
+
+    @Override
+    public T apply(T i) {
+        forAllComponents(i, Settable::apply);
+        return i;
+    }
+
+    @Override
+    public boolean isModified(T i) {
+        for (Settable<T> settable : getComponents(i)) {
             if (settable.isModified()) return true;
-            index++;
         }
         return false;
+    }
+
+    public void apply(T i, Object... targets) {
+        forAllTargets(i, targets, Settable::apply);
+    }
+
+    public void reset(T i, Object... targets) {
+        forAllTargets(i, targets, Settable::reset);
     }
 
     // @formatter:off
@@ -82,27 +121,30 @@ public abstract class SettingsComponents<T> implements SettingsConfigurable<T> {
     @NotNull
     public ComboBoxStringSetter componentString(@NotNull ComboBoxAdapter adapter, JComboBox component, Getter<String> getter, Setter<String> setter) { return new ComboBoxStringSetter(component, adapter, getter, setter); }
 
+    @NotNull
+    public JComponentSettableForm<T> component(@NotNull SettableForm<T> component, @NotNull T settings) { return new JComponentSettableForm<>(component, settings);}
+
     public static class CheckBoxSetter extends JComponentSettable<Boolean> {
         public CheckBoxSetter(@NotNull JCheckBox component, @NotNull Getter<Boolean> getter, @NotNull Setter<Boolean> setter) {
-            super(component::isSelected, component::setSelected, getter, setter);
+            super(component, component::isSelected, component::setSelected, getter, setter);
         }
     }
 
     public static class ColorCheckBoxEnabledSetter extends JComponentSettable<Boolean> {
         public ColorCheckBoxEnabledSetter(@NotNull CheckBoxWithColorChooser component, @NotNull Getter<Boolean> getter, @NotNull Setter<Boolean> setter) {
-            super(component::isSelected, component::setSelected, getter, setter);
+            super(component, component::isSelected, component::setSelected, getter, setter);
         }
     }
 
     public static class RadioButtonSetter extends JComponentSettable<Boolean> {
         public RadioButtonSetter(@NotNull JRadioButton component, @NotNull Getter<Boolean> getter, @NotNull Setter<Boolean> setter) {
-            super(component::isSelected, component::setSelected, getter, setter);
+            super(component, component::isSelected, component::setSelected, getter, setter);
         }
     }
 
     public static class ComboBoxBooleanSetter extends JComponentSettable<Boolean> {
         public ComboBoxBooleanSetter(@NotNull JComboBox component, @NotNull ComboBoxBooleanAdapter adapter, @NotNull Getter<Boolean> getter, @NotNull Setter<Boolean> setter) {
-            super(() -> adapter.findEnum((String) component.getSelectedItem()) == adapter.getNonDefault(),
+            super(component, () -> adapter.findEnum((String) component.getSelectedItem()) == adapter.getNonDefault(),
                     (value) -> component.setSelectedItem(value ? adapter.getNonDefault().getDisplayName() : adapter.getDefault().getDisplayName()),
                     getter, setter);
         }
@@ -110,7 +152,7 @@ public abstract class SettingsComponents<T> implements SettingsConfigurable<T> {
 
     public static class ComboBoxSetter extends JComponentSettable<Integer> {
         public ComboBoxSetter(@NotNull JComboBox component, @NotNull ComboBoxAdapter adapter, @NotNull Getter<Integer> getter, @NotNull Setter<Integer> setter) {
-            super(() -> adapter.findEnum((String) component.getSelectedItem()).getIntValue(),
+            super(component, () -> adapter.findEnum((String) component.getSelectedItem()).getIntValue(),
                     (value) -> component.setSelectedItem(adapter.findEnum(value).getDisplayName()),
                     getter, setter);
         }
@@ -118,7 +160,7 @@ public abstract class SettingsComponents<T> implements SettingsConfigurable<T> {
 
     public static class ComboBoxStringSetter extends JComponentSettable<String> {
         public ComboBoxStringSetter(@NotNull JComboBox component, @NotNull ComboBoxAdapter adapter, @NotNull Getter<String> getter, @NotNull Setter<String> setter) {
-            super(() -> (String) component.getSelectedItem(),
+            super(component, () -> (String) component.getSelectedItem(),
                     component::setSelectedItem,
                     getter, setter);
         }
@@ -127,51 +169,114 @@ public abstract class SettingsComponents<T> implements SettingsConfigurable<T> {
     public static class SpinnerSetter<V> extends JComponentSettable<V> {
         public SpinnerSetter(@NotNull JSpinner component, @NotNull Getter<V> getter, @NotNull Setter<V> setter) {
             //noinspection unchecked
-            super(() -> (V) component.getValue(), component::setValue, getter, setter);
+            super(component, () -> (V) component.getValue(), component::setValue, getter, setter);
         }
     }
 
     public static class TextBoxSetter extends JComponentSettable<String> {
         public TextBoxSetter(@NotNull JTextComponent component, @NotNull Getter<String> getter, @NotNull Setter<String> setter) {
-            super(component::getText, component::setText, getter, setter);
+            super(component, component::getText, component::setText, getter, setter);
         }
     }
 
     public static class ColorCheckBoxSetter extends JComponentSettable<java.awt.Color> {
         public ColorCheckBoxSetter(@NotNull CheckBoxWithColorChooser component, @NotNull Getter<java.awt.Color> getter, @NotNull Setter<java.awt.Color> setter) {
-            super(component::getColor, component::setColor, getter, setter);
+            super(component, component::getColor, component::setColor, getter, setter);
         }
     }
 
     public static class JComponentSettable<V> implements Settable {
+        private final @NotNull Object myInstance;
         private final @NotNull Getter<V> myComponentGetter;
         private final @NotNull Setter<V> myComponentSetter;
         private final @NotNull Getter<V> myGetter;
         private final @NotNull Setter<V> mySetter;
 
-        public JComponentSettable(@NotNull Getter<V> componentGetter, @NotNull Setter<V> componentSetter, @NotNull Getter<V> getter, @NotNull Setter<V> setter) {
+        public JComponentSettable(@NotNull final Object instance, @NotNull Getter<V> componentGetter, @NotNull Setter<V> componentSetter, @NotNull Getter<V> getter, @NotNull Setter<V> setter) {
+            myInstance = instance;
             myComponentGetter = componentGetter;
             myComponentSetter = componentSetter;
             myGetter = getter;
             mySetter = setter;
         }
 
+        @NotNull
+        @Override
+        public Object getComponent() {
+            return myInstance;
+        }
+
         @Override
         public void reset() {
             //noinspection unchecked
-            myComponentSetter.set(myGetter.get());
+            if (!myGetter.get().equals(myComponentGetter.get())) {
+                myComponentSetter.set(myGetter.get());
+            }
         }
 
         @Override
         public void apply() {
             //noinspection unchecked
-            mySetter.set(myComponentGetter.get());
+            if (!myGetter.get().equals(myComponentGetter.get())) {
+                mySetter.set(myComponentGetter.get());
+            }
         }
 
         @Override
         public boolean isModified() {
             //noinspection unchecked
             return myGetter.get() == null ? myComponentGetter.get() != null : !myGetter.get().equals(myComponentGetter.get());
+        }
+    }
+
+    public static class JComponentSettableForm<S> implements Settable<S> {
+        private final @NotNull SettableForm<S> myInstance;
+        private final @NotNull Runnable myApplier;
+        private final @NotNull Runnable myResetter;
+        private final @NotNull Getter<Boolean> myIsModified;
+
+        public JComponentSettableForm(@NotNull final SettableForm<S> instance, S settings) {
+            myInstance = instance;
+            myApplier = new Runnable() {
+                @Override
+                public void run() {
+                    instance.apply(settings);
+                }
+            };
+
+            myResetter = new Runnable() {
+                @Override
+                public void run() {
+                    instance.reset(settings);
+                }
+            };
+
+            myIsModified = new Getter<Boolean>() {
+                @Override
+                public Boolean get() {
+                    return instance.isModified(settings);
+                }
+            };
+        }
+
+        @Override
+        public void reset() {
+            myResetter.run();
+        }
+
+        @Override
+        public void apply() {
+            myApplier.run();
+        }
+
+        @Override
+        public boolean isModified() {
+            return myIsModified.get();
+        }
+
+        @Override
+        public SettableForm<S> getComponent() {
+            return myInstance;
         }
     }
 }

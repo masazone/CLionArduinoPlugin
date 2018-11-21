@@ -80,7 +80,7 @@ public class ProjectConfigurable implements SearchableConfigurable {
     @NotNull
     public ProjectSettingsForm getForm() {
         if (myForm == null) {
-            myForm = new ProjectSettingsForm(mySettings);
+            myForm = new ProjectSettingsForm(mySettings, true);
         }
         return myForm;
     }

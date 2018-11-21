@@ -37,6 +37,9 @@
   AST.
 * Add: `CMakeListsBuilder` for parsing existing file, modifying values and regenerating the new
   content based on new values but preserving unchanged lines.
+* Fix: refactor mess of project wizard gui panel to re-usable form
+* Add: figure out how to trigger re-validation on failure since we are hacking into the IDE
+  functionality, it is not exactly open api so kludges are inevitable.
 
 ### 1.3.12
 

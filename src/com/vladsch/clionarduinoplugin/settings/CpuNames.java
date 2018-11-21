@@ -11,9 +11,8 @@ public class CpuNames implements ComboBoxAdaptable<CpuNames> {
     public final int intValue;
     public final @NotNull String displayName;
 
-    public static EnumLike<CpuNames> createEnum() {
-        ArduinoApplicationSettings settings = ArduinoApplicationSettings.getInstance();
-        return new EnumLike<>(settings.getBoardCpuNames(settings.getBoard()), CpuNames::new, false);
+    public static EnumLike<CpuNames> createEnum(@NotNull String[] cpuNames) {
+        return new EnumLike<>(cpuNames, CpuNames::new, true);
     }
 
     public CpuNames(final EnumLike parent, final int intValue, @NotNull final String displayName) {

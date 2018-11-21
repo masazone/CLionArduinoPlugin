@@ -8,10 +8,12 @@ package com.vladsch.clionarduinoplugin.generators;
 
 import com.intellij.facet.ui.ValidationResult;
 import com.intellij.ide.util.PsiNavigationSupport;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
@@ -20,21 +22,22 @@ import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.platform.GeneratorPeerImpl;
 import com.intellij.platform.ProjectGeneratorPeer;
-import com.intellij.util.containers.ContainerUtil;
+import com.intellij.uiDesigner.core.GridConstraints;
+import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.util.messages.MessageBusConnection;
 import com.jetbrains.cidr.cpp.CPPLog;
 import com.jetbrains.cidr.cpp.cmake.projectWizard.CLionProjectWizardUtils;
 import com.jetbrains.cidr.cpp.cmake.projectWizard.generators.CMakeProjectGenerator;
 import com.jetbrains.cidr.cpp.cmake.projectWizard.generators.settings.CMakeProjectSettings;
+import com.jetbrains.cidr.cpp.cmake.projectWizard.generators.settings.ui.CMakeSettingsPanel;
 import com.jetbrains.cidr.cpp.cmake.workspace.CMakeWorkspace;
 import com.jetbrains.cidr.cpp.cmake.workspace.CMakeWorkspaceListener;
+import com.vladsch.clionarduinoplugin.Bundle;
 import com.vladsch.clionarduinoplugin.components.ArduinoApplicationSettings;
 import com.vladsch.clionarduinoplugin.resources.ArduinoToolchainFiles;
-import com.vladsch.clionarduinoplugin.resources.BuildConfig;
-import com.vladsch.clionarduinoplugin.resources.BuildConfig.Board;
-import com.vladsch.clionarduinoplugin.resources.BuildConfig.Programmer;
 import com.vladsch.clionarduinoplugin.resources.Strings;
-import com.vladsch.clionarduinoplugin.util.Utils;
+import com.vladsch.clionarduinoplugin.settings.NewProjectSettingsForm;
+import com.vladsch.clionarduinoplugin.util.ApplicationSettingsListener;
 import icons.PluginIcons;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -43,29 +46,33 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
+import java.awt.BorderLayout;
+import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 
-public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator {
+public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator implements Disposable {
     public static final String ARDUINO_PROJECTS_GROUP_NAME = "Arduino";
     public static final String ARDUINO_SKETCH_PROJECT_GENERATOR_NAME = "Arduino Sketch";
     public static final String ARDUINO_SKETCH_LIBRARY_GENERATOR_NAME = "Arduino Library";
 
     final protected boolean isLibrary;
-
-    @Nullable protected BuildConfig myBuildConfig;
     final protected ArduinoApplicationSettings mySettings;
 
     public ArduinoProjectGeneratorBase(final boolean isLibrary) {
         this.isLibrary = isLibrary;
         mySettings = ArduinoApplicationSettings.getInstance().getState();
-        myBuildConfig = mySettings.getBuildConfig();
     }
 
-    public ArduinoApplicationSettings getSettings() {
-        return mySettings;
+    @Override
+    public void dispose() {
+
     }
 
     @NotNull
@@ -94,16 +101,6 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
         return "";
     }
 
-    @NotNull
-    public String[] getLibraryTypes() {
-        return ArduinoApplicationSettings.LIBRARY_TYPES;
-    }
-
-    @NotNull
-    public String[] getLibraryCategories() {
-        return ArduinoApplicationSettings.LIBRARY_CATEGORIES;
-    }
-
     @Override
     @NotNull
     public String getLanguageVersion() {
@@ -116,154 +113,14 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
         return mySettings.getLibraryType();
     }
 
-    @Nullable
-    public String getLibraryDirectory() {
-        return mySettings.getLibraryDirectory();
-    }
-
-    public boolean addLibrarySettingsPanel() {
-        return isLibrary;
-    }
-
-    public boolean isLibrary() {
-        return isLibrary;
-    }
-
     @Override
     public void setLanguageVersion(@NotNull String languageVersion) {
         mySettings.setLanguageVersion(languageVersion);
     }
 
     @Override
-    public void setLibraryType(@NotNull String libraryType) {
+    public void setLibraryType(@Nullable String libraryType) {
         mySettings.setLibraryType(libraryType);
-    }
-
-    public void setLibraryDirectory(@NotNull String libraryDirectory) {
-        mySettings.setLibraryDirectory(libraryDirectory);
-    }
-
-    public boolean isAddLibraryDirectory() {
-        return mySettings.isAddLibraryDirectory();
-    }
-
-    public void setAddLibraryDirectory(final boolean addLibraryDirectory) {
-        mySettings.setAddLibraryDirectory(addLibraryDirectory);
-    }
-
-    @Nullable
-    public String getBoard() {
-        return mySettings.getBoard();
-    }
-
-    public void setBoard(@NotNull final String board) {
-        mySettings.setBoard(board);
-        mySettings.setCpu(mySettings.getBoardCpu().get(board));
-    }
-
-    @Nullable
-    public String getCpu() {
-        return mySettings.getCpu();
-    }
-
-    public void setCpu(@NotNull final String cpu) {
-        mySettings.setCpu(cpu);
-        mySettings.setBoardCpu(mySettings.getBoard(), cpu);
-    }
-
-    @Nullable
-    public String getProgrammer() {
-        return mySettings.getProgrammer();
-    }
-
-    public void setProgrammer(@NotNull final String programmer) {
-        mySettings.setProgrammer(programmer);
-    }
-
-    @Nullable
-    public String getPort() {
-        return mySettings.getPort();
-    }
-
-    public void setPort(@Nullable final String port) {
-        mySettings.setPort(port);
-        mySettings.addPortHistory(port);
-    }
-
-    public boolean isVerbose() {
-        return mySettings.isVerbose();
-    }
-
-    public void setVerbose(final boolean verbose) {
-        mySettings.setVerbose(verbose);
-    }
-
-    public boolean isNestedLibrarySources() {
-        return mySettings.isNestedLibrarySources();
-    }
-
-    public void setNestedLibrarySources(final boolean recursiveLibrarySources) {
-        mySettings.setNestedLibrarySources(recursiveLibrarySources);
-    }
-
-    public String getLibraryCategory() {
-        return mySettings.getLibraryCategory();
-    }
-
-    public void setLibraryCategory(final String category) {
-        mySettings.setLibraryCategory(category);
-    }
-
-    public String getAuthorName() {
-        return mySettings.getAuthorName();
-    }
-
-    public void setAuthorName(final String authorName) {
-        mySettings.setAuthorName(authorName);
-    }
-
-    public String getAuthorEMail() {
-        return mySettings.getAuthorEMail();
-    }
-
-    public void setAuthorEMail(final String authorEMail) {
-        mySettings.setAuthorEMail(authorEMail);
-    }
-
-    @Nullable
-    public String[] getBoardNames() {
-        return getBoardNames(myBuildConfig);
-    }
-
-    @Nullable
-    public static String[] getBoardNames(final @Nullable BuildConfig buildConfig) {
-        return buildConfig == null ? null : ContainerUtil.map2Array(buildConfig.getBoards().values(), String.class, (board) -> board.name);
-    }
-
-    @Nullable
-    public String[] getProgrammerNames() {
-        return getProgrammerNames(myBuildConfig);
-    }
-
-    @Nullable
-    public static String[] getProgrammerNames(final @Nullable BuildConfig buildConfig) {
-        return buildConfig == null ? null : ContainerUtil.map2Array(buildConfig.getProgrammers().values(), String.class, (programmer) -> programmer.name);
-    }
-
-    @Nullable
-    public List<String> getPorts() {
-        return getPorts(mySettings);
-    }
-
-    @NotNull
-    public static List<String> getPorts(final ArduinoApplicationSettings settings) {
-        HashSet<String> ports = new LinkedHashSet<>();
-        if (!settings.getPort().isEmpty()) {
-            ports.add(settings.getPort());
-        }
-        ports.addAll(settings.getPortHistory());
-        ports.addAll(Utils.getSerialPorts(true));
-        return new ArrayList<>(ports);
     }
 
     @Override
@@ -272,82 +129,8 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
     }
 
     @Nullable
-    public Board getBoardFromName(@Nullable String boardName) {
-        return getBoardFromName(myBuildConfig, boardName);
-    }
-
-    public static @Nullable Board getBoardFromName(final @Nullable BuildConfig buildConfig, final @Nullable String boardName) {
-        if (buildConfig != null && boardName != null) {
-            return buildConfig.boardFromName(boardName);
-        }
-        return null;
-    }
-
-    @Nullable
-    public Programmer getProgrammerFromName(@Nullable String programmerName) {
-        return getProgrammerFromName(myBuildConfig, programmerName);
-    }
-
-    public static @Nullable Programmer getProgrammerFromName(final @Nullable BuildConfig buildConfig, final @Nullable String programmerName) {
-        if (buildConfig != null && programmerName != null) {
-            return buildConfig.programmerFromName(programmerName);
-        }
-        return null;
-    }
-
-    @Nullable
-    public String[] getBoardCpuNames(@Nullable String boardName) {
-        return getBoardCpuNames(myBuildConfig, boardName);
-    }
-
-    public static String[] getBoardCpuNames(final @Nullable BuildConfig buildConfig, final @Nullable String boardName) {
-        Board board = getBoardFromName(buildConfig, boardName);
-        if (board != null && board.cpuList != null) {
-            return board.cpuList.values().toArray(new String[0]);
-        }
-        return null;
-    }
-
-    @NotNull
-    public String getCpuLabel() {
-        return getCpuLabel(myBuildConfig);
-    }
-
-    public @NotNull
-    static String getCpuLabel(final @Nullable BuildConfig buildConfig) {
-        return buildConfig == null ? BuildConfig.PROCESSOR : buildConfig.getCpuMenu();
-    }
-
-    @Nullable
     public String cmakeLanguageVersion() {
         return CppLanguageVersions.fromDisplayString(getLanguageVersion());
-    }
-
-    @Nullable
-    public String getBoardId() {
-        Board board = getBoardFromName(getBoard());
-        return board == null ? null : board.id;
-    }
-
-    @Nullable
-    public String getProgrammerId() {
-        Programmer programmer = getProgrammerFromName(getProgrammer());
-        return programmer == null ? null : programmer.id;
-    }
-
-    @Nullable
-    String getCpuId() {
-        if (myBuildConfig != null && getCpu() != null && getBoard() != null) {
-            Board board = getBoardFromName(getBoard());
-            if (board != null) {
-                return board.cpuFromName(getCpu());
-            }
-        }
-        return null;
-    }
-
-    protected static String ifNull(String value, String defValue) {
-        return value == null ? defValue : value;
     }
 
     protected static String ifNullOrEmpty(String value, String defValue) {
@@ -368,8 +151,8 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
         sb.line();
 
         sb.appendln("set(PROJECT_NAME " + projectName + ")");
-        sb.appendln("set(${CMAKE_PROJECT_NAME}_BOARD " + ifNull(getBoardId(), "mega") + ")");
-        String cpu = getCpuId();
+        sb.appendln("set(${CMAKE_PROJECT_NAME}_BOARD " + ifNullOrEmpty(mySettings.getBoardId(), "uno") + ")");
+        String cpu = mySettings.getCpuId();
         sb.prefixNullOrEmpty(cpu).appendln("set(ARDUINO_CPU " + ifNullOrEmpty(cpu, "8MHzatmega328") + ")");
         sb.appendln("project(${PROJECT_NAME})");
         sb.line();
@@ -415,10 +198,10 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
 
         sb.line();
 
-        if (isAddLibraryDirectory() && getLibraryDirectory() != null && !getLibraryDirectory().isEmpty()) {
+        if (mySettings.isAddLibraryDirectory() && !mySettings.getLibraryDirectory().isEmpty()) {
             sb.appendln("### Additional settings to add non-standard or your own Arduino libraries.");
-            sb.appendln("# An Arduino library my_lib will contain files in " + getLibraryDirectory() + "/my_lib/: my_lib.h, my_lib.cpp + any other cpp files");
-            sb.appendln("link_directories(${CMAKE_CURRENT_SOURCE_DIR}/" + getLibraryDirectory() + ")");
+            sb.appendln("# An Arduino library my_lib will contain files in " + mySettings.getLibraryDirectory() + "/my_lib/: my_lib.h, my_lib.cpp + any other cpp files");
+            sb.appendln("link_directories(${CMAKE_CURRENT_SOURCE_DIR}/" + mySettings.getLibraryDirectory() + ")");
             sb.line();
         } else {
             sb.appendln("### Additional settings to add non-standard or your own Arduino libraries.");
@@ -429,6 +212,7 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
         }
 
         if (!isLibrary) {
+            //noinspection VariableNotUsedInsideIf
             if (sketchFile != null) {
                 sb.appendln("# For nested library sources replace ${LIB_NAME} with library name for each library");
                 sb.prefix().appendln("set(${LIB_NAME}_RECURSE true)");
@@ -437,13 +221,13 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
         }
 
         sb.appendln("#### Additional settings for programmer. From programmers.txt");
-        String programmer = getProgrammerId();
-        sb.prefix(programmer).appendln("set(${CMAKE_PROJECT_NAME}_PROGRAMMER " + ifNull(programmer, "avrispmkii") + ")");
-        sb.prefixNullOrEmpty(getPort()).appendln("set(${CMAKE_PROJECT_NAME}_PORT " + ifNullOrEmpty(getPort(), "/dev/cu.usbserial-00000000") + ")");
+        String programmer = mySettings.getProgrammerId();
+        sb.prefix(programmer).appendln("set(${CMAKE_PROJECT_NAME}_PROGRAMMER " + ifNullOrEmpty(programmer, "avrispmkii") + ")");
+        sb.prefixNullOrEmpty(mySettings.getPort()).appendln("set(${CMAKE_PROJECT_NAME}_PORT " + ifNullOrEmpty(mySettings.getPort(), "/dev/cu.usbserial-00000000") + ")");
         sb.prefix().appendln("set(pro.upload.speed 57600)");
         sb.line();
         sb.appendln("## Verbose build process");
-        sb.prefix(!isVerbose()).appendln("set(${CMAKE_PROJECT_NAME}_AFLAGS -v)");
+        sb.prefix(!mySettings.isVerbose()).appendln("set(${CMAKE_PROJECT_NAME}_AFLAGS -v)");
         sb.line();
 
         if (isStaticLib) {
@@ -459,36 +243,41 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
 
     @NotNull
     public ValidationResult validate(@NotNull String baseDirPath) {
-        ValidationResult result;
         if (StringUtil.isEmptyOrSpaces(baseDirPath)) {
-            result = new ValidationResult("Enter project location");
-            return result;
+            return new ValidationResult("Enter project location");
+        }
+        File baseDir = new File(baseDirPath);
+        if (!baseDir.isAbsolute()) {
+            return new ValidationResult("Project location path should be absolute");
+        } else if (baseDir.exists() && !baseDir.canWrite()) {
+            return new ValidationResult(String.format("Directory '%s' is not writable.\nPlease choose another directory.", baseDirPath));
         } else {
-            File baseDir = new File(baseDirPath);
-            if (!baseDir.isAbsolute()) {
-                result = new ValidationResult("Project location path should be absolute");
-                return result;
-            } else if (baseDir.exists() && !baseDir.canWrite()) {
-                result = new ValidationResult(String.format("Directory '%s' is not writable.\nPlease choose another directory.", baseDirPath));
-                return result;
-            } else {
-                // validate other fields
-                if (isAddLibraryDirectory()) {
-                    if (getLibraryDirectory() != null && getLibraryDirectory().startsWith("/")) {
-                        result = new ValidationResult(String.format("Library sub-directory '%s' must be relative to project path.", getLibraryDirectory()));
-                        return result;
-                        //} else {
-                        //    File libDir = new File(baseDir.getPath() + "/" + getLibraryDirectory());
-                        //    if (libDir.exists() && !libDir.canWrite()) {
-                        //        result = new ValidationResult(String.format("Library sub-directory '%s' is not writable.\nPlease choose another sub-directory.", libDir.getPath()));
-                        //        return result;
-                        //    }
-                    }
+            // validate other fields, but only if the location text field was found so we can trigger another validation
+            if (mySettings.getBoardId().isEmpty()) {
+                return filterFailure(new ValidationResult(Bundle.message("new-project.no-board")));
+            }
+
+            if (mySettings.getBoardCpuNames(mySettings.getBoardName()).length > 0 && mySettings.getCpuId().isEmpty()) {
+                return filterFailure(new ValidationResult(Bundle.message("new-project.0.no-cpu", mySettings.getCpuLabel())));
+            }
+
+            if (mySettings.isAddLibraryDirectory()) {
+                if (mySettings.getLibraryDirectory().startsWith("/")) {
+                    return filterFailure(new ValidationResult(String.format("Library sub-directory '%s' must be relative to project path.", mySettings.getLibraryDirectory())));
                 }
             }
-            result = ValidationResult.OK;
+        }
+        return super.validate(baseDirPath);
+        //return ValidationResult.OK;
+    }
+
+    ValidationResult filterFailure(ValidationResult result) {
+        boolean canFail = fireValidationFailed();
+        if (canFail) {
             return result;
         }
+        // here we have a problem, we'll use defaults and hope for the best
+        return ValidationResult.OK;
     }
 
     @Override
@@ -542,25 +331,167 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
     @Override
     @NotNull
     public ProjectGeneratorPeer<CMakeProjectSettings> createPeer() {
-        JComponent panel = getSettingsPanel();
+        JComponent panel = getSettingsPanel(null);
+        ArduinoApplicationSettings settings;
+
         if (panel == null) {
             panel = new JPanel();
+            settings = new ArduinoApplicationSettings();
+        } else {
+            settings = ((ArduinoNewProjectSettingsPanel) panel).getSettings();
+        }
+        return new GeneratorPeerImpl<>(settings, panel);
+    }
+
+    interface GeneratorFailedValidationListener {
+        boolean onValidationFailed();
+    }
+
+    final HashSet<WeakReference<GeneratorFailedValidationListener>> myListeners = new HashSet<>();
+
+    void addValidationListener(GeneratorFailedValidationListener listener) {
+        myListeners.add(new WeakReference<>(listener));
+    }
+
+    boolean fireValidationFailed() {
+        boolean canFail = false;
+        ArrayList<WeakReference<GeneratorFailedValidationListener>> invalidListeners = new ArrayList<>(myListeners.size());
+        for (WeakReference<GeneratorFailedValidationListener> ref : myListeners) {
+            GeneratorFailedValidationListener listener = ref.get();
+            if (listener != null) {
+                if (listener.onValidationFailed()) {
+                    canFail = true;
+                } else {
+                    invalidListeners.add(ref);
+                }
+            } else {
+                invalidListeners.add(ref);
+            }
         }
 
-        GeneratorPeerImpl<CMakeProjectSettings> peer = new GeneratorPeerImpl<>(mySettings, panel);
-        return peer;
+        myListeners.removeAll(invalidListeners);
+        return canFail;
+    }
+
+    public static class ArduinoNewProjectSettingsPanel extends CMakeSettingsPanel implements ApplicationSettingsListener, GeneratorFailedValidationListener, Disposable {
+        final ArduinoApplicationSettings mySettings;
+        private final JPanel myPanel;
+        private boolean myHaveFailed = false;
+
+        public ArduinoNewProjectSettingsPanel(@NotNull ArduinoApplicationSettings settings, @NotNull ArduinoProjectGeneratorBase projectGenerator) {
+            super(projectGenerator);
+
+            NewProjectSettingsForm form = new NewProjectSettingsForm(settings, projectGenerator.isLibrary, true);
+            mySettings = settings;
+
+            setLayout(new BorderLayout());
+
+            GridLayoutManager layoutManager = new GridLayoutManager(1, 1);
+            myPanel = new JPanel(layoutManager);
+
+            GridConstraints constraints = new GridConstraints();
+            constraints.setRow(0);
+            constraints.setColumn(0);
+            constraints.setAnchor(8);
+            constraints.setFill(GridConstraints.FILL_HORIZONTAL);
+            myPanel.add(form.getComponent(), constraints);
+
+            add(myPanel, "Center");
+
+            ApplicationManager.getApplication().getMessageBus().connect(this).subscribe(ApplicationSettingsListener.TOPIC, this);
+            projectGenerator.addValidationListener(this);
+        }
+
+        @Override
+        public boolean onValidationFailed() {
+            myHaveFailed = getLocationTextField() != null;
+            return myHaveFailed;
+        }
+
+        @Nullable
+        private JTextField getLocationTextField() {
+            try {
+                JPanel basePanel = (JPanel) myPanel.getParent().getParent().getParent();//.getParent();
+                return findLocationTextField(basePanel);
+            } catch (Throwable ignored) {
+                return null;
+            }
+        }
+
+        public ArduinoApplicationSettings getSettings() {
+            return mySettings;
+        }
+
+        @Override
+        public void onSettingsChanged() {
+            if (myHaveFailed) {
+                JTextField textField = getLocationTextField();
+                if (textField != null) {
+                    textField.setText(textField.getText());
+                }
+            }
+            myHaveFailed = false;
+        }
+
+        // vsch: kludge: since this class is not a step it cannot trigger validation,
+        // or at least I wasn't able to figure out how to do it. Workaround: find the location text field
+        // and set it to itself to trigger validation
+        @Nullable
+        protected JTextField findLocationTextField(JComponent jcomp) {
+            JTextField field;
+            int iMax = jcomp.getComponentCount();
+
+            for (int i = 0; i < iMax; i++) {
+                Component comp = jcomp.getComponent(i);
+                if (comp instanceof JComponent) {
+                    if (jcomp instanceof TextFieldWithBrowseButton) {
+                        field = ((TextFieldWithBrowseButton) jcomp).getTextField();
+                        return field;
+                    }
+                    field = findLocationTextField((JComponent) comp);
+                    if (field != null) return field;
+                }
+            }
+            return null;
+        }
+
+        //// show JComponent hierarchy
+        //protected void showChildTree(JComponent jcomp, String lvl) {
+        //    int iMax = jcomp.getComponentCount();
+        //    for (int i = 0; i < iMax; i++) {
+        //        Component comp = jcomp.getComponent(i);
+        //        if (comp instanceof JComponent) {
+        //            System.out.println(String.format("Component at %s.%d - %s[%d] listeners %d", lvl, i, jcomp.getClass().getSimpleName(), jcomp.getComponentCount(), jcomp.getListeners(ActionListener.class).length));
+        //            if (jcomp.getClass().getSimpleName().equals("TextFieldWithBrowseButton")) {
+        //                boolean isTF = jcomp instanceof TextFieldWithBrowseButton;
+        //                JTextField field = ((TextFieldWithBrowseButton) jcomp).getTextField();
+        //                String text = field.getText();
+        //                field.setText(text);
+        //                int tmp = 0;
+        //            }
+        //            showChildTree((JComponent) comp, lvl + "." + i);
+        //        }
+        //    }
+        //}
+
+        @Override
+        public void dispose() {
+
+        }
     }
 
     @Nullable
     public JComponent getSettingsPanel() {
-        // need to update our settings and build information here
-        myBuildConfig = mySettings.getBuildConfig();
+        return getSettingsPanel(mySettings);
+    }
 
-        ArduinoNewProjectSettingsPanel panel = new ArduinoNewProjectSettingsPanel(this);
-        if (panel != null) {
-            panel.init(this);
+    @Nullable
+    public JComponent getSettingsPanel(@Nullable ArduinoApplicationSettings settings) {
+        if (settings == null) {
+            settings = mySettings;
+            mySettings.invalidateArduinoConfig(); // just in case not using bundled and files on disk have changed
         }
-        return panel;
+        return new ArduinoNewProjectSettingsPanel(settings, this);
     }
 
     CreatedFilesHolder createFiles(String projectName, VirtualFile rootDir) throws IOException {
@@ -570,8 +501,8 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
         VirtualFile cMakeFile = createCMakeFile(sanitizedName, rootDir, sourceFiles);
 
         VirtualFile[] extraFiles = ArduinoToolchainFiles.copyToDirectory(VfsUtil.findFileByIoFile(VfsUtilCore.virtualToIoFile(rootDir), false));
-        if (isAddLibraryDirectory()) {
-            File libDir = new File(rootDir.getPath() + "/" + getLibraryDirectory());
+        if (mySettings.isAddLibraryDirectory()) {
+            File libDir = new File(rootDir.getPath() + "/" + mySettings.getLibraryDirectory());
             if (!libDir.exists() && !libDir.getCanonicalPath().equals(rootDir.getCanonicalPath())) {
                 libDir.mkdirs();
             }
@@ -581,8 +512,7 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
 
     @NotNull
     protected VirtualFile createCMakeFile(@NotNull String name, @NotNull VirtualFile dir, @NotNull VirtualFile[] sourceFiles) throws IOException {
-        VirtualFile cMakeLists = createProjectFileWithContent(dir, "CMakeLists.txt", getCMakeFileContent(name, sourceFiles));
-        return cMakeLists;
+        return createProjectFileWithContent(dir, "CMakeLists.txt", getCMakeFileContent(name, sourceFiles));
     }
 
     protected boolean formatSourceFilesAsCpp() {

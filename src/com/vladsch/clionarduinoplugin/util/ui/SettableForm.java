@@ -21,11 +21,8 @@
 
 package com.vladsch.clionarduinoplugin.util.ui;
 
-import org.jetbrains.annotations.NotNull;
-
-public interface Settable<T> {
-    void reset();
-    void apply();
-    boolean isModified();
-    Object getComponent();
+public interface SettableForm<T> {
+    void reset(T settings);
+    void apply(T settings);
+    boolean isModified(T settings);
 }

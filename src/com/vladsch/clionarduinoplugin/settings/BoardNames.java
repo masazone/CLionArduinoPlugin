@@ -11,9 +11,8 @@ public class BoardNames implements ComboBoxAdaptable<BoardNames> {
     public final int intValue;
     public final @NotNull String displayName;
 
-    public static EnumLike<BoardNames> createEnum() {
-        ArduinoApplicationSettings settings = ArduinoApplicationSettings.getInstance();
-        return new EnumLike<>(settings.getBoardNames(), BoardNames::new, false);
+    public static EnumLike<BoardNames> createEnum(@NotNull String[] boardNames) {
+        return new EnumLike<>(boardNames, BoardNames::new, false);
     }
 
     public BoardNames(final EnumLike parent, final int intValue, @NotNull final String displayName) {

@@ -31,7 +31,7 @@ public class SendSettingsForm implements Disposable {
     public SendSettingsForm() {
         components = new SettingsComponents<ArduinoProjectSettings>() {
             @Override
-            protected Settable[] getComponents(ArduinoProjectSettings i) {
+            protected Settable[] createComponents(ArduinoProjectSettings i) {
                 return new Settable[] {
                         //componentString(mySerialPortNames.ADAPTER, myPort, i::getPort, i::setPort),
                         component(SerialEndOfLineTypes.ADAPTER, mySerialEndOfLineTypes, i::getSerialEndOfLine, i::setSerialEndOfLine),

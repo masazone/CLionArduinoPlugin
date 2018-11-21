@@ -2,21 +2,31 @@ package com.vladsch.clionarduinoplugin.settings;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.components.ServiceManager;
+import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.TextFieldWithHistory;
 import com.intellij.ui.components.JBCheckBox;
+import com.intellij.util.Alarm;
 import com.vladsch.clionarduinoplugin.components.ArduinoApplicationSettings;
 import com.vladsch.clionarduinoplugin.util.ApplicationSettingsListener;
-import com.vladsch.clionarduinoplugin.util.ui.ComboBoxAdaptable;
-import com.vladsch.clionarduinoplugin.util.ui.EnumLike;
-import com.vladsch.clionarduinoplugin.util.ui.Settable;
-import com.vladsch.clionarduinoplugin.util.ui.SettingsComponents;
+import com.vladsch.clionarduinoplugin.util.ui.*;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.text.JTextComponent;
+import java.awt.ItemSelectable;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
-public class NewProjectSettingsForm implements Disposable, ApplicationSettingsListener {
+public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSettings> implements Disposable, ApplicationSettingsListener, SettableForm<ArduinoApplicationSettings> {
     private JPanel myMainPanel;
     JComboBox myLanguageVersion;
     JComboBox myLibraryType;
@@ -37,8 +47,6 @@ public class NewProjectSettingsForm implements Disposable, ApplicationSettingsLi
     private JLabel myAuthorNameLabel;
     private JLabel myAuthorEMailLabel;
 
-    boolean inUpdate = false;
-
     EnumLike<SerialPortNames> mySerialPortNames;
     EnumLike<LanguageVersionNames> myLanguageVersionNames;
     EnumLike<LibraryTypeNames> myLibraryTypeNames;
@@ -47,66 +55,171 @@ public class NewProjectSettingsForm implements Disposable, ApplicationSettingsLi
     EnumLike<CpuNames> myCpuNames;
     EnumLike<ProgrammerNames> myProgrammerNames;
 
+    final Set<Object> myPendingUpdates;
+
+    private Alarm myUpdate;
+    boolean inUpdate = false;
+
     public JComponent getComponent() {
         return myMainPanel;
     }
-
-    final ArduinoApplicationSettings mySettings;
 
     private final SettingsComponents<ArduinoApplicationSettings> components;
     private final boolean myIsLibrary;
     private final boolean myIsImmediateUpdate;
 
-    public NewProjectSettingsForm(boolean isLibrary, boolean immediateUpdate) {
-        mySettings = ServiceManager.getService(ArduinoApplicationSettings.class);
+    public NewProjectSettingsForm(ArduinoApplicationSettings settings, boolean isLibrary, boolean immediateUpdate) {
+        super(settings);
+
         myIsLibrary = isLibrary;
         myIsImmediateUpdate = immediateUpdate;
-
+        myUpdate = new Alarm(this);
+        myPendingUpdates = new LinkedHashSet<>();
 
         components = new SettingsComponents<ArduinoApplicationSettings>() {
             @Override
-            protected Settable[] getComponents(ArduinoApplicationSettings i) {
-                return new Settable[] {
-                        componentString(mySerialPortNames.ADAPTER, myPort, i::getPort, i::setPort),
-                        componentString(myLanguageVersionNames.ADAPTER, myLanguageVersion, i::getPort, i::setPort),
-                        componentString(myLibraryTypeNames.ADAPTER, myLibraryType, i::getPort, i::setPort),
-                        componentString(myBoardNames.ADAPTER, myBoards, i::getPort, i::setPort),
-                        componentString(myCpuNames.ADAPTER, myCpus, i::getPort, i::setPort),
-                        componentString(myProgrammerNames.ADAPTER, myProgrammers, i::getPort, i::setPort),
-                        component(myAuthorName, i::getAuthorName, i::setAuthorName),
-                        component(myAuthorEMail, i::getAuthorEMail, i::setAuthorEMail),
-                        //component(myBundledBoardsTxt, i::isBundledBoardsTxt, i::setBundledBoardsTxt),
-                        //component(myBundledProgrammersTxt, i::isBundledProgrammersTxt, i::setBundledProgrammersTxt),
-                        //component(myBoardsTxtPath.getTextField(), i::getBoardsTxtPath, i::setBoardsTxtPath),
-                        //component(myProgrammersTxtPath.getTextField(), i::getProgrammersTxtPath, i::setProgrammersTxtPath),
-                };
+            protected Settable[] createComponents(ArduinoApplicationSettings i) {
+                if (isLibrary) {
+                    return new Settable[] {
+                            componentString(mySerialPortNames.ADAPTER, myPort, i::getPort, i::setPort),
+                            componentString(myBoardNames.ADAPTER, myBoards, i::getBoardName, i::setBoardName),
+                            componentString(myCpuNames.ADAPTER, myCpus, i::getCpuName, i::setCpuName),
+                            componentString(myProgrammerNames.ADAPTER, myProgrammers, i::getProgrammerName, i::setProgrammerName),
+                            component(myAddLibraryDirectory, i::isAddLibraryDirectory, i::setAddLibraryDirectory),
+                            component(myLibraryDirectory, i::getLibraryDirectory, i::setLibraryDirectory),
+                            component(myVerbose, i::isVerbose, i::setVerbose),
+                            componentString(myLanguageVersionNames.ADAPTER, myLanguageVersion, i::getLanguageVersion, i::setLanguageVersion),
+
+                            // library only
+                            componentString(myLibraryTypeNames.ADAPTER, myLibraryType, i::getLibraryType, i::setLibraryType),
+                            component(myAuthorName, i::getAuthorName, i::setAuthorName),
+                            component(myAuthorEMail, i::getAuthorEMail, i::setAuthorEMail),
+                    };
+                } else {
+                    return new Settable[] {
+                            componentString(mySerialPortNames.ADAPTER, myPort, i::getPort, i::setPort),
+                            componentString(myBoardNames.ADAPTER, myBoards, i::getBoardName, i::setBoardName),
+                            componentString(myCpuNames.ADAPTER, myCpus, i::getCpuName, i::setCpuName),
+                            componentString(myProgrammerNames.ADAPTER, myProgrammers, i::getProgrammerName, i::setProgrammerName),
+                            component(myAddLibraryDirectory, i::isAddLibraryDirectory, i::setAddLibraryDirectory),
+                            component(myLibraryDirectory, i::getLibraryDirectory, i::setLibraryDirectory),
+                            component(myVerbose, i::isVerbose, i::setVerbose),
+                            componentString(myLanguageVersionNames.ADAPTER, myLanguageVersion, i::getLanguageVersion, i::setLanguageVersion),
+                    };
+                }
             }
         };
 
         ApplicationManager.getApplication().getMessageBus().connect(this).subscribe(ApplicationSettingsListener.TOPIC, this);
 
-        if (immediateUpdate) {
-            // TODO: setup a timer of 1 second interval to check if modified then update settings
+        if (!immediateUpdate) {
+            myBoards.addItemListener(e -> {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    guard(this::updateCpus);
+                }
+            });
+        } else {
+            ItemListener itemListener = new ItemListener() {
+                @Override
+                public void itemStateChanged(final ItemEvent e) {
+                    if (e.getStateChange() == ItemEvent.SELECTED) {
+                        applyChanges(e.getSource());
+                    }
+                }
+            };
 
+            ActionListener actionListener = new ActionListener() {
+                @Override
+                public void actionPerformed(final ActionEvent e) {
+                    applyChanges(e.getSource());
+                }
+            };
+
+            components.forAllComponents(mySettings, settable -> {
+                Object target = settable.getComponent();
+                if (target instanceof AbstractButton) {
+                    ((AbstractButton) target).addActionListener(actionListener);
+                } else {
+                    if (target instanceof ItemSelectable) {
+                        if (target == myLibraryType) {
+                            myLibraryType.addItemListener(e -> {
+                                if (e.getStateChange() == ItemEvent.SELECTED) {
+                                    updateArduinoLibraryVisible();
+                                    applyChanges(myLibraryType);
+                                }
+                            });
+                        } else {
+                            ((ItemSelectable) target).addItemListener(itemListener);
+                        }
+                    }
+
+                    if (target instanceof JTextComponent) {
+                        ((JTextComponent) target).getDocument().addDocumentListener(new DocumentAdapter() {
+                            @Override
+                            protected void textChanged(@NotNull final DocumentEvent e) {
+                                applyChanges(target);
+                            }
+                        });
+                    }
+                }
+            });
         }
 
-        myCpuLabel.setText(mySettings.getCpuLabel());
-        updateArduinoLibraryVisible();
+        if (immediateUpdate) {
+            reset(mySettings);
+        }
+    }
+
+    @Override
+    public void dispose() {
+        myUpdate = null;
+        components.dispose();
+        myPendingUpdates.clear();
+    }
+
+    void applyChanges(Object... changed) {
+        if (myUpdate.isDisposed()) {
+            myPendingUpdates.clear();
+            return;
+        }
+
+        guarded(() -> {
+            Collections.addAll(myPendingUpdates, changed);
+
+            myUpdate.cancelAllRequests();
+            myUpdate.addRequest(() -> {
+                mySettings.groupChanges(() -> {
+                    Object[] targets = myPendingUpdates.toArray();
+                    myPendingUpdates.clear();
+                    components.apply(mySettings, targets);
+                });
+            }, 250, ModalityState.any());
+        });
+    }
+
+    public void updatePort(final @NotNull ArduinoApplicationSettings settings) {
+        ArrayList<String> ports = mySerialPortNames.getDisplayNames();
+        myPort.setHistorySize(-1);
+        myPort.setHistory(ports);
+        myPort.setText(settings.getPort());
     }
 
     void updateArduinoLibraryVisible() {
-        boolean isArduinoLibrary = myIsLibrary && ArduinoApplicationSettings.ARDUINO_LIB_TYPE.equals(mySettings.getLibraryType());
-        myLibraryCategories.setVisible(isArduinoLibrary);
-        myLibraryDirectory.setVisible(isArduinoLibrary);
-        myAuthorName.setVisible(isArduinoLibrary);
-        myAuthorEMail.setVisible(isArduinoLibrary);
+        boolean isArduinoLibrary = myIsLibrary && ArduinoApplicationSettings.ARDUINO_LIB_TYPE.equals(myLibraryType.getSelectedItem());
+        myLibraryTypeLabel.setVisible(myIsLibrary);
+        myLibraryType.setVisible(myIsLibrary);
+
         myLibraryCategoryLabel.setVisible(isArduinoLibrary);
-        myLibraryTypeLabel.setVisible(isArduinoLibrary);
+        myLibraryCategories.setVisible(isArduinoLibrary);
+
         myAuthorNameLabel.setVisible(isArduinoLibrary);
+        myAuthorName.setVisible(isArduinoLibrary);
+
         myAuthorEMailLabel.setVisible(isArduinoLibrary);
+        myAuthorEMail.setVisible(isArduinoLibrary);
     }
 
-    void guard(Runnable runnable) {
+    void guarded(Runnable runnable) {
         if (!inUpdate) {
             try {
                 inUpdate = true;
@@ -117,12 +230,36 @@ public class NewProjectSettingsForm implements Disposable, ApplicationSettingsLi
         }
     }
 
+    void guard(Runnable runnable) {
+        boolean saved = inUpdate;
+        try {
+            inUpdate = true;
+            runnable.run();
+        } finally {
+            inUpdate = saved;
+        }
+    }
+
     void updateEnums() {
         mySerialPortNames = SerialPortNames.createEnum(true);
-        myBoardNames = BoardNames.createEnum();
-        myCpuNames = CpuNames.createEnum();
-        myProgrammerNames = ProgrammerNames.createEnum();
+        myBoardNames = BoardNames.createEnum(mySettings.getBoardNames());
+        myProgrammerNames = ProgrammerNames.createEnum(mySettings.getProgrammerNames());
         myLibraryCategoryNames = LibraryCategoryNames.createEnum();
+    }
+
+    void updateCpuEnum() {
+        myCpuNames = CpuNames.createEnum(mySettings.getBoardCpuNames((String) myBoards.getSelectedItem()));
+    }
+
+    void updateCpus() {
+        updateCpuEnum();
+
+        myCpus.removeAllItems();
+        myCpuNames.ADAPTER.fillComboBox(myCpus, ComboBoxAdaptable.EMPTY);
+        myCpus.setSelectedItem(mySettings.getCpuName());
+
+        myCpuLabel.setEnabled(myCpuNames.values.length > 1);
+        myCpus.setEnabled(myCpuNames.values.length > 1);
     }
 
     private void createUIComponents() {
@@ -133,22 +270,19 @@ public class NewProjectSettingsForm implements Disposable, ApplicationSettingsLi
 
         myLanguageVersion = myLanguageVersionNames.ADAPTER.createComboBox();
         myLibraryType = myLibraryTypeNames.ADAPTER.createComboBox();
+
         myBoards = myBoardNames.ADAPTER.createComboBox();
+
+        updateCpuEnum();
         myCpus = myCpuNames.ADAPTER.createComboBox();
+
         myProgrammers = myProgrammerNames.ADAPTER.createComboBox();
         myLibraryCategories = myLibraryCategoryNames.ADAPTER.createComboBox();
     }
 
     @Override
-    public void dispose() {
-
-    }
-
-    @Override
     public void onSettingsChanged() {
-        guard(() -> {
-            reset(mySettings);
-        });
+        reset(mySettings);
     }
 
     public boolean isModified(@NotNull ArduinoApplicationSettings settings) {
@@ -156,58 +290,41 @@ public class NewProjectSettingsForm implements Disposable, ApplicationSettingsLi
     }
 
     public void apply(@NotNull ArduinoApplicationSettings settings) {
-        guard(() -> {
-            settings.groupChanges(() -> {
-                components.apply(settings);
+        if (isModified(settings)) {
+            guarded(() -> {
+                settings.groupChanges(() -> {
+                    components.apply(settings);
+                });
             });
-        });
+        }
     }
 
     public void reset(@NotNull ArduinoApplicationSettings settings) {
-        guard(() -> {
-            components.reset(settings);
+        if (isModified(settings)) {
+            // always set to settings, but prevent callbacks to modify settings
+            guard(() -> {
+                components.reset(settings);
 
-            updateEnums();
-            updateArduinoLibraryVisible();
+                updateEnums();
+                updateArduinoLibraryVisible();
 
-            myCpuLabel.setText(mySettings.getCpuLabel());
+                myCpuLabel.setText(mySettings.getCpuLabel());
 
-            myBoards.removeAllItems();
-            myBoardNames.ADAPTER.fillComboBox(myBoards, ComboBoxAdaptable.EMPTY);
-            myBoards.setSelectedItem(settings.getBoard());
-            if (!myBoards.getSelectedItem().equals(settings.getBoard())) {
-                settings.setBoard((String)myBoards.getSelectedItem());
+                myBoards.removeAllItems();
+                myBoardNames.ADAPTER.fillComboBox(myBoards, ComboBoxAdaptable.EMPTY);
+                myBoards.setSelectedItem(settings.getBoardName());
 
-                // relaod CPUs
-                myCpuNames = CpuNames.createEnum();
-            }
+                updateCpus();
 
-            if (myCpuNames.values.length == 0) {
+                myProgrammers.removeAllItems();
+                myProgrammerNames.ADAPTER.fillComboBox(myProgrammers, ComboBoxAdaptable.EMPTY);
+                myProgrammers.setSelectedItem(settings.getProgrammerName());
 
-            }
-            myCpus.removeAllItems();
-            myCpuNames.ADAPTER.fillComboBox(myCpus, ComboBoxAdaptable.EMPTY);
-            myCpus.setSelectedItem(settings.getCpu());
-            if (!myCpus.getSelectedItem().equals(settings.getCpu())) {
-                settings.setCpu((String)myCpus.getSelectedItem());
-            }
+                myLibraryCategories.removeAllItems();
+                myLibraryCategoryNames.ADAPTER.fillComboBox(myLibraryCategories, ComboBoxAdaptable.EMPTY);
 
-            myProgrammers.removeAllItems();
-            myProgrammerNames.ADAPTER.fillComboBox(myProgrammers, ComboBoxAdaptable.EMPTY);
-
-            myLibraryCategories.removeAllItems();
-            myLibraryCategoryNames.ADAPTER.fillComboBox(myLibraryCategories, ComboBoxAdaptable.EMPTY);
-
-            ArrayList<String> ports = mySerialPortNames.getDisplayNames();
-            String port = settings.getPort();
-
-            if (!port.isEmpty()) {
-                ports.add(0, port);
-            }
-
-            myPort.setHistorySize(-1);
-            myPort.setHistory(ports);
-            myPort.setText(port);
-        });
+                updatePort(settings);
+            });
+        }
     }
 }

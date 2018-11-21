@@ -11,9 +11,8 @@ public class ProgrammerNames implements ComboBoxAdaptable<ProgrammerNames> {
     public final int intValue;
     public final @NotNull String displayName;
 
-    public static EnumLike<ProgrammerNames> createEnum() {
-        ArduinoApplicationSettings settings = ArduinoApplicationSettings.getInstance();
-        return new EnumLike<>(settings.getProgrammerNames(), ProgrammerNames::new, true);
+    public static EnumLike<ProgrammerNames> createEnum(@NotNull String[] programmerNames) {
+        return new EnumLike<>(programmerNames, ProgrammerNames::new, true);
     }
 
     public ProgrammerNames(final EnumLike parent, final int intValue, @NotNull final String displayName) {

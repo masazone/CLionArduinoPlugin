@@ -17,11 +17,14 @@ package com.vladsch.clionarduinoplugin.settings;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.intellij.ui.TextFieldWithHistory;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBTextField;
+import com.vladsch.clionarduinoplugin.components.ArduinoApplicationSettings;
 import com.vladsch.clionarduinoplugin.components.ArduinoProjectSettings;
 import com.vladsch.clionarduinoplugin.serial.SerialProjectComponent;
 import com.vladsch.clionarduinoplugin.util.ui.EnumLike;
+import com.vladsch.clionarduinoplugin.util.ui.FormParams;
 import com.vladsch.clionarduinoplugin.util.ui.Settable;
 import com.vladsch.clionarduinoplugin.util.ui.SettingsComponents;
 import org.jetbrains.annotations.NotNull;
@@ -30,8 +33,9 @@ import javax.swing.*;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
-public class ProjectSettingsForm implements Disposable, RegExSettingsHolder {
+public class ProjectSettingsForm extends FormParams<Boolean> implements Disposable, RegExSettingsHolder {
     private static final Logger logger = Logger.getInstance("com.vladsch.clionarduinoplugin.settings");
 
     JPanel myMainPanel;
@@ -50,7 +54,7 @@ public class ProjectSettingsForm implements Disposable, RegExSettingsHolder {
     private SendSettingsForm mySendSettings;
 
     private @NotNull String myRegexSampleText;
-    EnumLike mySerialPortNames;
+    EnumLike<SerialPortNames> mySerialPortNames;
 
     public JComponent getComponent() {
         return myMainPanel;
@@ -58,10 +62,12 @@ public class ProjectSettingsForm implements Disposable, RegExSettingsHolder {
 
     private final SettingsComponents<ArduinoProjectSettings> components;
 
-    public ProjectSettingsForm(ArduinoProjectSettings settings) {
+    public ProjectSettingsForm(ArduinoProjectSettings settings, boolean allowPortEdit) {
+        super(allowPortEdit);
+
         components = new SettingsComponents<ArduinoProjectSettings>() {
             @Override
-            protected Settable[] getComponents(ArduinoProjectSettings i) {
+            protected Settable[] createComponents(ArduinoProjectSettings i) {
                 return new Settable[] {
                         componentString(mySerialPortNames.ADAPTER, myPort, i::getPort, i::setPort),
                         component(SerialBaudRates.ADAPTER, myBaudRate, i::getBaudRate, i::setBaudRate),
@@ -147,7 +153,13 @@ public class ProjectSettingsForm implements Disposable, RegExSettingsHolder {
 
         mySerialPortNames = SerialPortNames.createEnum(true);
 
-        myPort = mySerialPortNames.ADAPTER.createComboBox();
+        if (mySettings) {
+            // allow edit
+            myPort = new TextFieldWithHistory();
+        } else {
+            myPort = mySerialPortNames.ADAPTER.createComboBox();
+        }
+
         myBaudRate = SerialBaudRates.ADAPTER.createComboBox();
 
         myBuildConfigurationPattern = BuildConfigurationPatternType.ADAPTER.createComboBox();
@@ -168,6 +180,14 @@ public class ProjectSettingsForm implements Disposable, RegExSettingsHolder {
 
     public void reset(@NotNull ArduinoProjectSettings settings) {
         components.reset(settings);
+
+        if (myPort instanceof TextFieldWithHistory) {
+            ArrayList<String> ports = mySerialPortNames.getDisplayNames();
+            ((TextFieldWithHistory)myPort).setHistorySize(-1);
+            ((TextFieldWithHistory)myPort).setHistory(ports);
+            ((TextFieldWithHistory)myPort).setText(ArduinoApplicationSettings.getInstance().getPort());
+        }
+
         mySendSettings.reset(settings);
         myRegexSampleText = settings.getRegexSampleText();
     }

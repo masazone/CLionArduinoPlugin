@@ -14,7 +14,9 @@ import com.intellij.util.xmlb.annotations.XMap;
 import com.jetbrains.cidr.cpp.cmake.projectWizard.generators.CMakeProjectGenerator;
 import com.jetbrains.cidr.cpp.cmake.projectWizard.generators.settings.CMakeProjectSettings;
 import com.vladsch.clionarduinoplugin.generators.CppLanguageVersions;
-import com.vladsch.clionarduinoplugin.resources.BuildConfig;
+import com.vladsch.clionarduinoplugin.resources.ArduinoConfig;
+import com.vladsch.clionarduinoplugin.resources.Board;
+import com.vladsch.clionarduinoplugin.resources.Programmer;
 import com.vladsch.clionarduinoplugin.resources.ResourceUtils;
 import com.vladsch.clionarduinoplugin.util.ApplicationSettingsListener;
 import org.jetbrains.annotations.NotNull;
@@ -40,7 +42,6 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
     public static final String STATIC_LIB_TYPE = "static";
     public static final String[] LIBRARY_TYPES = { ARDUINO_LIB_TYPE, CMakeProjectGenerator.STATIC_LIB_TYPE };
     public static final String[] LIBRARY_CATEGORIES = new String[] {
-            "",
             "Communications",
             "Data Processing",
             "Data Storage",
@@ -57,16 +58,16 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
     private @NotNull String libraryType = ARDUINO_LIB_TYPE;
     private boolean addLibraryDirectory = false;
     private @NotNull String libraryDirectory = "";
-    private @NotNull String board = "uno";
-    private @NotNull String cpu = "";
-    private @NotNull String programmer = "";
+    private @NotNull String boardId = "uno";
+    private @NotNull String cpuId = "";
+    private @NotNull String programmerId = "";
     private @NotNull String port = "";
     private int baudRate = 9600;
     private @NotNull String libraryCategory = "";
     private @NotNull String authorName = "";
     private @NotNull String authorEMail = "";
     private boolean verbose = false;
-    private @NotNull HashMap<String, String> boardCpu = new HashMap<>();
+    private @NotNull HashMap<String, String> boardCpuMap = new HashMap<>();
     private @NotNull LinkedHashSet<String> portHistory = new LinkedHashSet<>();
     private boolean nestedLibrarySources = false;
     private @NotNull String boardsTxtPath = "";
@@ -74,7 +75,7 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
     private boolean bundledBoardsTxt = true;
     private boolean bundledProgrammersTxt = true;
 
-    private BuildConfig myBuildConfig = null;
+    private ArduinoConfig myArduinoConfig = null;
 
     @NotNull
     @Override
@@ -92,8 +93,8 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
         this.languageVersion = languageVersion;
     }
 
-    public void setLibraryType(@NotNull String libraryType) {
-        this.libraryType = libraryType;
+    public void setLibraryType(@Nullable String libraryType) {
+        this.libraryType = libraryType == null ? ARDUINO_LIB_TYPE : libraryType;
     }
 
     @NotNull
@@ -124,37 +125,76 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
     }
 
     @NotNull
-    public String getBoard() {
-        return board;
+    public String getBoardId() {
+        return boardId;
     }
 
-    public void setBoard(@NotNull final String board) {
-        this.board = board;
-        this.cpu = getBoardCpu().get(board);
-    }
-
-    public void setBoardFromName(@NotNull final String boardName) {
-        this.board = getBoardFromName(boardName).id;
-        this.cpu = getBoardCpu().get(board);
+    public void setBoardId(@NotNull final String boardId) {
+        this.boardId = boardId;
+        cpuId = getBoardCpuId();
+        validateCpuId();
     }
 
     @NotNull
-    public String getCpu() {
-        return cpu;
+    public String getBoardName() {
+        return getArduinoConfig().getBoardById(boardId).getName();
     }
 
-    public void setCpu(@NotNull final String cpu) {
-        this.cpu = cpu;
-        setBoardCpu(board, cpu);
+    public void setBoardName(@NotNull final String board) {
+        boardId = getBoardByName(board).getId();
+        cpuId = getBoardCpuId();
+        validateCpuId();
     }
 
     @NotNull
-    public String getProgrammer() {
-        return programmer;
+    private String getBoardCpuId() {
+        String bCpu = boardCpuMap.get(boardId);
+        return bCpu == null ? "" : bCpu;
     }
 
-    public void setProgrammer(@NotNull final String programmer) {
-        this.programmer = programmer;
+    private void validateCpuId() {
+        cpuId = getArduinoConfig().getBoardCpuId(boardId, cpuId);
+        setBoardCpu(boardId, cpuId);
+    }
+
+    @NotNull
+    public String getCpuId() {
+        validateCpuId();
+        return cpuId;
+    }
+
+    public void setCpuId(@NotNull final String cpuId) {
+        this.cpuId = cpuId;
+        validateCpuId();
+    }
+
+    @NotNull
+    public String getCpuName() {
+        validateCpuId();
+        return getArduinoConfig().getBoardCpuNameById(boardId, cpuId);
+    }
+
+    public void setCpuName(@NotNull final String cpuName) {
+        this.cpuId = getArduinoConfig().getBoardCpuIdByName(boardId, cpuName);
+        validateCpuId();
+    }
+
+    @NotNull
+    public String getProgrammerId() {
+        return programmerId;
+    }
+
+    @NotNull
+    public String getProgrammerName() {
+        return getArduinoConfig().getProgrammerById(programmerId).getName();
+    }
+
+    public void setProgrammerId(@NotNull final String programmerId) {
+        this.programmerId = getArduinoConfig().getProgrammerById(programmerId).getId();
+    }
+
+    public void setProgrammerName(@NotNull final String programmerName) {
+        this.programmerId = getArduinoConfig().getProgrammerByName(programmerName).getId();
     }
 
     @NotNull
@@ -184,13 +224,13 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
     }
 
     @XMap
-    public Map<String, String> getBoardCpu() {
-        return boardCpu;
+    public Map<String, String> getBoardCpuMap() {
+        return boardCpuMap;
     }
 
     @XMap
-    public void setBoardCpu(final Map<String, String> boardCpu) {
-        this.boardCpu = new HashMap<>(boardCpu);
+    public void setBoardCpuMap(final Map<String, String> boardCpuMap) {
+        this.boardCpuMap = new HashMap<>(boardCpuMap);
     }
 
     @XCollection
@@ -218,7 +258,7 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
     }
 
     public void setBoardCpu(String board, String cpu) {
-        this.boardCpu.put(board, cpu);
+        boardCpuMap.put(board, cpu);
     }
 
     public boolean isNestedLibrarySources() {
@@ -235,7 +275,7 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
     }
 
     public void setLibraryCategory(@NotNull final String category) {
-        this.libraryCategory = category;
+        libraryCategory = category;
     }
 
     public String getAuthorName() {
@@ -262,7 +302,7 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
 
     public void setBoardsTxtPath(@NotNull final String boardsTxtPath) {
         if (!this.boardsTxtPath.equals(boardsTxtPath)) {
-            invalidateBuildConfig();
+            invalidateArduinoConfig();
             this.boardsTxtPath = boardsTxtPath;
         }
     }
@@ -273,7 +313,7 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
 
     public void setBundledBoardsTxt(final boolean bundledBoardsTxt) {
         if (this.bundledBoardsTxt != bundledBoardsTxt) {
-            invalidateBuildConfig();
+            invalidateArduinoConfig();
             this.bundledBoardsTxt = bundledBoardsTxt;
         }
     }
@@ -284,7 +324,7 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
 
     public void setBundledProgrammersTxt(final boolean bundledProgrammersTxt) {
         if (this.bundledProgrammersTxt != bundledProgrammersTxt) {
-            invalidateBuildConfig();
+            invalidateArduinoConfig();
             this.bundledProgrammersTxt = bundledProgrammersTxt;
         }
     }
@@ -296,7 +336,7 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
 
     public void setProgrammersTxtPath(@NotNull final String programmersTxtPath) {
         if (!this.programmersTxtPath.equals(programmersTxtPath)) {
-            invalidateBuildConfig();
+            invalidateArduinoConfig();
             this.programmersTxtPath = programmersTxtPath;
         }
     }
@@ -315,72 +355,65 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
 
     @NotNull
     public String[] getBoardNames() {
-        BuildConfig buildConfig = getBuildConfig();
-        return ContainerUtil.map2Array(buildConfig.getBoards().values(), String.class, (board) -> board.name);
+        ArduinoConfig arduinoConfig = getArduinoConfig();
+        return ContainerUtil.map2Array(arduinoConfig.getBoardIdMap().values(), String.class, Board::getName);
     }
 
     @NotNull
     public String[] getProgrammerNames() {
-        BuildConfig buildConfig = getBuildConfig();
-        return ContainerUtil.map2Array(buildConfig.getBoards().values(), String.class, (board) -> board.name);
+        ArduinoConfig arduinoConfig = getArduinoConfig();
+        return ContainerUtil.map2Array(arduinoConfig.getProgrammerIdMap().values(), String.class, Programmer::getName);
     }
 
     @NotNull
     public String[] getBoardCpuNames(final @NotNull String boardName) {
-        BuildConfig.Board board = getBoardFromName(boardName);
-        if (board.cpuList != null) {
-            return board.cpuList.values().toArray(new String[0]);
-        }
-        return EMPTY;
+        Board board = getBoardByName(boardName);
+        board.getCpuList();
+        return board.getCpuList().values().toArray(new String[0]);
     }
 
     @NotNull
     public String getCpuLabel() {
-        return getBuildConfig().getCpuMenu();
+        return getArduinoConfig().getCpuMenu();
+    }
+
+    public @NotNull Board getBoardByName(final @Nullable String boardName) {
+        return getArduinoConfig().getBoardByName(boardName);
+    }
+
+    public @NotNull Programmer getProgrammerFromName(final @Nullable String programmerName) {
+        return getArduinoConfig().getProgrammerByName(programmerName);
+    }
+
+    public void invalidateArduinoConfig() {
+        myArduinoConfig = null;
     }
 
     @NotNull
-    String getCpuId() {
-        if (!board.isEmpty() && !cpu.isEmpty()) {
-            BuildConfig.Board board = getBoardFromName(this.board);
-            return board.cpuFromName(cpu);
-        }
-        return "";
-    }
-
-    public @NotNull BuildConfig.Board getBoardFromName(final @NotNull String boardName) {
-        return getBuildConfig().boardFromName(boardName);
-    }
-
-    void invalidateBuildConfig() {
-        myBuildConfig = null;
-    }
-
-    @NotNull
-    public BuildConfig getBuildConfig() {
-        if (myBuildConfig == null) {
-            String boardsTxt = BuildConfig.getBoardsTxtString();
-            String programmersTxt = BuildConfig.getProgrammersTxtString();
+    public ArduinoConfig getArduinoConfig() {
+        if (myArduinoConfig == null) {
+            String boardsTxt = ArduinoConfig.Companion.getBoardsTxtString();
+            String programmersTxt = ArduinoConfig.Companion.getProgrammersTxtString();
 
             if (!bundledBoardsTxt) {
                 String otherBoardsTxt = getFileContent(boardsTxtPath);
-                BuildConfig buildConfig = new BuildConfig(otherBoardsTxt, "");
-                if (!buildConfig.getBoards().isEmpty()) {
+                ArduinoConfig arduinoConfig = new ArduinoConfig(otherBoardsTxt, "");
+                if (!arduinoConfig.getBoardIdMap().isEmpty()) {
                     boardsTxt = otherBoardsTxt;
                 }
             }
 
             if (!bundledProgrammersTxt) {
                 String otherProgrammerTxt = getFileContent(programmersTxtPath);
-                BuildConfig buildConfig = new BuildConfig(otherProgrammerTxt, "");
-                if (!buildConfig.getProgrammers().isEmpty()) {
+                ArduinoConfig arduinoConfig = new ArduinoConfig(otherProgrammerTxt, "");
+                if (!arduinoConfig.getProgrammerIdMap().isEmpty()) {
                     programmersTxt = otherProgrammerTxt;
                 }
             }
 
-            myBuildConfig = new BuildConfig(boardsTxt, programmersTxt);
+            myArduinoConfig = new ArduinoConfig(boardsTxt, programmersTxt);
         }
-        return myBuildConfig;
+        return myArduinoConfig;
     }
 
     @SuppressWarnings("NonFinalFieldReferenceInEquals")
@@ -400,14 +433,14 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
         if (!languageVersion.equals(settings.languageVersion)) return false;
         if (!libraryType.equals(settings.libraryType)) return false;
         if (!libraryDirectory.equals(settings.libraryDirectory)) return false;
-        if (!board.equals(settings.board)) return false;
-        if (!cpu.equals(settings.cpu)) return false;
-        if (!programmer.equals(settings.programmer)) return false;
+        if (!boardId.equals(settings.boardId)) return false;
+        if (!cpuId.equals(settings.cpuId)) return false;
+        if (!programmerId.equals(settings.programmerId)) return false;
         if (!port.equals(settings.port)) return false;
         if (!libraryCategory.equals(settings.libraryCategory)) return false;
         if (!authorName.equals(settings.authorName)) return false;
         if (!authorEMail.equals(settings.authorEMail)) return false;
-        if (!boardCpu.equals(settings.boardCpu)) return false;
+        if (!boardCpuMap.equals(settings.boardCpuMap)) return false;
         if (!portHistory.equals(settings.portHistory)) return false;
         if (!boardsTxtPath.equals(settings.boardsTxtPath)) return false;
         return programmersTxtPath.equals(settings.programmersTxtPath);
@@ -420,16 +453,16 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
         result = 31 * result + libraryType.hashCode();
         result = 31 * result + (addLibraryDirectory ? 1 : 0);
         result = 31 * result + libraryDirectory.hashCode();
-        result = 31 * result + board.hashCode();
-        result = 31 * result + cpu.hashCode();
-        result = 31 * result + programmer.hashCode();
+        result = 31 * result + boardId.hashCode();
+        result = 31 * result + cpuId.hashCode();
+        result = 31 * result + programmerId.hashCode();
         result = 31 * result + port.hashCode();
         result = 31 * result + baudRate;
         result = 31 * result + libraryCategory.hashCode();
         result = 31 * result + authorName.hashCode();
         result = 31 * result + authorEMail.hashCode();
         result = 31 * result + (verbose ? 1 : 0);
-        result = 31 * result + boardCpu.hashCode();
+        result = 31 * result + boardCpuMap.hashCode();
         result = 31 * result + portHistory.hashCode();
         result = 31 * result + (nestedLibrarySources ? 1 : 0);
         result = 31 * result + boardsTxtPath.hashCode();
