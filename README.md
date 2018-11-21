@@ -30,6 +30,21 @@ communications with the integrated serial monitor tool window.
 Both plugins use [jSSC-2.8.0] serial library and only one plugin can load the native libraries.
 Please uninstall or disable `Serial Port Monitor` plugin before installing `Arduino Support`.
 
+
+## Settings (Preferences on Mac)
+
+Some settings can also be changed in settings under Languages & Frameworks > Arduino, for
+convenience.
+
+Additionally, you can point the plugin to your own versions of `boards.txt` and
+`programmers.txt`.
+
+
+![Screenshot_AppSettings](assets/images/Screenshot_AppSettings.png)
+
+The `Show Difference` button is only displayed when a valid file is selected to let you quickly
+see if there are differences from the bundled version.
+
 ## Status
 
 Forked to fix CLion 2018 issues and decided to add a few creature comforts:
@@ -88,9 +103,8 @@ interest. Then maybe someone else will pick up the torch at take it further.
 ## History
 
 This plugin is a fork of
-[rjuang/CLionArduinoPlugin](https://github.com/rjuang/CLionArduinoPlugin) which in turn is a
-fork of [Original CLionArduinoPlugin](https://github.com/francoiscampbell/CLionArduinoPlugin)
-written by Francois Campbell.
+[Original CLionArduinoPlugin](https://github.com/francoiscampbell/CLionArduinoPlugin) written by
+Francois Campbell.
 
 ## Notes
 

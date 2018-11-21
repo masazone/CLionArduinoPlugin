@@ -368,8 +368,8 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
     @NotNull
     public String[] getBoardCpuNames(final @NotNull String boardName) {
         Board board = getBoardByName(boardName);
-        board.getCpuList();
-        return board.getCpuList().values().toArray(new String[0]);
+        HashMap<String, String> list = board.getCpuList();
+        return list.values().toArray(new String[0]);
     }
 
     @NotNull

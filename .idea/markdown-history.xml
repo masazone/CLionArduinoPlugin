@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="MarkdownNavigatorHistory">
-    <PasteImageHistory filename="Screenshot_SerialMonitor" directory="$PROJECT_DIR$/assets/images" onPasteImageTargetRef="3" onPasteLinkText="0" onPasteImageElement="1" onPasteLinkElement="1" onPasteReferenceElement="2" cornerRadius="10" borderColor="-5002318" transparentColor="-1" borderWidth="1" trimTop="5" trimBottom="0" trimLeft="3" trimRight="3" transparent="false" roundCorners="false" showPreview="true" bordered="true" scaled="true" cropped="true" hideInapplicableOperations="true" scale="40" scalingInterpolation="1" transparentTolerance="0" saveAsDefaultOnOK="true" linkFormat="2">
+    <PasteImageHistory filename="Screenshot_AppSettings" directory="$PROJECT_DIR$/assets/images" onPasteImageTargetRef="3" onPasteLinkText="0" onPasteImageElement="1" onPasteLinkElement="1" onPasteReferenceElement="2" cornerRadius="10" borderColor="-5002318" transparentColor="-1" borderWidth="1" trimTop="5" trimBottom="2" trimLeft="2" trimRight="2" transparent="false" roundCorners="true" showPreview="true" bordered="true" scaled="true" cropped="true" hideInapplicableOperations="true" scale="40" scalingInterpolation="1" transparentTolerance="0" saveAsDefaultOnOK="true" linkFormat="0">
       <directories>
         <option name="$PROJECT_DIR$/assets/images" />
         <option name="$PROJECT_DIR$/resources/icons" />

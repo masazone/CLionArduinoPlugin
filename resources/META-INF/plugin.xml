@@ -44,9 +44,23 @@
             <a href="https://github.com/francoiscampbell/CLionArduinoPlugin">Original CLionArduinoPlugin</a> written by Francois Campbell.</p>
         ]]></description>
 
-    <version>1.3.12</version>
+    <version>1.3.14</version>
 
     <change-notes><![CDATA[
+        <h3>1.3.14</h3>
+        <ul>
+            <li>Add: CMake file parser and formatter, needed for UI to modify existing file. Will also be used
+                for generating the <code>CMakeLists.txt</code> for new projects and fixing up one that is messed up in
+                terms of required order of lines.</li>
+            <li>Fix: CMakeFormatter and CMakeParser to handle preserving original file when recreated from
+                AST.</li>
+            <li>Add: <code>CMakeListsBuilder</code> for parsing existing file, modifying values and regenerating the new
+                content based on new values but preserving unchanged lines.</li>
+            <li>Fix: refactor mess of project wizard gui panel to re-usable form</li>
+            <li>Add: trigger re-validation on failure. A hack solution since we are hacking into the IDE
+                functionality. It is not exactly open api so kludges are inevitable.</li>
+            <li>Fix: minor layout fixes for forms.</li>
+        </ul>
         <h3>1.3.12</h3>
         <ul>
             <li>Fix: backwards compatibility to 2018.1</li>

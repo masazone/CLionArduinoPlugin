@@ -258,7 +258,7 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
             }
 
             if (mySettings.getBoardCpuNames(mySettings.getBoardName()).length > 0 && mySettings.getCpuId().isEmpty()) {
-                return filterFailure(new ValidationResult(Bundle.message("new-project.0.no-cpu", mySettings.getCpuLabel())));
+                return filterFailure(new ValidationResult(Bundle.message("new-project.1.no-cpu", mySettings.getCpuLabel(), mySettings.getBoardName())));
             }
 
             if (mySettings.isAddLibraryDirectory()) {
@@ -425,17 +425,17 @@ public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator 
         @Override
         public void onSettingsChanged() {
             if (myHaveFailed) {
+                myHaveFailed = false;
                 JTextField textField = getLocationTextField();
                 if (textField != null) {
                     textField.setText(textField.getText());
                 }
             }
-            myHaveFailed = false;
         }
 
-        // vsch: kludge: since this class is not a step it cannot trigger validation,
+        // vsch: kludge: since this class is not a step in the wizard process it cannot trigger re-validation,
         // or at least I wasn't able to figure out how to do it. Workaround: find the location text field
-        // and set it to itself to trigger validation
+        // and set it to itself to trigger validation to clear the error
         @Nullable
         protected JTextField findLocationTextField(JComponent jcomp) {
             JTextField field;

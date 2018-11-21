@@ -4,7 +4,7 @@
 
 ### Version History
 - [TO DO](#to-do)
-- [1.3.13](#1313)
+- [1.3.14](#1314)
 - [1.3.12](#1312)
 - [1.3.10](#1310)
 - [1.3.8](#138)
@@ -28,7 +28,7 @@
 * [ ] Add: `Generate keywords.txt` action to generate keywords.txt based on contained project
       classes and functions.
 
-### 1.3.13
+### 1.3.14
 
 * Add: CMake file parser and formatter, needed for UI to modify existing file. Will also be used
   for generating the `CMakeLists.txt` for new projects and fixing up one that is messed up in
@@ -38,8 +38,9 @@
 * Add: `CMakeListsBuilder` for parsing existing file, modifying values and regenerating the new
   content based on new values but preserving unchanged lines.
 * Fix: refactor mess of project wizard gui panel to re-usable form
-* Add: figure out how to trigger re-validation on failure since we are hacking into the IDE
-  functionality, it is not exactly open api so kludges are inevitable.
+* Add: trigger re-validation on failure. A hack solution since we are hacking into the IDE
+  functionality. It is not exactly open api so kludges are inevitable.
+* Fix: minor layout fixes for forms.
 
 ### 1.3.12
 
