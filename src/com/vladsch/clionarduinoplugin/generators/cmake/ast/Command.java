@@ -4,10 +4,10 @@ import com.vladsch.flexmark.ast.Node;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 
 public class Command extends Node {
-    private BasedSequence command = BasedSequence.NULL;
-    private BasedSequence openingMarker = BasedSequence.NULL;
-    private BasedSequence arguments = BasedSequence.NULL;
-    private BasedSequence closingMarker = BasedSequence.NULL;
+    protected BasedSequence command = BasedSequence.NULL;
+    protected BasedSequence openingMarker = BasedSequence.NULL;
+    protected BasedSequence arguments = BasedSequence.NULL;
+    protected BasedSequence closingMarker = BasedSequence.NULL;
 
     public Command() {
     }

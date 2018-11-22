@@ -54,6 +54,7 @@ public class CMakeParser {
     final static public DataKey<Boolean> AST_BLANK_LINES = new DataKey<>("AST_BLANK_LINES", false);
     final static public DataKey<Boolean> AST_LINE_END_EOL = new DataKey<>("AST_LINE_END_EOL", false);
     final static public DataKey<Boolean> AST_ARGUMENT_SEPARATORS = new DataKey<>("AST_ARGUMENT_SEPARATORS", false);
+    final static public DataKey<Boolean> AST_COMMENTED_OUT_COMMANDS = new DataKey<>("AST_COMMENTED_OUT_COMMANDS", false);
 
     final private CMakeFile document;
     final private BasedSequence input;
@@ -178,6 +179,21 @@ public class CMakeParser {
 
         switch (c) {
             case '#':
+                if (options.astCommentedOutCommands) {
+                    // possible commented out command
+                    int saved = index;
+                    index++;
+                    res = parseCommandInvocation(document, true);
+                    if (res) {
+                        // it is
+                        CommentedOutCommand node = (CommentedOutCommand) document.getLastChildAny(CommentedOutCommand.class);
+                        node.setCommentMarker(input.subSequence(saved, saved + 1));
+                        break;
+                    } else {
+                        index = saved;
+                    }
+                }
+
                 res = parseLineEnding(document);
                 break;
             case '\r':
@@ -187,7 +203,7 @@ public class CMakeParser {
 
             default: {
                 // must be command invocation
-                res = parseCommandInvocation(document);
+                res = parseCommandInvocation(document, false);
             }
             break;
         }
@@ -195,7 +211,7 @@ public class CMakeParser {
         return res;
     }
 
-    protected boolean parseCommandInvocation(Node parent) {
+    protected boolean parseCommandInvocation(Node parent, final boolean isCommentedOut) {
         sp();
 
         int saved = index;
@@ -205,7 +221,7 @@ public class CMakeParser {
             char c = peek();
             if (c == '(') {
                 // possible command
-                Command commandNode = new Command();
+                Command commandNode = isCommentedOut ? new CommentedOutCommand() : new Command();
                 parent.appendChild(commandNode);
 
                 BasedSequence open = input.subSequence(index, index + 1);
@@ -265,11 +281,15 @@ public class CMakeParser {
                             }
                             return true;
                         } else {
-                            addError(parent, "Line Ending expected");
+                            if (!isCommentedOut) {
+                                addError(parent, "Line Ending expected");
+                            }
                         }
                     } else {
-                        addError(parent, "Closing ) expected");
-                        // TODO: skip to unescaped and unquoted )
+                        if (!isCommentedOut) {
+                            addError(parent, "Closing ) expected");
+                            // TODO: skip to unescaped and unquoted )
+                        }
                     }
                 }
 

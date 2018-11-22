@@ -12,11 +12,13 @@ public class CMakeCommand implements CMakeElement {
     final protected @NotNull CMakeCommandType myCommandType;
     final protected @NotNull ArrayList<String> myArgs;
     protected boolean myAddEOL;
+    protected boolean myCommentedOut;
 
-    public CMakeCommand(@NotNull final CMakeCommandType commandType, @NotNull final List<String> args, boolean isAddEOL) {
+    public CMakeCommand(@NotNull final CMakeCommandType commandType, @NotNull final List<String> args, boolean isAddEOL, boolean commentedOut) {
         myCommandType = commandType;
         myArgs = new ArrayList<>(args);
         myAddEOL = isAddEOL;
+        myCommentedOut = commentedOut;
 
         String[] defaults = commandType.getDefaultArgs();
         int iMax = defaults.length;
@@ -30,19 +32,27 @@ public class CMakeCommand implements CMakeElement {
     }
 
     public CMakeCommand(@NotNull final CMakeCommandType commandType, @NotNull final List<String> args) {
-        this(commandType, args, true);
+        this(commandType, args, true, false);
     }
 
     public CMakeCommand(@NotNull final CMakeCommandType commandType, boolean isAddEOL) {
-        this(commandType, new ArrayList<>(), isAddEOL);
+        this(commandType, new ArrayList<>(), isAddEOL,false);
     }
 
     public CMakeCommand(@NotNull final CMakeCommandType commandType) {
-        this(commandType, new ArrayList<>(), true);
+        this(commandType, new ArrayList<>(), true,false);
     }
 
     public CMakeCommand(@NotNull final CMakeCommand other) {
-        this(other.myCommandType, other.myArgs, other.myAddEOL);
+        this(other.myCommandType, other.myArgs, other.myAddEOL, other.myCommentedOut);
+    }
+
+    public boolean isCommentedOut() {
+        return myCommentedOut;
+    }
+
+    public void commentOut(final boolean commentedOut) {
+        myCommentedOut = commentedOut;
     }
 
     @Override
@@ -68,6 +78,10 @@ public class CMakeCommand implements CMakeElement {
 
     @Override
     public void appendTo(StringBuilder out, @Nullable Map<String, Object> valueSet) throws IOException {
+        if (myCommentedOut) {
+            out.append("# ");
+        }
+
         out.append(myCommandType.getCommand());
         out.append("(");
         String sep = "";
@@ -75,6 +89,8 @@ public class CMakeCommand implements CMakeElement {
         HashSet<String> argValues = new HashSet<>();
 
         for (String arg : myCommandType.getFixedArgs()) {
+            if (arg.isEmpty()) continue;
+
             if (!myCommandType.isNoDupeArgs() || !argValues.contains(arg)) {
                 argValues.add(arg);
 
@@ -86,6 +102,8 @@ public class CMakeCommand implements CMakeElement {
         }
 
         for (String arg : myArgs) {
+            if (arg.isEmpty()) continue;
+
             if (!myCommandType.isNoDupeArgs() || !argValues.contains(arg)) {
                 argValues.add(arg);
 

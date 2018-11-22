@@ -49,6 +49,14 @@ public class CMakeNodeFormatter implements NodeFormatter {
     }
 
     private void render(final Command node, final NodeFormatterContext context, final MarkdownWriter markdown) {
+        if (node instanceof CommentedOutCommand) {
+            if (formatterOptions.preserveWhitespace) {
+                markdown.append('#');
+                CMakeFormatterContext.appendWhiteSpaceBetween(markdown, ((CommentedOutCommand) node).getCommentMarker(), node.getCommand(), formatterOptions.preserveWhitespace, formatterOptions.collapseWhitespace, true);
+            } else if (formatterOptions.spaceAfterCommandName.contains(node.getCommand().toString())) {
+                markdown.append("# ");
+            }
+        }
         markdown.append(node.getCommand());
         if (formatterOptions.preserveWhitespace) {
             CMakeFormatterContext.appendWhiteSpaceBetween(markdown, node.getCommand(), node.getOpeningMarker(), formatterOptions.preserveWhitespace, formatterOptions.collapseWhitespace, true);
@@ -171,6 +179,12 @@ public class CMakeNodeFormatter implements NodeFormatter {
                     }
                 }),
                 new NodeFormattingHandler<Command>(Command.class, new CustomNodeFormatter<Command>() {
+                    @Override
+                    public void render(Command node, NodeFormatterContext context, MarkdownWriter markdown) {
+                        CMakeNodeFormatter.this.render(node, context, markdown);
+                    }
+                }),
+                new NodeFormattingHandler<Command>(CommentedOutCommand.class, new CustomNodeFormatter<Command>() {
                     @Override
                     public void render(Command node, NodeFormatterContext context, MarkdownWriter markdown) {
                         CMakeNodeFormatter.this.render(node, context, markdown);

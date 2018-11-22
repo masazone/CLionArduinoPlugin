@@ -13,6 +13,7 @@ public class CMakeParserOptions implements MutableDataSetter {
     public boolean astCommandBlocks;
     public boolean astBlankLines;
     public boolean astArgumentSeparators;
+    public boolean astCommentedOutCommands;
     public int maxErrorLineRecoveries;
 
     CMakeParserOptions() {
@@ -28,6 +29,7 @@ public class CMakeParserOptions implements MutableDataSetter {
         astCommandBlocks = other.astCommandBlocks;
         astBlankLines = other.astBlankLines;
         astArgumentSeparators = other.astArgumentSeparators;
+        astCommentedOutCommands = other.astCommentedOutCommands;
         maxErrorLineRecoveries = other.maxErrorLineRecoveries;
     }
 
@@ -40,6 +42,7 @@ public class CMakeParserOptions implements MutableDataSetter {
         astCommandBlocks = CMakeParser.AST_COMMAND_BLOCKS.getFrom(options);
         astBlankLines = CMakeParser.AST_BLANK_LINES.getFrom(options);
         astArgumentSeparators = CMakeParser.AST_ARGUMENT_SEPARATORS.getFrom(options);
+        astCommentedOutCommands = CMakeParser.AST_COMMENTED_OUT_COMMANDS.getFrom(options);
         maxErrorLineRecoveries = CMakeParser.MAX_ERROR_LINE_RECOVERIES.getFrom(options);
     }
 
@@ -53,6 +56,7 @@ public class CMakeParserOptions implements MutableDataSetter {
         dataHolder.set(CMakeParser.AST_COMMAND_BLOCKS, astCommandBlocks);
         dataHolder.set(CMakeParser.AST_BLANK_LINES, astBlankLines);
         dataHolder.set(CMakeParser.AST_ARGUMENT_SEPARATORS, astArgumentSeparators);
+        dataHolder.set(CMakeParser.AST_COMMENTED_OUT_COMMANDS, astCommentedOutCommands);
         dataHolder.set(CMakeParser.MAX_ERROR_LINE_RECOVERIES, maxErrorLineRecoveries);
         return dataHolder;
     }

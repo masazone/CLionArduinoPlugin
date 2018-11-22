@@ -16,13 +16,14 @@ import java.util.List;
 import java.util.Map;
 
 public class CMakeBuilderSpecTest extends ComboSpecTestCase {
-    private static final String SPEC_RESOURCE = "/com/vladsch/clionarduinoplugin/generators/cmake/cmake_builder_spec.md";
+    private static final String SPEC_RESOURCE = "/cmake_builder_spec.md";
     private static final DataHolder OPTIONS = new MutableDataSet()
             .set(CMakeParser.AUTO_CONFIG, true)
             .set(CMakeParser.AST_LINE_END_EOL, true)
             .set(CMakeParser.AST_COMMENTS, true)
             .set(CMakeParser.AST_BLANK_LINES, true)
             .set(CMakeParser.AST_ARGUMENT_SEPARATORS, true)
+            .set(CMakeParser.AST_COMMENTED_OUT_COMMANDS, true)
             //.set(ExtraRenderer.DUMP_OPTIONS, true)
     ;
 
@@ -60,9 +61,18 @@ public class CMakeBuilderSpecTest extends ComboSpecTestCase {
                 "LIB_NAME", "libName",
                 "SET_UPLOAD_SPEED", "setUploadSpeed",
                 "LINK_DIRECTORIES", "linkDirectories",
-                "ADD_SUBDIRECTORY", "addSubdirectory"
+                "ADD_SUBDIRECTORY", "addSubdirectory",
+                "GENERATE_ARDUINO_LIBRARY", "",
+                "GENERATE_ARDUINO_FIRMWARE", "",
+                "",""
+        )));
+        optionsMap.put("add-project", new MutableDataSet().set(ArduinoCMakeListsTxtBuilderRenderer.VALUE_SET, valueSet(
+                "PROJECT", "",
+                "SET_PROGRAMMER", "setProgrammer",
+                "",""
         )));
         optionsMap.put("dump-options", new MutableDataSet().set(ExtraRenderer.DUMP_OPTIONS, true));
+        optionsMap.put("set-or-add", new MutableDataSet().set(ArduinoCMakeListsTxtBuilderRenderer.SET_OR_ADD, true));
     }
 
     private static final IParseBase PARSER = new CMakeIParser(OPTIONS);

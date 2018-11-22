@@ -35,6 +35,7 @@
 * Add: baud rate if one was provided to cmake lists
 * Add: basic Arduino CMakeLists.txt builder from template, to have common code for new project
   and change parameters.
+* Fix: basic builder properly modifying/inserting commands and generating CMakeLists.txt
 
 ### 1.3.14
 

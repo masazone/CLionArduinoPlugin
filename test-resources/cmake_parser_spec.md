@@ -614,6 +614,36 @@ CMakeFile[0, 159]
 ````````````````````````````````
 
 
+## Commented Out Commands
+
+one escaped semi
+
+```````````````````````````````` example(Commented Out Commands: 1) options(commented-out)
+# if(abc\;def)
+.
+.
+CMakeFile[0, 14]
+  CommentedOutCommand[2, 14] comment:[0, 1, "#"] text:[2, 4, "if"] open:[4, 5, "("] arguments:[5, 13, "abc\;def"] close:[13, 14, ")"]
+    Argument[5, 13] text:[5, 13, "abc\;def"]
+````````````````````````````````
+
+
+one escaped semi
+
+```````````````````````````````` example(Commented Out Commands: 2) options(commented-out)
+# if(abc\;def)
+link_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
+
+.
+.
+CMakeFile[0, 65]
+  CommentedOutCommand[2, 14] comment:[0, 1, "#"] text:[2, 4, "if"] open:[4, 5, "("] arguments:[5, 13, "abc\;def"] close:[13, 14, ")"]
+    Argument[5, 13] text:[5, 13, "abc\;def"]
+  Command[15, 63] text:[15, 31, "link_directories"] open:[31, 32, "("] arguments:[32, 62, "${CMAKE_CURRENT_SOURCE_DIR}/.."] close:[62, 63, ")"]
+    Argument[32, 62] text:[32, 62, "${CMAKE_CURRENT_SOURCE_DIR}/.."]
+````````````````````````````````
+
+
 ## CMake
 
 CMake on line
@@ -780,6 +810,7 @@ cmake_minimum_required(VERSION 3)
 AST_ARGUMENT_SEPARATORS->false
 AST_BLANK_LINES->true
 AST_COMMAND_BLOCKS->false
+AST_COMMENTED_OUT_COMMANDS->false
 AST_COMMENTS->true
 AST_LINE_END_EOL->true
 AUTO_CONFIG->true

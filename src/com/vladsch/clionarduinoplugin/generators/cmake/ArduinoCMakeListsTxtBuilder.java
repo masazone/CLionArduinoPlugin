@@ -1,7 +1,6 @@
 package com.vladsch.clionarduinoplugin.generators.cmake;
 
 import com.vladsch.clionarduinoplugin.components.ArduinoApplicationSettings;
-import com.vladsch.clionarduinoplugin.generators.CppLanguageVersions;
 import com.vladsch.clionarduinoplugin.generators.cmake.ast.CMakeFile;
 import com.vladsch.clionarduinoplugin.generators.cmake.commands.CMakeCommand;
 import com.vladsch.clionarduinoplugin.generators.cmake.commands.CMakeCommandType;
@@ -65,11 +64,10 @@ public class ArduinoCMakeListsTxtBuilder extends CMakeListsTxtBuilder {
     final static public CMakeCommandType LINK_DIRECTORIES = new CMakeCommandType("LINK_DIRECTORIES", "link_directories", new String[0], 1, INF_MAX_ARGS, true, false, true);
     final static public CMakeCommandType ADD_SUBDIRECTORY = new CMakeCommandType("ADD_SUBDIRECTORY", "add_subdirectory", new String[0], 1, 3, false);
     final static public CMakeCommandType PROJECT = new CMakeCommandType("PROJECT", "project", new String[] { "${CMAKE_PROJECT_NAME}" }, 1, INF_MAX_ARGS, true, false, false);
-
-    final static public CMakeCommandType GENERATE_ARDUINO_FIRMWARE = new CMakeCommandType("GENERATE_ARDUINO_FIRMWARE", "generate_arduino_firmware", new String[] { "${CMAKE_PROJECT_NAME}" }, 0, 0);
-    final static public CMakeCommandType GENERATE_ARDUINO_LIBRARY = new CMakeCommandType("GENERATE_ARDUINO_LIBRARY", "generate_arduino_library", new String[] { "${CMAKE_PROJECT_NAME}" }, 0, 0);
-
     final static public CMakeCommandType SET = new CMakeCommandType("SET", "set", new String[] { }, 1, INF_MAX_ARGS);
+
+    final static public CMakeCommandType GENERATE_ARDUINO_FIRMWARE = new CMakeCommandType("GENERATE_ARDUINO_FIRMWARE", "generate_arduino_firmware", new String[] { "${CMAKE_PROJECT_NAME}" }, 0, 0, true, false, true);
+    final static public CMakeCommandType GENERATE_ARDUINO_LIBRARY = new CMakeCommandType("GENERATE_ARDUINO_LIBRARY", "generate_arduino_library", new String[] { "${CMAKE_PROJECT_NAME}" }, 0, 0, true, false, true);
 
     // @formatter:off
     final static public CMakeCommandType SET_CMAKE_TOOLCHAIN_FILE   = new CMakeCommandType("SET_CMAKE_TOOLCHAIN_FILE"   , "set", new String[] { "CMAKE_TOOLCHAIN_FILE"              , }, 1, 1, false, false, true, new String[]{"${CMAKE_SOURCE_DIR}/cmake/ArduinoToolchain.cmake"});
@@ -115,24 +113,47 @@ public class ArduinoCMakeListsTxtBuilder extends CMakeListsTxtBuilder {
             SET_UPLOAD_SPEED
     };
 
+    final static public CMakeCommandAnchor[] ourAnchors = new CMakeCommandAnchor[] {
+            CMakeCommandAnchor.first(CMAKE_MINIMUM_REQUIRED),
+            CMakeCommandAnchor.first(SET_CMAKE_TOOLCHAIN_FILE),
+            CMakeCommandAnchor.first(SET_CMAKE_CXX_STANDARD),
+
+            CMakeCommandAnchor.before(PROJECT, SET_BOARD),
+            CMakeCommandAnchor.before(PROJECT, SET_CPU),
+
+            CMakeCommandAnchor.after(PROJECT, LINK_DIRECTORIES),
+            CMakeCommandAnchor.after(PROJECT, ADD_SUBDIRECTORY),
+            CMakeCommandAnchor.after(PROJECT, SET_SKETCH),
+            CMakeCommandAnchor.after(PROJECT, SET_PROGRAMMER),
+            CMakeCommandAnchor.after(PROJECT, SET_PORT),
+            CMakeCommandAnchor.after(PROJECT, SET_AFLAGS),
+            CMakeCommandAnchor.after(PROJECT, SET_HDRS),
+            CMakeCommandAnchor.after(PROJECT, SET_SRCS),
+            CMakeCommandAnchor.after(PROJECT, SET_LIB_NAME_RECURSE),
+            CMakeCommandAnchor.after(PROJECT, SET_UPLOAD_SPEED),
+
+            CMakeCommandAnchor.last(GENERATE_ARDUINO_FIRMWARE),
+            CMakeCommandAnchor.last(GENERATE_ARDUINO_LIBRARY),
+    };
+
     public ArduinoCMakeListsTxtBuilder() {
-        super(ourCommands);
+        super(ourCommands, ourAnchors);
     }
 
     public ArduinoCMakeListsTxtBuilder(@NotNull final CharSequence text, @Nullable final DataHolder options) {
-        super(ourCommands, text, options);
+        super(ourCommands, ourAnchors, text, options);
     }
 
     public ArduinoCMakeListsTxtBuilder(@NotNull final CharSequence text, @Nullable final DataHolder options, @Nullable final Map<String, Object> values) {
-        super(ourCommands, text, options, values);
+        super(ourCommands, ourAnchors, text, options, values);
     }
 
     public ArduinoCMakeListsTxtBuilder(@NotNull final CMakeFile cMakeFile) {
-        super(ourCommands, cMakeFile);
+        super(ourCommands, ourAnchors, cMakeFile);
     }
 
     public ArduinoCMakeListsTxtBuilder(@NotNull final CMakeFile cMakeFile, @Nullable final Map<String, Object> values) {
-        super(ourCommands, cMakeFile, values);
+        super(ourCommands, ourAnchors, cMakeFile, values);
     }
 
     private static final DataHolder OPTIONS = new MutableDataSet()
@@ -142,50 +163,35 @@ public class ArduinoCMakeListsTxtBuilder extends CMakeListsTxtBuilder {
             .set(CMakeParser.AST_BLANK_LINES, true)
             .set(CMakeParser.AST_ARGUMENT_SEPARATORS, true);
 
-    // TODO: convert to builder command replacement
     public static String getCMakeFileContent(@NotNull String template, @NotNull String projectName, @NotNull ArduinoApplicationSettings mySettings, boolean myIsLibrary, File[] sourceFiles) {
         CMakeCommand command;
         ArduinoCMakeListsTxtBuilder builder = new ArduinoCMakeListsTxtBuilder(template, OPTIONS);
-        //LineStringBuilder sb = new LineStringBuilder("# ");
         boolean isStaticLib = myIsLibrary && "static".equals(mySettings.getLibraryType());
 
-        //sb.appendln("cmake_minimum_required(VERSION 2.8.4)");
-        builder.addCommand("cmake_minimum_required", "2.8.4");
+        builder.setWantCommentedOut(true);
 
-        //sb.appendln("set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/ArduinoToolchain.cmake)");
-        builder.addCommand("SET_CMAKE_TOOLCHAIN_FILE", "${CMAKE_SOURCE_DIR}/cmake/ArduinoToolchain.cmake");
-
-        String languageVersion = CppLanguageVersions.fromDisplayString(mySettings.getLanguageVersion());
-        //if (!languageVersion.isEmpty()) {
-        //    sb.appendln("set(CMAKE_CXX_STANDARD " + languageVersion + ")");
-        //}
-        //sb.line();
-        builder.addCommand("SET_CMAKE_CXX_STANDARD", languageVersion);
+        builder.setOrAddCommand("cmake_minimum_required", "2.8.4");
+        builder.setOrAddCommand("SET_CMAKE_TOOLCHAIN_FILE", "${CMAKE_SOURCE_DIR}/cmake/ArduinoToolchain.cmake");
+        builder.setOrAddCommand("SET_CMAKE_CXX_STANDARD", mySettings.getLanguageVersionLineForCMake()).commentOut(mySettings.getLanguageVersion().isEmpty());
 
         // not needed, we remove it
-        //sb.appendln("set(PROJECT_NAME " + projectName + ")");
-        command = builder.addCommand("SET_PROJECT");
+        command = builder.getCommand("SET_PROJECT");
         if (command != null) {
-            builder.removeElement(command);
+            command.commentOut(true);
         }
 
         String boardId = ifNullOrEmpty(mySettings.getBoardId(), "uno");
-        //sb.appendln("set(${CMAKE_PROJECT_NAME}_BOARD " + boardId + ")");
-        builder.addCommand("SET_BOARD", boardId);
+        builder.setOrAddCommand("SET_BOARD", boardId);
 
         List<String> cpuIds = mySettings.getArduinoConfig().getBoardById(boardId).getCpuIds();
-        String cpu = ifNullOrEmpty(mySettings.getCpuId(), cpuIds.size() == 0 ? "" : cpuIds.get(0));
-        //sb.prefixNullOrEmpty(cpu).appendln("set(ARDUINO_CPU " + ifNullOrEmpty(cpu, "8MHzatmega328") + ")");
-        builder.addCommand("SET_CPU", cpu);
+        String defValue = cpuIds.size() == 0 ? "" : cpuIds.get(0);
+        String cpuId = ifNullOrEmpty(mySettings.getCpuId(), defValue);
+        builder.setOrAddCommand("SET_CPU", cpuId).commentOut(cpuId.isEmpty());
 
-        //sb.appendln("project(${CMAKE_PROJECT_NAME})");
-        //sb.line();
-        builder.addCommand("PROJECT").clearArgs();
+        builder.setOrAddCommand("PROJECT").clearArgs();
 
-        //sb.appendln("# Define the source code for cpp files or default arduino sketch files");
         ArrayList<String> cppFiles = new ArrayList<>();
         ArrayList<String> hFiles = new ArrayList<>();
-        String sep = "";
         String sketchFile = null;
 
         for (File file : sourceFiles) {
@@ -201,46 +207,17 @@ public class ArduinoCMakeListsTxtBuilder extends CMakeListsTxtBuilder {
             }
         }
 
-        //if (cppFiles.length() != 0) {
-        //    sb.appendln("set(${PROJECT_NAME}_SRCS " + cppFiles.toString() + ")");
-        //} else {
-        //    sb.appendln("# set(${PROJECT_NAME}_SRCS " + projectName + Strings.DOT_CPP_EXT + ")");
-        //}
-        builder.addCommand("SET_SRCS", cppFiles);
+        builder.setOrAddCommand("SET_SRCS", cppFiles).commentOut(cppFiles.isEmpty());
+        builder.setOrAddCommand("SET_HDRS", hFiles).commentOut(hFiles.isEmpty());
 
-        //if (hFiles.length() != 0) {
-        //    sb.appendln("set(${PROJECT_NAME}_HDRS " + hFiles.toString() + ")");
-        //}
-        builder.addCommand("SET_HDRS", hFiles);
-
-        //sb.appendln("### Additional static libraries to include in the target.");
-        //sb.appendln("# set(${CMAKE_PROJECT_NAME}_LIBS lib_name)");
-        //sb.line();
         // TODO: implement
-        //builder.addCommand("SET_LIBS", libFiles);
+        //builder.addCommand("SET_LIBS", libFiles).commentOut(libFiles.isEmpty());
 
-        //if (sketchFile != null) {
-        //    sb.appendln("set(${CMAKE_PROJECT_NAME}_SKETCH " + sketchFile + ")");
-        //} else {
-        //    sb.appendln("# set(${CMAKE_PROJECT_NAME}_SKETCH " + projectName + Strings.DOT_INO_EXT + ")");
-        //}
-        builder.addCommand("SET_SKETCH", projectName + Strings.DOT_INO_EXT);
+        builder.setOrAddCommand("SET_SKETCH", projectName + Strings.DOT_INO_EXT)
+                .commentOut(sketchFile == null);
 
-        //sb.line();
-
-        //if (mySettings.isAddLibraryDirectory() && !mySettings.getLibraryDirectory().isEmpty()) {
-        //    sb.appendln("### Additional settings to add non-standard or your own Arduino libraries.");
-        //    sb.appendln("# An Arduino library my_lib will contain files in " + mySettings.getLibraryDirectory() + "/my_lib/: my_lib.h, my_lib.cpp + any other cpp files");
-        //    sb.appendln("link_directories(${CMAKE_CURRENT_SOURCE_DIR}/" + mySettings.getLibraryDirectory() + ")");
-        //    sb.line();
-        //} else {
-        //    sb.appendln("### Additional settings to add non-standard or your own Arduino libraries.");
-        //    sb.appendln("# For this example (libs will contain additional arduino libraries)");
-        //    sb.appendln("# An Arduino library my_lib will contain files in libs/my_lib/: my_lib.h, my_lib.cpp + any other cpp files");
-        //    sb.prefix().appendln("link_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs)");
-        //    sb.line();
-        //}
-        builder.addCommand("LINK_DIRECTORIES", mySettings.isAddLibraryDirectory() && !mySettings.getLibraryDirectory().isEmpty() ? "${CMAKE_CURRENT_SOURCE_DIR}/" + mySettings.getLibraryDirectory() : "");
+        builder.setOrAddCommand("LINK_DIRECTORIES", "${CMAKE_CURRENT_SOURCE_DIR}/" + mySettings.getLibraryDirectory())
+                .commentOut(!mySettings.isAddLibraryDirectory() || mySettings.getLibraryDirectory().isEmpty());
 
         if (!myIsLibrary) {
             // TODO: add options for additional libraries and recursion options
@@ -251,32 +228,23 @@ public class ArduinoCMakeListsTxtBuilder extends CMakeListsTxtBuilder {
             // }
         }
 
-        //sb.appendln("#### Additional settings for programmer. From programmers.txt");
         String programmer = mySettings.getProgrammerId();
-        //sb.prefix(programmer).appendln("set(${CMAKE_PROJECT_NAME}_PROGRAMMER " + ifNullOrEmpty(programmer, "avrispmkii") + ")");
-        builder.addCommand("SET_PROGRAMMER", programmer);
+        builder.setOrAddCommand("SET_PROGRAMMER", ifNullOrEmpty(programmer, "avrispmkii")).commentOut(programmer.isEmpty());
 
-        //sb.prefixNullOrEmpty(mySettings.getPort()).appendln("set(${CMAKE_PROJECT_NAME}_PORT " + ifNullOrEmpty(mySettings.getPort(), "/dev/cu.usbserial-00000000") + ")");
-        builder.addCommand("SET_PORT", mySettings.getPort());
-        //if (mySettings.getBaudRate() > 0) {
-        //    sb.prefix().appendln(String.format("set(%s.upload.speed %s)", boardId, ifNullOrEmpty(mySettings.getBaudRateText(), "9600")));
-        //} else {
-        //    sb.prefix().appendln("set(pro.upload.speed 9600)");
-        //}
-        builder.addCommand("SET_UPLOAD_SPEED", mySettings.getBaudRateText());
-        //sb.line();
+        String port = mySettings.getPort();
+        builder.setOrAddCommand("SET_PORT", ifNullOrEmpty(port, "/dev/cu.usbserial-00000000")).commentOut(port.isEmpty());
 
-        //sb.appendln("## Verbose build process");
-        //sb.prefix(!mySettings.isVerbose()).appendln("set(${CMAKE_PROJECT_NAME}_AFLAGS -v)");
-        builder.addCommand("SET_AFLAGS", "-v");
-        //sb.line();
+        String baudRateText = mySettings.getBaudRateText();
+        builder.setOrAddCommand("SET_UPLOAD_SPEED", ifNullOrEmpty(baudRateText, "9600")).commentOut(baudRateText.isEmpty());
+
+        builder.setOrAddCommand("SET_AFLAGS", "-v").commentOut(!mySettings.isVerbose());
 
         if (isStaticLib) {
-            //sb.appendln("generate_arduino_library(${CMAKE_PROJECT_NAME})");
-            builder.addCommand("GENERATE_ARDUINO_LIBRARY");
+            builder.setOrAddCommand("GENERATE_ARDUINO_LIBRARY");
+            builder.removeCommand("GENERATE_ARDUINO_FIRMWARE");
         } else {
-            //sb.appendln("generate_arduino_firmware(${CMAKE_PROJECT_NAME})");
-            builder.addCommand("GENERATE_ARDUINO_FIRMWARE");
+            builder.setOrAddCommand("GENERATE_ARDUINO_FIRMWARE");
+            builder.removeCommand("GENERATE_ARDUINO_LIBRARY");
         }
 
         // Can add our own values to resolve variables

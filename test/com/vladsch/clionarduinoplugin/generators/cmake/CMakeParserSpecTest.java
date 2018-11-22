@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 public class CMakeParserSpecTest extends ComboSpecTestCase {
-    private static final String SPEC_RESOURCE = "/com/vladsch/clionarduinoplugin/generators/cmake/cmake_parser_spec.md";
+    private static final String SPEC_RESOURCE = "/cmake_parser_spec.md";
     private static final DataHolder OPTIONS = new MutableDataSet()
             .set(CMakeParser.AUTO_CONFIG, false);
 
@@ -30,6 +30,7 @@ public class CMakeParserSpecTest extends ComboSpecTestCase {
         optionsMap.put("ast-comments", new MutableDataSet().set(CMakeParser.AST_COMMENTS, true));
         optionsMap.put("ast-blank", new MutableDataSet().set(CMakeParser.AST_BLANK_LINES, true));
         optionsMap.put("ast-arg-seps", new MutableDataSet().set(CMakeParser.AST_ARGUMENT_SEPARATORS, true));
+        optionsMap.put("commented-out", new MutableDataSet().set(CMakeParser.AST_COMMENTED_OUT_COMMANDS, true));
 
         optionsMap.put("dump-options", new MutableDataSet().set(ExtraRenderer.DUMP_OPTIONS, true));
     }

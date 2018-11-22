@@ -926,6 +926,21 @@ CMakeFile[0, 125]
 ````````````````````````````````
 
 
+## Commented Out Commands
+
+one escaped semi
+
+```````````````````````````````` example(Commented Out Commands: 1) options(commented-out)
+# if(abc\;def)
+.
+# if(abc\;def)
+.
+CMakeFile[0, 14]
+  CommentedOutCommand[2, 14] comment:[0, 1, "#"] text:[2, 4, "if"] open:[4, 5, "("] arguments:[5, 13, "abc\;def"] close:[13, 14, ")"]
+    Argument[5, 13] text:[5, 13, "abc\;def"]
+````````````````````````````````
+
+
 ## CMake
 
 CMake on line

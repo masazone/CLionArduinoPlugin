@@ -1,8 +1,10 @@
 package com.vladsch.clionarduinoplugin.generators.cmake;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.vladsch.clionarduinoplugin.generators.cmake.ast.Argument;
 import com.vladsch.clionarduinoplugin.generators.cmake.ast.CMakeFile;
 import com.vladsch.clionarduinoplugin.generators.cmake.ast.Command;
+import com.vladsch.clionarduinoplugin.generators.cmake.ast.CommentedOutCommand;
 import com.vladsch.clionarduinoplugin.generators.cmake.commands.CMakeCommand;
 import com.vladsch.clionarduinoplugin.generators.cmake.commands.CMakeCommandType;
 import com.vladsch.clionarduinoplugin.generators.cmake.commands.CMakeElement;
@@ -18,6 +20,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.intellij.openapi.diagnostic.Logger.getInstance;
+
 /**
  * Class for creating, reading and modifying CMakeLists.txt files with specific flavour
  * provided by specialized subclasses
@@ -30,22 +34,32 @@ public abstract class CMakeListsTxtBuilder {
     // this allows fixed args to be dependent on args of other commands or values in the command set
     //
     //
-    public static final int INF_MAX_ARGS = 1000;
-    final static Pattern COMMAND_REF = Pattern.compile("<\\$([a-zA-Z_$][a-zA-Z_0-9$]*)(?:\\[(\\d+)\\])?\\$>");
+    private static final Logger LOG = getInstance("com.vladsch.clionarduinoplugin.generators");
+
+    final static public int INF_MAX_ARGS = 1000;
+    final static public Pattern COMMAND_REF = Pattern.compile("<\\$([a-zA-Z_$][a-zA-Z_0-9$]*)(?:\\[(\\d+)\\])?\\$>");
 
     final private @NotNull ArrayList<CMakeElement> myElements = new ArrayList<>();
-    private @Nullable CMakeFile myCMakeFile = null;
     final private HashMap<CMakeElement, Node> myElementNodeMap = new HashMap<>();
-    final Map<String, CMakeCommandType> myCMakeCommands;
-    final Map<String, CMakeCommandType> myCommands;
-    final Map<String, CMakeCommandType> mySetCommands;
-    final Map<String, CMakeCommandType> mySetCommandsArg0;
+    final private Map<String, CMakeCommandType> myCMakeCommands;
+    final private Map<String, CMakeCommandType> myCommands;
+    final private Map<String, CMakeCommandType> mySetCommands;
+    final private Map<String, CMakeCommandType> mySetCommandsArg0;
+    final private Map<CMakeCommandType, List<CMakeCommandAnchor>> myAnchorsMap;
+    final private ArrayList<CMakeCommandType> myFirstAnchors;
+    final private ArrayList<CMakeCommandType> myLastAnchors;
+    final private HashMap<CMakeCommandType, ArrayList<CMakeCommandType>> myBeforeAnchorsMap;
+    final private HashMap<CMakeCommandType, ArrayList<CMakeCommandType>> myAfterAnchorsMap;
+    private @Nullable CMakeFile myCMakeFile = null;
+    private boolean myWantCommentedOut;
 
-    public CMakeListsTxtBuilder(CMakeCommandType[] commands) {
+    public CMakeListsTxtBuilder(CMakeCommandType[] commands, final CMakeCommandAnchor[] anchors) {
         myCMakeCommands = new HashMap<>();
         myCommands = new HashMap<>();
+        myAnchorsMap = new HashMap<>();
         mySetCommands = new HashMap<>();
         mySetCommandsArg0 = new HashMap<>();
+        myWantCommentedOut = false;
 
         for (CMakeCommandType commandType : commands) {
             if ("set".equals(commandType.getCommand()) && commandType.getFixedArgs().length > 0) {
@@ -56,14 +70,54 @@ public abstract class CMakeListsTxtBuilder {
                 myCMakeCommands.put(commandType.getCommand(), commandType);
             }
         }
+
+        myFirstAnchors = new ArrayList<>();
+        myLastAnchors = new ArrayList<>();
+        myBeforeAnchorsMap = new HashMap<>();
+        myAfterAnchorsMap = new HashMap<>();
+
+        for (CMakeCommandAnchor commandAnchor : anchors) {
+            CMakeCommandType commandType = commandAnchor.getCommandType();
+            CMakeCommandType commandAnchorType = commandAnchor.getCommandAnchor();
+            ArrayList<CMakeCommandType> beforeList;
+            ArrayList<CMakeCommandType> afterList;
+
+            switch (commandAnchor.getAnchorType()) {
+                case FIRST:
+                    if (myLastAnchors.contains(commandType)) throw new IllegalStateException("CommandType " + commandType.getName() + " cannot be anchored first and last");
+                    myFirstAnchors.add(commandType);
+                    break;
+                case LAST:
+                    if (myFirstAnchors.contains(commandType)) throw new IllegalStateException("CommandType " + commandType.getName() + " cannot be anchored first and last");
+                    myLastAnchors.add(commandType);
+                    break;
+                case BEFORE:
+                    beforeList = myBeforeAnchorsMap.computeIfAbsent(commandAnchorType, type -> new ArrayList<>());
+                    afterList = myBeforeAnchorsMap.get(commandAnchorType);
+                    if (afterList != null && afterList.contains(commandType)) throw new IllegalStateException("CommandType " + commandType.getName() + " cannot be anchored before and after " + commandAnchorType.getName());
+                    beforeList.add(commandType);
+                    break;
+                case AFTER:
+                    afterList = myAfterAnchorsMap.computeIfAbsent(commandAnchorType, type -> new ArrayList<>());
+                    beforeList = myBeforeAnchorsMap.get(commandAnchorType);
+                    if (beforeList != null && beforeList.contains(commandType)) throw new IllegalStateException("CommandType " + commandType.getName() + " cannot be anchored before and after " + commandAnchorType.getName());
+                    afterList.add(commandType);
+                    break;
+            }
+        }
+
+        for (CMakeCommandAnchor commandAnchor : anchors) {
+            List<CMakeCommandAnchor> anchorList = myAnchorsMap.computeIfAbsent(commandAnchor.getCommandType(), commandType -> new ArrayList<>());
+            anchorList.add(commandAnchor);
+        }
     }
 
-    public CMakeListsTxtBuilder(CMakeCommandType[] commands, @NotNull CharSequence text, @Nullable DataHolder options) {
-        this(commands, text, options, null);
+    public CMakeListsTxtBuilder(CMakeCommandType[] commands, final CMakeCommandAnchor[] anchors, @NotNull CharSequence text, @Nullable DataHolder options) {
+        this(commands, anchors, text, options, null);
     }
 
-    public CMakeListsTxtBuilder(CMakeCommandType[] commands, @NotNull CharSequence text, @Nullable DataHolder options, @Nullable Map<String, Object> values) {
-        this(commands);
+    public CMakeListsTxtBuilder(CMakeCommandType[] commands, final CMakeCommandAnchor[] anchors, @NotNull CharSequence text, @Nullable DataHolder options, @Nullable Map<String, Object> values) {
+        this(commands, anchors);
 
         HashMap<String, Object> valueSet = new HashMap<>();
         if (values != null) valueSet.putAll(values);
@@ -83,12 +137,12 @@ public abstract class CMakeListsTxtBuilder {
         }
     }
 
-    public CMakeListsTxtBuilder(CMakeCommandType[] commands, @NotNull CMakeFile cMakeFile) {
-        this(commands, cMakeFile, null);
+    public CMakeListsTxtBuilder(CMakeCommandType[] commands, final CMakeCommandAnchor[] anchors, @NotNull CMakeFile cMakeFile) {
+        this(commands, anchors, cMakeFile, null);
     }
 
-    public CMakeListsTxtBuilder(CMakeCommandType[] commands, @NotNull CMakeFile cMakeFile, @Nullable Map<String, Object> values) {
-        this(commands);
+    public CMakeListsTxtBuilder(CMakeCommandType[] commands, final CMakeCommandAnchor[] anchors, @NotNull CMakeFile cMakeFile, @Nullable Map<String, Object> values) {
+        this(commands, anchors);
 
         HashMap<String, Object> valueSet = new HashMap<>();
         if (values != null) valueSet.putAll(values);
@@ -131,6 +185,14 @@ public abstract class CMakeListsTxtBuilder {
 
         if (sb.length() > 0) sb.append("\n");
         return sb.toString();
+    }
+
+    public boolean isWantCommentedOut() {
+        return myWantCommentedOut;
+    }
+
+    public void setWantCommentedOut(final boolean wantCommentedOut) {
+        this.myWantCommentedOut = wantCommentedOut;
     }
 
     public CMakeElement elementFrom(@NotNull Node node, @Nullable Map<String, Object> valueSet) {
@@ -183,6 +245,9 @@ public abstract class CMakeListsTxtBuilder {
                     i++;
                 }
 
+                if (node instanceof CommentedOutCommand) {
+                    makeCommand.commentOut(true);
+                }
                 return makeCommand;
             }
         }
@@ -191,119 +256,433 @@ public abstract class CMakeListsTxtBuilder {
         return new CMakeText(node.getChars().toString(), false);
     }
 
-    public @Nullable CMakeCommand getCommand(String name) {
-        CMakeCommandType commandType = mySetCommands.get(name);
-        if (commandType == null) {
-            commandType = myCommands.get(name);
-        }
-
-        if (commandType != null) {
-            for (CMakeElement element : myElements) {
-                if (element instanceof CMakeCommand) {
-                    if (((CMakeCommand) element).getCommandType() == commandType) {
-                        return (CMakeCommand) element;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
     public @NotNull List<CMakeElement> getElements() {
         return myElements;
     }
 
-    public void addElement(@NotNull CMakeElement element) {
-        myElements.add(element);
-    }
-
     public void addElement(@NotNull CMakeElement element, Node node) {
+        // no add eol adjustment, assumed to be done by caller
         myElementNodeMap.put(element, node);
         myElements.add(element);
     }
 
-    public void addElementAfter(@NotNull CMakeElement anchor, @NotNull CMakeElement element) {
-        int index = myElements.indexOf(anchor);
-        if (index == -1) {
-            // TODO: figure out of error is better but should not happen unless anchor is from another builder
-            myElements.add(element);
-            return;
-        }
-        myElements.add(index + 1, element);
+    public void addElement(@NotNull CMakeElement element) {
+        myElements.add(element);
+        fixAddEOL(myElements.size() - 1);
     }
 
-    public void addElementBefore(@NotNull CMakeElement anchor, @NotNull CMakeElement element) {
-        int index = myElements.indexOf(anchor);
-        if (index == -1) {
-            // TODO: figure out of error is better but should not happen unless anchor is from another builder
-            myElements.add(0, element);
-            return;
+    public void fixAddEOL(int insertedCommandIndex) {
+        CMakeElement command = myElements.get(insertedCommandIndex);
+        if (insertedCommandIndex == 0) {
+            command.setAddEOL(true);
+        } else if (insertedCommandIndex + 1 == myElements.size()) {
+            CMakeElement prevElement = myElements.get(insertedCommandIndex - 1);
+            command.setAddEOL(prevElement.isAddEOL());
+            prevElement.setAddEOL(true);
+        } else {
+            CMakeElement prevElement = myElements.get(insertedCommandIndex - 1);
+            if (prevElement instanceof CMakeCommand) {
+                // steal prev command's addEOL, make it addEOL since this command now takes its place
+                command.setAddEOL(prevElement.isAddEOL());
+                prevElement.setAddEOL(true);
+            }
         }
-        myElements.add(index, element);
     }
 
     public void addElement(int index, @NotNull CMakeElement element) {
         myElements.add(index, element);
+        fixAddEOL(index);
     }
 
     public void setElement(int index, @NotNull CMakeElement element) {
+        if (index < myElements.size()) {
+            element.setAddEOL(myElements.get(index).isAddEOL());
+        } else {
+            element.setAddEOL(true);
+        }
         myElements.set(index, element);
     }
 
     public void removeElement(int index) {
+        if (index + 1 < myElements.size()) myElements.get(index + 1).setAddEOL(myElements.get(index).isAddEOL());
         myElements.remove(index);
     }
 
     public void removeElement(@NotNull CMakeElement element) {
-        myElements.remove(element);
+        int index = myElements.indexOf(element);
+        if (index == -1) {
+            throw new IllegalStateException("anchor element not found");
+        }
+        removeElement(index);
     }
 
-    CMakeCommand addCommand(@NotNull String name, String...args) {
-        return addCommand(name, Arrays.asList(args));
+    public int addElementBefore(@NotNull CMakeElement anchor, @NotNull CMakeElement element) {
+        int index = myElements.indexOf(anchor);
+        if (index == -1) {
+            throw new IllegalStateException("anchor element not found");
+        }
+
+        addElement(index, element);
+        return index;
     }
 
-    CMakeCommand addCommand(@NotNull String name, @Nullable Collection<String> args) {
-        //noinspection unchecked
-        List<String> argList = args == null ? Collections.EMPTY_LIST : new ArrayList<>(args);
+    public void addElementAfter(@NotNull CMakeElement anchor, @NotNull CMakeElement element) {
+        int index = myElements.indexOf(anchor);
+
+        if (index == -1) {
+            throw new IllegalStateException("anchor element not found");
+        }
+
+        index++;
+        addElement(index, element);
+    }
+
+    public void replaceElement(@NotNull CMakeElement anchor, @NotNull CMakeElement element) {
+        int index = myElements.indexOf(anchor);
+        if (index == -1) {
+            throw new IllegalStateException("anchor element not found");
+        }
+
+        setElement(index, element);
+    }
+
+    public int getCommandIndex(String name) {
+        CMakeCommandType commandType = getCommandType(name);
+        int firstCommented = -1;
+
+        if (commandType != null) {
+            int i = 0;
+            for (CMakeElement element : myElements) {
+                if (element instanceof CMakeCommand) {
+                    if (((CMakeCommand) element).getCommandType() == commandType) {
+                        if (((CMakeCommand) element).isCommentedOut()) {
+                            if (myWantCommentedOut && firstCommented == -1) {
+                                firstCommented = i;
+                            }
+                        } else {
+                            return i;
+                        }
+                    }
+                }
+                i++;
+            }
+        }
+        return firstCommented;
+    }
+
+    public @Nullable CMakeCommand getCommand(String name) {
+        int index = getCommandIndex(name);
+        return index >= 0 ? (CMakeCommand) myElements.get(index) : null;
+    }
+
+    public CMakeCommandType getCommandType(final String name) {
+        CMakeCommandType commandType = mySetCommands.get(name);
+        if (commandType == null) {
+            commandType = myCommands.get(name);
+        }
+        return commandType;
+    }
+
+    private boolean afterAnchorIndex(@NotNull IndexRange range, @Nullable CMakeCommandType commandType) {
+        if (commandType != null) {
+            int anchorIndex = getCommandIndex(commandType.getName());
+            if (anchorIndex >= 0 && anchorIndex >= range.afterIndex) {
+                range.afterIndex = anchorIndex + 1;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void beforeAnchorIndex(@NotNull IndexRange range, @Nullable CMakeCommandType commandType) {
+        if (commandType != null) {
+            int anchorIndex = getCommandIndex(commandType.getName());
+            if (anchorIndex >= 0 && anchorIndex < range.beforeIndex) range.beforeIndex = anchorIndex;
+        }
+    }
+
+    private static class IndexRange {
+        final int originalBefore;
+        final int originalAfter;
+
+        int beforeIndex;
+        int afterIndex;
+
+        public IndexRange(final int beforeIndex, final int afterIndex) {
+            originalBefore = beforeIndex;
+            originalAfter = afterIndex;
+
+            this.beforeIndex = beforeIndex;
+            this.afterIndex = afterIndex;
+        }
+
+        public boolean isUnmodified() {
+            return originalAfter == afterIndex && originalBefore == beforeIndex;
+        }
+
+        public boolean isUnmodifiedBefore() {
+            return originalBefore == beforeIndex;
+        }
+
+        public boolean isUnmodifiedAfter() {
+            return originalAfter == afterIndex;
+        }
+
+        @Override
+        public String toString() {
+            return "IndexRange [" +
+                    "" + afterIndex +
+                    " - " + beforeIndex +
+                    ']';
+        }
+    }
+
+    private void adjustIndexRange(@NotNull CMakeCommand command, @NotNull IndexRange range, @NotNull Collection<CMakeCommandType> siblings, @NotNull AnchorType siblingsAnchorType, boolean isMember) {
+        boolean isAfter;
+        boolean isOnSelfAfter;
+        boolean hadSelf = false;
+
+        switch (siblingsAnchorType) {
+            case LAST:
+                if (isMember) {
+                    isAfter = true;
+                    isOnSelfAfter = false;
+                } else {
+                    isAfter = false;
+                    isOnSelfAfter = false;
+                }
+                break;
+
+            case FIRST:
+                if (isMember) {
+                    isAfter = true;
+                    isOnSelfAfter = false;
+                } else {
+                    isAfter = true;
+                    isOnSelfAfter = true;
+                }
+                break;
+
+            default:
+            case AFTER:
+            case BEFORE:
+                isAfter = true;
+                isOnSelfAfter = false;
+                break;
+        }
+
+        for (CMakeCommandType siblingType : siblings) {
+            if (siblingType == command.getCommandType()) {
+                isAfter = isOnSelfAfter;
+                hadSelf = true;
+            } else {
+                if (isAfter) {
+                    afterAnchorIndex(range, siblingType);
+                } else {
+                    beforeAnchorIndex(range, siblingType);
+                }
+            }
+        }
+
+        switch (siblingsAnchorType) {
+            case FIRST:
+                if (hadSelf) {
+                    if (range.isUnmodified()) {
+                        range.beforeIndex = 0;
+                    }
+                }
+                break;
+
+            case LAST:
+                if (hadSelf) {
+                    if (range.isUnmodified()) {
+                        range.afterIndex = myElements.size();
+                    }
+                }
+                break;
+        }
+    }
+
+    /**
+     * Place according to anchors or at the end if no anchors for this command
+     * <p>
+     * Heuristic, Not efficient but does the job
+     *
+     * @param command command to place in the file
+     */
+    public void addCommand(@NotNull CMakeCommand command) {
+        List<CMakeCommandAnchor> anchors = myAnchorsMap.get(command.getCommandType());
+        // go through the list and try to satisfy conditions
+        IndexRange range = new IndexRange(myElements.size(), 0);
+        boolean afterHasPriority = false;
+
+        if (anchors == null) {
+            // make respect firsts, lasts, and any of its own dependents
+            adjustIndexRange(command, range, myFirstAnchors, AnchorType.FIRST, false);
+            adjustIndexRange(command, range, myLastAnchors, AnchorType.LAST, false);
+            ArrayList<CMakeCommandType> beforeDependents = myBeforeAnchorsMap.get(command.getCommandType());
+            ArrayList<CMakeCommandType> afterDependents = myAfterAnchorsMap.get(command.getCommandType());
+            if (beforeDependents != null) {
+                // treat them as first (ie. before this node)
+                adjustIndexRange(command, range, beforeDependents, AnchorType.FIRST, false);
+            }
+            if (afterDependents != null) {
+                // treat them as last (ie. after this node)
+                adjustIndexRange(command, range, afterDependents, AnchorType.LAST, false);
+            }
+        } else {
+            for (CMakeCommandAnchor anchor : anchors) {
+                switch (anchor.getAnchorType()) {
+                    case FIRST:
+                        adjustIndexRange(command, range, myFirstAnchors, AnchorType.FIRST, true);
+                        //adjustIndexRange(command, range, myLastAnchors, AnchorType.LAST, false);
+                        break;
+
+                    case BEFORE:
+                        adjustIndexRange(command, range, myFirstAnchors, AnchorType.FIRST, false);
+                        adjustIndexRange(command, range, myBeforeAnchorsMap.get(anchor.getCommandAnchor()), AnchorType.BEFORE, true);
+
+                        beforeAnchorIndex(range, anchor.getCommandAnchor());
+
+                        // treat any of the after of the same parent as last so this command will come before
+                        adjustIndexRange(command, range, myAfterAnchorsMap.get(anchor.getCommandAnchor()), AnchorType.LAST, false);
+                        adjustIndexRange(command, range, myLastAnchors, AnchorType.LAST, false);
+                        break;
+
+                    case AFTER:
+                        adjustIndexRange(command, range, myFirstAnchors, AnchorType.FIRST, false);
+                        // treat any of the before of the same parent as firsts so this command will come after
+                        adjustIndexRange(command, range, myBeforeAnchorsMap.get(anchor.getCommandAnchor()), AnchorType.FIRST, false);
+
+                        if (afterAnchorIndex(range, anchor.getCommandAnchor())) {
+                            // found true anchor, use the afterIndex for placement, the before may be too low in the file
+                            afterHasPriority = true;
+                        }
+
+                        adjustIndexRange(command, range, myAfterAnchorsMap.get(anchor.getCommandAnchor()), AnchorType.AFTER, true);
+                        adjustIndexRange(command, range, myLastAnchors, AnchorType.LAST, false);
+                        break;
+
+                    case LAST:
+                        //adjustIndexRange(command, range, myFirstAnchors, AnchorType.FIRST, false);
+                        adjustIndexRange(command, range, myLastAnchors, AnchorType.LAST, true);
+                        break;
+                }
+            }
+        }
+        if (range.beforeIndex == myElements.size() && range.afterIndex == 0) {
+            // no anchors, goes last
+            addElement(command);
+        } else if (range.beforeIndex == myElements.size()) {
+            // no before anchor, goes after
+            addElement(range.afterIndex, command);
+        } else if (range.afterIndex == 0) {
+            // no after anchor, goes before
+            addElement(range.beforeIndex, command);
+        } else {
+            if (range.beforeIndex < range.afterIndex) throw new IllegalStateException("Invalid anchor definitions: BeforeAnchor(" + range.beforeIndex + ") < AfterAnchor(" + range.afterIndex + ") for " + command.getCommandType().getName());
+            // insert before
+            addElement(afterHasPriority ? range.afterIndex : range.beforeIndex, command);
+        }
+    }
+
+    @Nullable
+    CMakeCommand setCommand(@NotNull String name, String... args) {
+        return setCommand(name, Arrays.asList(args));
+    }
+
+    @NotNull
+    CMakeCommand setOrAddCommand(@NotNull String name, String... args) {
+        return setOrAddCommand(name, Arrays.asList(args));
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    void removeCommand(@NotNull String name) {
+        int index;
+        do {
+            index = getCommandIndex(name);
+            if (index != -1) {
+                removeElement(index);
+            }
+        } while (index != -1);
+    }
+
+    /**
+     * Replace, modify or insert command based on command type and command anchors information
+     *
+     * @param name command name (not CMake command name but builder specific name)
+     * @param args arguments for the command
+     * @return resulting command (new or modified)
+     */
+    CMakeCommand setOrAddCommand(@NotNull String name, @Nullable Collection<String> args) {
+        CMakeCommand command = setCommand(name, args);
+        CMakeCommand newCommand = command;
+        if (command == null) {
+            // create a new one and find where to insert it
+            CMakeCommandType commandType = getCommandType(name);
+            if (commandType == null) {
+                throw new IllegalArgumentException("Unknown command name " + name);
+            }
+            //noinspection unchecked
+            List<String> argList = args == null ? Collections.EMPTY_LIST : new ArrayList<>(args);
+            newCommand = new CMakeCommand(commandType, argList);
+            addCommand(newCommand);
+        }
+        return newCommand;
+    }
+
+    /**
+     * Replace or modify a command based on command type and command anchors information
+     * if the command does not exist in the builder then nothing is done and null is returned.
+     *
+     * @param name command name (not CMake command name but builder specific name)
+     * @param args arguments for the command
+     * @return resulting command (new or modified)
+     */
+    @Nullable
+    CMakeCommand setCommand(@NotNull String name, @Nullable Collection<String> args) {
         CMakeCommand command = getCommand(name);
         CMakeCommand newCommand = command;
 
         if (command != null) {
+            //noinspection unchecked
+            List<String> argList = args == null ? Collections.EMPTY_LIST : new ArrayList<>(args);
             CMakeCommandType commandType = command.getCommandType();
 
             if (!commandType.isMultiple() && commandType.getMaxArgs() == CMakeListsTxtBuilder.INF_MAX_ARGS) {
                 if (myElementNodeMap.get(command) != null) {
                     // original command, replace it with new
                     newCommand = new CMakeCommand(command);
+                    newCommand.commentOut(false);
+                    newCommand.addAll(argList);
+                    replaceElement(command, newCommand);
+                } else {
+                    newCommand.addAll(argList);
                 }
-                newCommand.addAll(argList);
-                addElementAfter(command, newCommand);
-                removeElement(command);
             } else {
-                // TODO: make this more generic???
                 if (commandType.isMultiple()) {
                     if (commandType.isNoDupeArgs()) {
                         // add another one after this one if the arg value is different
                         if (!command.allArgsEqual(argList)) {
-                            newCommand = new CMakeCommand(command);
-                            command.setAddEOL(true);
+                            newCommand = new CMakeCommand(command.getCommandType(), argList);
+                            newCommand.commentOut(false);
                             addElementAfter(command, newCommand);
                         }
                     } else {
                         // add another one after this one
-                        newCommand = new CMakeCommand(command);
-                        newCommand.setAll(argList);
-                        command.setAddEOL(true);
+                        newCommand = new CMakeCommand(command.getCommandType(), argList);
                         addElementAfter(command, newCommand);
                     }
                 } else {
                     if (myElementNodeMap.get(command) != null) {
                         // original command, replace it with new
                         newCommand = new CMakeCommand(command);
+                        newCommand.commentOut(false);
+                        newCommand.setArgs(argList);
+                        replaceElement(command, newCommand);
+                    } else {
+                        newCommand.setArgs(argList);
                     }
-                    newCommand.setAll(argList);
-                    addElementAfter(command, newCommand);
-                    removeElement(command);
                 }
             }
         }
@@ -320,11 +699,11 @@ public abstract class CMakeListsTxtBuilder {
      * <$COMMAND_NAME[-1]$> first from from the end, ie. command.getArgCount() - 1
      * <$COMMAND_NAME[-3]$> third from from the end, ie. command.getArgCount() - 3
      * <p>
-     * CAUTION: if index is invalid then it is the same as the value not being empty
+     * NOTE: if Value or Command is not found or index is invalid then it is the same as the value not being empty
      * <p>
      * if command is not found or has less args then an empty value will be used
      *
-     * @param arg string with possible command references and variable value references
+     * @param arg      string with possible command references and variable value references
      * @param valueSet map of names to values, if value is CMakeCommand then its argument value will be extracted, otherwise the argument value will be the String value of passed object
      * @return string with variables replaced
      */
