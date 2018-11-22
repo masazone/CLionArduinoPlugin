@@ -97,7 +97,7 @@ public class CMakeCommand implements CMakeElement {
                 out.append(sep);
                 sep = " ";
 
-                out.append(CMakeParser.getArgText(CMakeListsTxtBuilder.replacedCommandParams(arg, valueSet)));
+                out.append(CMakeParser.getArgText(CMakeListsTxtBuilder.Companion.replacedCommandParams(arg, valueSet)));
             }
         }
 

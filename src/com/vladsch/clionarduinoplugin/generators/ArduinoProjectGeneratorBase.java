@@ -59,7 +59,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 public abstract class ArduinoProjectGeneratorBase extends CMakeProjectGenerator implements Disposable {
-
     final protected boolean myIsLibrary;
     final protected ArduinoApplicationSettings mySettings;
 

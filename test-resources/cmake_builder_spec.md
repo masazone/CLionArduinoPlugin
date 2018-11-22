@@ -342,6 +342,7 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/sub)
 .
 set(CMAKE_TOOLCHAIN_FILE setCmakeToolchainFile)
 set(CMAKE_CXX_STANDARD setCmakeCxxStandard)
+set(PROJECT_NAME setProjectName)
 set(${CMAKE_PROJECT_NAME}_BOARD setBoard)
 set(ARDUINO_CPU setCpu)
 link_directories(linkDirectories)
@@ -376,6 +377,7 @@ set(CMAKE_CXX_STANDARD setCmakeCxxStandard)
 ## Top
 
 ## Before project
+set(PROJECT_NAME setProjectName)
 set(${CMAKE_PROJECT_NAME}_BOARD setBoard)
 set(ARDUINO_CPU setCpu)
 project(${CMAKE_PROJECT_NAME})
@@ -785,6 +787,7 @@ set(CMAKE_CXX_STANDARD setCmakeCxxStandard)
 ## Top
 
 ## Before project
+set(PROJECT_NAME setProjectName)
 set(${CMAKE_PROJECT_NAME}_BOARD setBoard)
 set(ARDUINO_CPU setCpu)
 project(${CMAKE_PROJECT_NAME})

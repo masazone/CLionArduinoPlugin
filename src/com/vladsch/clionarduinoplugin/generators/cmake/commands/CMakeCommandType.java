@@ -7,6 +7,7 @@ import java.util.Arrays;
 
 public class CMakeCommandType {
     public static final String[] EMPTY = new String[0];
+    public static final CMakeCommandType NULL = new CMakeCommandType("", "", EMPTY, 0,0);
 
     final private @NotNull String myName;
     final private @NotNull String myCommand;
