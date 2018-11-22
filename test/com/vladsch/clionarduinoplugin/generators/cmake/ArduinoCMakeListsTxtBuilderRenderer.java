@@ -12,16 +12,14 @@ import com.vladsch.flexmark.util.options.DataKey;
 import com.vladsch.flexmark.util.options.MutableDataSet;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-class BuilderRenderer extends IRenderBase {
-    public BuilderRenderer() {
+class ArduinoCMakeListsTxtBuilderRenderer extends IRenderBase {
+    public ArduinoCMakeListsTxtBuilderRenderer() {
         this(null);
     }
 
-    public BuilderRenderer(DataHolder options) {
+    public ArduinoCMakeListsTxtBuilderRenderer(DataHolder options) {
         super(options);
     }
 
@@ -33,9 +31,12 @@ class BuilderRenderer extends IRenderBase {
         CMakeFile cMakeFile = (CMakeFile) node;
         Map<String, String> values = getOptions().get(VALUE_SET);
         Map<String, Object> valueSet = new HashMap<>(getOptions().get(VALUE_SET));
-        CMakeListsBuilder builder = new CMakeListsBuilder(cMakeFile, valueSet);
+        CMakeListsTxtBuilder builder = new ArduinoCMakeListsTxtBuilder(cMakeFile, valueSet);
 
         try {
+            LinkedHashMap<String, ArrayList<String>> commandArgs = new LinkedHashMap<>();
+
+            // prepare all argument lists for the commands
             for (Map.Entry<String, String> entry : values.entrySet()) {
                 String name = entry.getKey();
                 int index = 0;
@@ -48,14 +49,19 @@ class BuilderRenderer extends IRenderBase {
                     name = name.substring(0, pos);
                 }
 
-                CMakeCommand command = builder.getSetCommand(name);
+                ArrayList<String> args = commandArgs.computeIfAbsent(name, (n) -> new ArrayList<>());
+                while (index >= args.size()) args.add(null);
+                args.set(index, entry.getValue());
+            }
+
+            for (Map.Entry<String, ArrayList<String>> entry : commandArgs.entrySet()) {
+                String name = entry.getKey();
+                ArrayList<String> args = entry.getValue();
+
+                CMakeCommand command = builder.addCommand(name, args);
+                //noinspection VariableNotUsedInsideIf
                 if (command != null) {
-                    if (command.getCommandType().isNoDupeArgs()) {
-                        command.addArg(entry.getValue());
-                    } else {
-                        command.setArg(index, entry.getValue());
-                        valueSet.remove(entry.getKey());
-                    }
+                    valueSet.remove(entry.getKey());
                 }
             }
 
@@ -81,6 +87,6 @@ class BuilderRenderer extends IRenderBase {
     public IRender withOptions(DataHolder options) {
         final MutableDataSet mutableDataSet = new MutableDataSet(getOptions());
         if (options != null) mutableDataSet.setAll(options);
-        return new BuilderRenderer(mutableDataSet);
+        return new ArduinoCMakeListsTxtBuilderRenderer(mutableDataSet);
     }
 }

@@ -6,6 +6,8 @@ public class Strings {
     public static final String DOT_CPP_EXT = "." + CPP_EXT;
     public static final String H_EXT = "h";
     public static final String DOT_H_EXT = "." + H_EXT;
+
+    // done
     public static final String DEFAULT_ARDUINO_SKETCH_CONTENTS = "" +
             "#include <Arduino.h>\n" +
             "#include \"User_Setup.h\"\n" +
@@ -28,10 +30,13 @@ public class Strings {
     public static final String DOT_PDE_EXT = "." + PDE_EXT;
     public static final String QUESTION_OVERWRITE = "Do you wish to overwrite the existing file?";
     public static final String SKETCH_NAME = "Sketch Name";
+
+    //done
     public static final String DEFAULT_ARDUINO_LIBRARY_CPP_CONTENTS = "" +
             "#include \"<$PROJECT_NAME$>.h\"\n" +
             "";
 
+    //done
     public static final String DEFAULT_ARDUINO_USER_SETUP_H_CONTENTS = "" +
             "#ifdef _<$FILE_NAME$>_USER_SETUP_H_\n" +
             "#define _<$FILE_NAME$>_USER_SETUP_H_\n" +
@@ -39,6 +44,7 @@ public class Strings {
             "#endif //_<$FILE_NAME$>_USER_SETUP_H_\n" +
             "";
 
+    // done
     public static final String DEFAULT_ARDUINO_LIBRARY_TEST_CONTENTS = "" +
             "#include <Arduino.h>\n" +
             "#include \"<$PROJECT_NAME$>.h\"\n" +
@@ -52,6 +58,7 @@ public class Strings {
             "}\n" +
             "";
 
+    // done
     public static final String DEFAULT_ARDUINO_LIBRARY_H_CONTENTS = "" +
             "#ifdef _<$FILE_NAME$>_H_\n" +
             "#define _<$FILE_NAME$>_H_\n" +
@@ -59,6 +66,7 @@ public class Strings {
             "#endif //_<$FILE_NAME$>_H_\n" +
             "";
 
+    // done
     public static final String DEFAULT_ARDUINO_LIBRARY_KEYWORDS_CONTENTS = "" +
             "#######################################\n" +
             "# Syntax Coloring Map For <$PROJECT_NAME$>\n" +
@@ -80,6 +88,8 @@ public class Strings {
             "# Constants (LITERAL1)\n" +
             "#######################################\n" +
             "";
+
+    // done
     public static final String DEFAULT_ARDUINO_LIBRARY_PROPERTIES_CONTENTS = "" +
             "name=<$PROJECT_NAME$>\n" +
             "version=0.0.0\n" +

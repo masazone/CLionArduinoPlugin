@@ -42,9 +42,10 @@ public class CMakeBuilderSpecTest extends ComboSpecTestCase {
     }
 
     static {
-        optionsMap.put("board-pro", new MutableDataSet().set(BuilderRenderer.VALUE_SET, valueSet("SET_BOARD", "pro", "SET_CPU", "8MHzatmega328")));
-        optionsMap.put("change-all", new MutableDataSet().set(BuilderRenderer.VALUE_SET, valueSet(
+        optionsMap.put("board-pro", new MutableDataSet().set(ArduinoCMakeListsTxtBuilderRenderer.VALUE_SET, valueSet("SET_BOARD", "pro", "SET_CPU", "8MHzatmega328")));
+        optionsMap.put("change-all", new MutableDataSet().set(ArduinoCMakeListsTxtBuilderRenderer.VALUE_SET, valueSet(
                 "SET_CMAKE_TOOLCHAIN_FILE", "setCmakeToolchainFile",
+                "SET_CMAKE_CXX_STANDARD", "setCmakeCxxStandard",
                 "SET_PROJECT_NAME", "setProjectName",
                 "SET_BOARD", "setBoard",
                 "SET_CPU", "setCpu",
@@ -58,14 +59,15 @@ public class CMakeBuilderSpecTest extends ComboSpecTestCase {
                 "SET_LIB_NAME_RECURSE", "setLibNameRecurse",
                 "LIB_NAME", "libName",
                 "SET_UPLOAD_SPEED", "setUploadSpeed",
-                "LINK_DIRECTORIES", "linkDirectories"
+                "LINK_DIRECTORIES", "linkDirectories",
+                "ADD_SUBDIRECTORY", "addSubdirectory"
         )));
         optionsMap.put("dump-options", new MutableDataSet().set(ExtraRenderer.DUMP_OPTIONS, true));
     }
 
     private static final IParseBase PARSER = new CMakeIParser(OPTIONS);
     // The spec says URL-escaping is optional, but the examples assume that it's enabled.
-    private static final IRender RENDERER = new BuilderRenderer(OPTIONS);
+    private static final IRender RENDERER = new ArduinoCMakeListsTxtBuilderRenderer(OPTIONS);
 
     private static DataHolder optionsSet(String optionSet) {
         return optionsMap.get(optionSet);

@@ -39,11 +39,13 @@ import com.vladsch.clionarduinoplugin.util.ui.HtmlBuilder;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JTextPane;
 import java.awt.Color;
 import java.awt.Font;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -51,6 +53,7 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static java.lang.Integer.parseUnsignedInt;
 import static jssc.SerialNativeInterface.OS_MAC_OS_X;
 import static jssc.SerialNativeInterface.getOsType;
 
@@ -259,6 +262,33 @@ public class Utils {
         }
 
         return ports;
+    }
+
+    static public int compareNullable(Integer i1, Integer i2) {
+        if (i1 == null || i2 == null) return 0;
+        else return Integer.compare(i1, i2);
+    }
+
+    @Nullable
+    public static Integer parseIntOrNull(String text) {
+        try {
+            return parseUnsignedInt(text);
+        } catch (NumberFormatException ignored) {
+            return null;
+        }
+    }
+
+    public static String ifNullOrEmpty(String value, String defValue) {
+        return value == null || value.isEmpty() ? defValue : value;
+    }
+
+    @Nullable
+    public static String getExtension(@NotNull File file) {
+        int pos = file.getName().lastIndexOf('.');
+        if (pos > 0) {
+            return file.getName().substring(pos + 1);
+        }
+        return null;
     }
 
 /*

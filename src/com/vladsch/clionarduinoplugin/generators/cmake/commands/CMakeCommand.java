@@ -1,6 +1,6 @@
 package com.vladsch.clionarduinoplugin.generators.cmake.commands;
 
-import com.vladsch.clionarduinoplugin.generators.cmake.CMakeListsBuilder;
+import com.vladsch.clionarduinoplugin.generators.cmake.CMakeListsTxtBuilder;
 import com.vladsch.clionarduinoplugin.generators.cmake.CMakeParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,21 +13,23 @@ public class CMakeCommand implements CMakeElement {
     final protected @NotNull ArrayList<String> myArgs;
     protected boolean myAddEOL;
 
-    public CMakeCommand(@NotNull final CMakeCommandType commandType, @NotNull final ArrayList<String> args, boolean isAddEOL) {
+    public CMakeCommand(@NotNull final CMakeCommandType commandType, @NotNull final List<String> args, boolean isAddEOL) {
         myCommandType = commandType;
-        myArgs = args;
+        myArgs = new ArrayList<>(args);
         myAddEOL = isAddEOL;
 
         String[] defaults = commandType.getDefaultArgs();
         int iMax = defaults.length;
 
-        // set defaults
-        for (int i = myArgs.size(); i < iMax; i++) {
-            addArg(defaults[i]);
+        // set defaults for missing or null values
+        for (int i = 0; i < iMax; i++) {
+            if (i >= myArgs.size() || myArgs.get(i) == null) {
+                addArg(defaults[i]);
+            }
         }
     }
 
-    public CMakeCommand(@NotNull final CMakeCommandType commandType, @NotNull final ArrayList<String> args) {
+    public CMakeCommand(@NotNull final CMakeCommandType commandType, @NotNull final List<String> args) {
         this(commandType, args, true);
     }
 
@@ -37,6 +39,10 @@ public class CMakeCommand implements CMakeElement {
 
     public CMakeCommand(@NotNull final CMakeCommandType commandType) {
         this(commandType, new ArrayList<>(), true);
+    }
+
+    public CMakeCommand(@NotNull final CMakeCommand other) {
+        this(other.myCommandType, other.myArgs, other.myAddEOL);
     }
 
     @Override
@@ -75,7 +81,7 @@ public class CMakeCommand implements CMakeElement {
                 out.append(sep);
                 sep = " ";
 
-                out.append(CMakeParser.getArgText(CMakeListsBuilder.replacedCommandParams(arg, valueSet)));
+                out.append(CMakeParser.getArgText(CMakeListsTxtBuilder.replacedCommandParams(arg, valueSet)));
             }
         }
 
@@ -128,6 +134,68 @@ public class CMakeCommand implements CMakeElement {
 
     public void addArg(@NotNull String arg) {
         myArgs.add(arg);
+    }
+
+    public void extendArgs(int index) {
+        while (index >= myArgs.size()) myArgs.add("");
+    }
+
+    public void setAll(@NotNull Collection<String> args) {
+        int i = 0;
+        for (String arg : args) {
+            if (arg != null) {
+                if (i < myArgs.size()) {
+                    extendArgs(i);
+                    myArgs.set(i, arg);
+                } else {
+                    myArgs.add(arg);
+                }
+            }
+            i++;
+        }
+    }
+
+    public void addAll(@NotNull Collection<String> args) {
+        for (String arg : args) {
+            if (arg != null) {
+                myArgs.add(arg);
+            }
+        }
+    }
+
+    public boolean allArgsEqual(final Collection<String> args) {
+        return allArgsEqual(args,0, args.size());
+    }
+
+    public boolean allArgsEqual(final Collection<String> args, int start, int end) {
+        int i = 0;
+        for (String arg : args) {
+            if (i >= end) return true;
+
+            if (i >= start) {
+                if (arg != null) {
+                    if (i < myArgs.size()) {
+                        if (!arg.equals(myArgs.get(i))) {
+                            return false;
+                        }
+                    } else {
+                        if (!arg.isEmpty()) {
+                            return false;
+                        }
+                    }
+                } else {
+                    if (!myArgs.get(i).isEmpty()) {
+                        return false;
+                    }
+                }
+            }
+            i++;
+        }
+        return true;
+    }
+
+    public void clearArgs() {
+        myArgs.clear();
     }
 
     public void addArg(int index, @NotNull String arg) {

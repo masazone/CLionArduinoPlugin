@@ -4,6 +4,7 @@
 
 ### Version History
 - [TO DO](#to-do)
+- [1.3.15](#1315)
 - [1.3.14](#1314)
 - [1.3.12](#1312)
 - [1.3.10](#1310)
@@ -27,6 +28,13 @@
 
 * [ ] Add: `Generate keywords.txt` action to generate keywords.txt based on contained project
       classes and functions.
+
+### 1.3.15
+
+* Add: empty baud rate in new project wizard to allow using default
+* Add: baud rate if one was provided to cmake lists
+* Add: basic Arduino CMakeLists.txt builder from template, to have common code for new project
+  and change parameters.
 
 ### 1.3.14
 

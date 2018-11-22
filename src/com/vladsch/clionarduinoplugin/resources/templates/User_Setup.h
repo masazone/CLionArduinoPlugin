@@ -1,0 +1,4 @@
+#ifdef _<$PROJECT_NAME$>_USER_SETUP_H_
+#define _<$PROJECT_NAME$>_USER_SETUP_H_
+
+#endif //_<$PROJECT_NAME$>_USER_SETUP_H_

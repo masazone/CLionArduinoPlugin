@@ -7,6 +7,7 @@
 package com.vladsch.clionarduinoplugin.generators;
 
 import com.intellij.openapi.vfs.VirtualFile;
+import com.vladsch.clionarduinoplugin.Bundle;
 import com.vladsch.clionarduinoplugin.resources.Strings;
 import com.vladsch.clionarduinoplugin.util.StudiedWord;
 import icons.PluginIcons;
@@ -25,7 +26,13 @@ public class ArduinoSketchProjectGenerator extends ArduinoProjectGeneratorBase {
     @Nls
     @NotNull
     public String getName() {
-        return ARDUINO_SKETCH_PROJECT_GENERATOR_NAME;
+        return Bundle.message("new-project.sketch-project.name");
+    }
+
+    @Nullable
+    @Override
+    public String getDescription() {
+        return Bundle.message("new-project.sketch-project.description");
     }
 
     @Nullable

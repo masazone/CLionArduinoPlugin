@@ -9,6 +9,7 @@ import com.intellij.openapi.util.SystemInfo;
 import com.intellij.ui.mac.foundation.Foundation;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import com.intellij.util.xmlb.annotations.Transient;
 import com.intellij.util.xmlb.annotations.XCollection;
 import com.intellij.util.xmlb.annotations.XMap;
 import com.jetbrains.cidr.cpp.cmake.projectWizard.generators.CMakeProjectGenerator;
@@ -19,6 +20,7 @@ import com.vladsch.clionarduinoplugin.resources.Board;
 import com.vladsch.clionarduinoplugin.resources.Programmer;
 import com.vladsch.clionarduinoplugin.resources.ResourceUtils;
 import com.vladsch.clionarduinoplugin.util.ApplicationSettingsListener;
+import com.vladsch.clionarduinoplugin.util.Utils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -62,7 +64,7 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
     private @NotNull String cpuId = "";
     private @NotNull String programmerId = "";
     private @NotNull String port = "";
-    private int baudRate = 9600;
+    private int baudRate = 0;
     private @NotNull String libraryCategory = "";
     private @NotNull String authorName = "";
     private @NotNull String authorEMail = "";
@@ -213,6 +215,18 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
 
     public void setBaudRate(final int baudRate) {
         this.baudRate = baudRate;
+    }
+
+    @Transient
+    @NotNull
+    public String getBaudRateText() {
+        return baudRate == 0 ? "" : Integer.toString(baudRate);
+    }
+
+    @Transient
+    public void setBaudRateText(final @NotNull String baudRateText) {
+        Integer baud = Utils.parseIntOrNull(baudRateText);
+        baudRate = baud == null ? 0 : baud;
     }
 
     public boolean isVerbose() {
@@ -368,7 +382,7 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
     @NotNull
     public String[] getBoardCpuNames(final @NotNull String boardName) {
         Board board = getBoardByName(boardName);
-        HashMap<String, String> list = board.getCpuList();
+        HashMap<String, String> list = board.getCpuNameMap();
         return list.values().toArray(new String[0]);
     }
 

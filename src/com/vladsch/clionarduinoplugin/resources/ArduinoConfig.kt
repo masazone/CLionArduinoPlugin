@@ -3,8 +3,8 @@ package com.vladsch.clionarduinoplugin.resources
 import java.util.regex.Pattern
 
 class ArduinoConfig(boardTxt: String?, programmersTxt: String?) {
-    val boardIdMap: HashMap<String, Board>
-    val programmerIdMap: HashMap<String, Programmer>
+    val boardIdMap: LinkedHashMap<String, Board>
+    val programmerIdMap: LinkedHashMap<String, Programmer>
     var cpuMenu: String
 
     init {
@@ -72,8 +72,8 @@ class ArduinoConfig(boardTxt: String?, programmersTxt: String?) {
         val programmersTxtString: String
             get() = ResourceUtils.getResourceFileContent(ArduinoConfig::class.java, "config/programmers.txt")
 
-        fun parseProgrammers(programmersText: String?): HashMap<String, Programmer> {
-            val programmers = HashMap<String, Programmer>()
+        fun parseProgrammers(programmersText: String?): LinkedHashMap<String, Programmer> {
+            val programmers = LinkedHashMap<String, Programmer>()
             if (programmersText != null) {
                 val lines = programmersText.split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
                 val keyEntry = Pattern.compile("([^=]+)=(.*)")
@@ -97,8 +97,8 @@ class ArduinoConfig(boardTxt: String?, programmersTxt: String?) {
             return programmers
         }
 
-        fun parseBoards(boardText: String?): Pair<HashMap<String, Board>, String> {
-            val boards = HashMap<String, Board>()
+        fun parseBoards(boardText: String?): Pair<LinkedHashMap<String, Board>, String> {
+            val boards = LinkedHashMap<String, Board>()
             var cpuMenu = PROCESSOR
 
             if (boardText != null) {
@@ -120,10 +120,10 @@ class ArduinoConfig(boardTxt: String?, programmersTxt: String?) {
 
                             if (keyParts.size == 2 && keyParts[1] == "name") {
                                 // have a board name
-                                boards.computeIfAbsent(keyParts[0]) { Board(it, value, HashMap()) }
+                                boards.computeIfAbsent(keyParts[0]) { Board(it, value, LinkedHashMap()) }
                             } else if (keyParts.size == 4 && keyParts[1] == "menu" && keyParts[2] == "cpu") {
                                 // have a board cpu
-                                boards[keyParts[0]]?.let { it.cpuList[keyParts[3]] = value }
+                                boards[keyParts[0]]?.let { it.cpuNameMap[keyParts[3]] = value }
                             }
                         }
                     }

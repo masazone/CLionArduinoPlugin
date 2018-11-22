@@ -6,7 +6,7 @@ should need. The *Arduino IDE* simplifies a lot of things for the standard user,
 a professional programmer the IDE can feel simplistic and restrictive.
 
 One major drawback of the *Arduino IDE* is that you cannot do anything without it, which for me
-is a **complete buzz kill** . Thats why I created an alternative build system for the Arduino
+is a **complete buzz kill** . That's why I created an alternative build system for the Arduino
 using CMake.
 
 CMake is great cross-platform build system that works on practically any operating system. With

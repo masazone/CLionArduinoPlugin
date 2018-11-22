@@ -13,26 +13,32 @@ public class CMakeCommandType {
     final private @NotNull String[] myFixedArgs;
     final private @NotNull String[] myDefaultArgs;
     final private boolean myNoDupeArgs;
-
-    // variable args
     final private int myMinArgs;
     final private int myMaxArgs;
+    final private boolean myIsMultiple;     // whether can have multiple commands
+    final private boolean myIsKeepLast;   // if cannot have multiple then which one drives Last, First
 
     public CMakeCommandType(@NotNull final String name, @NotNull final String command, final @NotNull String[] fixedArgs, final int minArgs, final int maxArgs) {
-        this(name, command, fixedArgs, minArgs, maxArgs, false, null);
+        this(name, command, fixedArgs, minArgs, maxArgs, false, true, true, null);
     }
 
-    public CMakeCommandType(@NotNull final String name, @NotNull final String command, final @NotNull String[] fixedArgs, final int minArgs, final int maxArgs, boolean noDupeArgs) {
-        this(name, command, fixedArgs, minArgs, maxArgs, noDupeArgs, null);
+    public CMakeCommandType(@NotNull final String name, @NotNull final String command, final @NotNull String[] fixedArgs, final int minArgs, final int maxArgs, final boolean noDupeArgs) {
+        this(name, command, fixedArgs, minArgs, maxArgs, noDupeArgs, true, true, null);
     }
 
-    public CMakeCommandType(@NotNull final String name, @NotNull final String command, final @NotNull String[] fixedArgs, final int minArgs, final int maxArgs, final boolean noDupeArgs, @Nullable String[] defaults) {
+    public CMakeCommandType(@NotNull final String name, @NotNull final String command, final @NotNull String[] fixedArgs, final int minArgs, final int maxArgs, final boolean noDupeArgs, final boolean isMultiple, final boolean isKeepLast) {
+        this(name, command, fixedArgs, minArgs, maxArgs, noDupeArgs, isMultiple, isKeepLast, null);
+    }
+
+    public CMakeCommandType(@NotNull final String name, @NotNull final String command, final @NotNull String[] fixedArgs, final int minArgs, final int maxArgs, final boolean noDupeArgs, final boolean isMultiple, final boolean isKeepLast, @Nullable String[] defaults) {
         myName = name;
         myCommand = command;
         myFixedArgs = fixedArgs;
         myMinArgs = minArgs;
         myMaxArgs = maxArgs;
         myNoDupeArgs = noDupeArgs;
+        myIsMultiple = isMultiple;
+        myIsKeepLast = isKeepLast;
         myDefaultArgs = defaults != null ? defaults : EMPTY;
     }
 
@@ -67,12 +73,24 @@ public class CMakeCommandType {
         return myNoDupeArgs;
     }
 
+    public boolean isMultiple() {
+        return myIsMultiple;
+    }
+
+    public boolean isKeepLast() {
+        return myIsKeepLast;
+    }
+
     @Override
     public String toString() {
         return "CMakeCommandType{" +
                 "'" + myName + '\'' +
                 ", '" + myCommand + '\'' +
                 ", " + Arrays.toString(myFixedArgs) +
+                ", [" + myMinArgs +
+                ", " + myMaxArgs +
+                "], NoDupes " + myNoDupeArgs +
+                ", IsMulti " + myIsMultiple +
                 '}';
     }
 }
