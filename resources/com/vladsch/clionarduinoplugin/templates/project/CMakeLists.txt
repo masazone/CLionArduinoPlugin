@@ -28,7 +28,6 @@ link_directories()
 
 # For nested library sources replace ${LIB_NAME} with library name for each library
 # set(${LIB_NAME}_RECURSE true)
-set(${LIB_NAME}_RECURSE)
 
 #### Additional settings for programmer. From programmers.txt
 set(${CMAKE_PROJECT_NAME}_PROGRAMMER)

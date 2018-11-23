@@ -65,13 +65,13 @@ fun File.isChildOf(ancestor: File): Boolean {
 val File.nameOnly: String
     get() {
         val pos = name.lastIndexOf('.')
-        return if (pos <= 0) name else name.substring(0, pos)
+        return if (pos > 0 && pos > name.lastIndexOf(File.separatorChar)) name.substring(0, pos) else name
     }
 
 val File.dotExtension: String
     get() {
         val pos = name.lastIndexOf('.')
-        return if (pos > 0) name.substring(pos) else ""
+        return if (pos > 0 && pos > name.lastIndexOf(File.separatorChar)) name.substring(pos) else ""
     }
 
 val File.pathSlash: String

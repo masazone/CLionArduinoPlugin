@@ -13,10 +13,7 @@ import com.vladsch.flexmark.util.options.DataKey;
 import com.vladsch.flexmark.util.options.MutableDataSet;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 class ArduinoCMakeListsTxtBuilderRenderer extends IRenderBase {
     public ArduinoCMakeListsTxtBuilderRenderer() {
@@ -27,17 +24,21 @@ class ArduinoCMakeListsTxtBuilderRenderer extends IRenderBase {
         super(options);
     }
 
-    final static public DataKey<Map<String, String>> VALUE_SET = new DynamicDefaultKey<>("VALUE_SET", (options) -> new HashMap<>());
+    final static public DataKey<Map<String, String>> VALUE_MAP = new DynamicDefaultKey<>("VALUE_MAP", (options) -> new HashMap<>());
+    final static public DataKey<Set<String>> SUPPRESS_COMMENTED_SET = new DynamicDefaultKey<>("SUPPRESS_COMMENTED_SET", (options) -> new HashSet<>());
     final static public DataKey<Boolean> SET_OR_ADD = new DataKey<>("SET_OR_ADD", false);
+    final static public DataKey<Boolean> SUPPRESS_COMMENTED = new DataKey<>("SUPPRESS_COMMENTED", false);
 
     @Override
     public void render(Node node, Appendable output) {
         assert node instanceof CMakeFile;
         CMakeFile cMakeFile = (CMakeFile) node;
-        Map<String, String> values = getOptions().get(VALUE_SET);
-        Map<String, Object> valueSet = new HashMap<>(getOptions().get(VALUE_SET));
+        Map<String, String> values = getOptions().get(VALUE_MAP);
+        Map<String, Object> valueSet = new HashMap<>(getOptions().get(VALUE_MAP));
+        Set<String> suppressSet = new HashSet<>(getOptions().get(SUPPRESS_COMMENTED_SET));
         CMakeListsTxtBuilder builder = new ArduinoCMakeListsTxtBuilder(cMakeFile, valueSet);
         boolean setOrAdd = SET_OR_ADD.getFrom(node.getDocument());
+        boolean suppressCommented = SUPPRESS_COMMENTED.getFrom(node.getDocument());
 
         try {
             LinkedHashMap<String, ArrayList<String>> commandArgs = new LinkedHashMap<>();
@@ -61,7 +62,7 @@ class ArduinoCMakeListsTxtBuilderRenderer extends IRenderBase {
             }
 
             // set project first
-            builder.setWantCommentedOut(true);
+            builder.setWantCommented(true);
 
             boolean projectFirst = false;
             String projectName = "PROJECT";
@@ -108,7 +109,15 @@ class ArduinoCMakeListsTxtBuilderRenderer extends IRenderBase {
                 }
             }
 
-            String contents = builder.getCMakeContents(valueSet);
+            for (String name : suppressSet) {
+                CMakeCommand command = builder.getCommand(name);
+                if (command != null) {
+                    command.setCommentOut(true);
+                    command.setSuppressibleCommented(true);
+                }
+            }
+
+            String contents = builder.getCMakeContents(valueSet, suppressCommented);
             output.append(contents);
 
             if (ExtraRenderer.DUMP_OPTIONS.getFrom(cMakeFile)) {

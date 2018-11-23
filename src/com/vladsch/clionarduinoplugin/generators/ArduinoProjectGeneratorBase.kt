@@ -123,7 +123,15 @@ abstract class ArduinoProjectGeneratorBase(protected val myIsLibrary: Boolean) :
                 templateVars(name, pascalName, camelName, snakeName).toMutableMap()
         )
 
-        val templates = TemplateResolver.getTemplates(templateType)
+        var templateDir:File? = null
+        if (!mySettings.isBundledTemplates && !mySettings.templatesPath.isEmpty()) {
+            val file = File(mySettings.templatesPath)
+            if (TemplateResolver.haveAllTemplates(file)) {
+                templateDir = file;
+            }
+        }
+
+        val templates = TemplateResolver.getTemplates(templateType, templateDir)
         val resolvedTemplates = TemplateResolver.resolveTemplates(templates, templateVars)
 
         val sourceFiles = resolvedTemplates.map { (name, content) ->

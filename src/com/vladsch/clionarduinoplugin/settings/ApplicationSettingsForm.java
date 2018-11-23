@@ -19,44 +19,64 @@ import com.intellij.diff.DiffManager;
 import com.intellij.diff.contents.DiffContent;
 import com.intellij.diff.requests.DiffRequest;
 import com.intellij.diff.requests.SimpleDiffRequest;
+import com.intellij.ide.diff.DiffElement;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.diff.DirDiffManager;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileTypes.PlainTextFileType;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectUtil;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.TextComponentAccessor;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.components.JBCheckBox;
 import com.vladsch.clionarduinoplugin.Bundle;
 import com.vladsch.clionarduinoplugin.components.ArduinoApplicationSettings;
 import com.vladsch.clionarduinoplugin.resources.ArduinoConfig;
 import com.vladsch.clionarduinoplugin.resources.ResourceUtils;
+import com.vladsch.clionarduinoplugin.resources.TemplateResolver;
 import com.vladsch.clionarduinoplugin.util.ApplicationSettingsListener;
 import com.vladsch.clionarduinoplugin.util.ui.Settable;
 import com.vladsch.clionarduinoplugin.util.ui.SettingsComponents;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
 
 public class ApplicationSettingsForm implements Disposable, ApplicationSettingsListener {
-    private static final Logger logger = Logger.getInstance("com.vladsch.clionarduinoplugin.settings");
+    static final Logger LOG = Logger.getInstance("com.vladsch.clionarduinoplugin.settings");
 
     JPanel myMainPanel;
     JTextField myAuthorName;
     JTextField myAuthorEMail;
-    TextFieldWithBrowseButton myBoardsTxtPath;
-    TextFieldWithBrowseButton myProgrammersTxtPath;
-    private JLabel myBoardsTxtLabel;
-    private JLabel myProgrammersTxtLabel;
+
     JBCheckBox myBundledBoardsTxt;
-    JBCheckBox myBundledProgrammersTxt;
+    TextFieldWithBrowseButton myBoardsTxtPath;
+    private JLabel myBoardsTxtLabel;
     private JButton myBoardsTxtDiff;
+
+    JBCheckBox myBundledProgrammersTxt;
+    TextFieldWithBrowseButton myProgrammersTxtPath;
+    private JLabel myProgrammersTxtLabel;
     private JButton myProgrammersTxtDiff;
+
+    JBCheckBox myBundledTemplates;
+    TextFieldWithBrowseButton myTemplatesPath;
+    private JLabel myTemplatesLabel;
+    private JButton myTemplatesDiff;
+    private JButton myTemplatesCreate;
 
     //NewProjectSettingsForm myNewSketchForm;
     //NewProjectSettingsForm myNewLibraryForm;
@@ -84,8 +104,10 @@ public class ApplicationSettingsForm implements Disposable, ApplicationSettingsL
                         component(myAuthorEMail, i::getAuthorEMail, i::setAuthorEMail),
                         component(myBundledBoardsTxt, i::isBundledBoardsTxt, i::setBundledBoardsTxt),
                         component(myBundledProgrammersTxt, i::isBundledProgrammersTxt, i::setBundledProgrammersTxt),
+                        component(myBundledTemplates, i::isBundledTemplates, i::setBundledTemplates),
                         component(myBoardsTxtPath.getTextField(), i::getBoardsTxtPath, i::setBoardsTxtPath),
                         component(myProgrammersTxtPath.getTextField(), i::getProgrammersTxtPath, i::setProgrammersTxtPath),
+                        component(myTemplatesPath.getTextField(), i::getTemplatesPath, i::setTemplatesPath),
                         //component(myNewSketchForm, i),
                         //component(myNewLibraryForm, i),
                 };
@@ -110,6 +132,7 @@ public class ApplicationSettingsForm implements Disposable, ApplicationSettingsL
 
         myBundledBoardsTxt.addActionListener(listener);
         myBundledProgrammersTxt.addActionListener(listener);
+        myBundledTemplates.addActionListener(listener);
 
         //noinspection DialogTitleCapitalization
         myBoardsTxtPath.addBrowseFolderListener(Bundle.message("settings.boards-file-directory.title"), null, null,
@@ -123,13 +146,20 @@ public class ApplicationSettingsForm implements Disposable, ApplicationSettingsL
                 TextComponentAccessor.TEXT_FIELD_WHOLE_TEXT
         );
 
+        //noinspection DialogTitleCapitalization
+        myTemplatesPath.addBrowseFolderListener(Bundle.message("settings.templates-file-directory.title"), null, null,
+                new FileChooserDescriptor(false, true, false, false, false, false),
+                TextComponentAccessor.TEXT_FIELD_WHOLE_TEXT
+        );
+
         myBoardsTxtPath.getTextField().getDocument().addDocumentListener(change);
         myProgrammersTxtPath.getTextField().getDocument().addDocumentListener(change);
+        myTemplatesPath.getTextField().getDocument().addDocumentListener(change);
 
         myBoardsTxtDiff.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                // TODO: show diff
+                // show diff
                 File file = new File(myBoardsTxtPath.getText());
                 if (!file.exists()) {
                 } else if (file.isDirectory()) {
@@ -149,7 +179,7 @@ public class ApplicationSettingsForm implements Disposable, ApplicationSettingsL
         myProgrammersTxtDiff.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                // TODO: show diff
+                // TODO: copy files
                 File file = new File(myProgrammersTxtPath.getText());
                 if (!file.exists()) {
                 } else if (file.isDirectory()) {
@@ -166,11 +196,80 @@ public class ApplicationSettingsForm implements Disposable, ApplicationSettingsL
             }
         });
 
+        //myTemplatesDiff.addActionListener(new ActionListener() {
+        //    @Override
+        //    public void actionPerformed(final ActionEvent e) {
+        //        // TODO: show diff
+        //        File file = new File(myTemplatesPath.getText());
+        //        if (!file.exists()) {
+        //        } else if (!file.isDirectory()) {
+        //        } else {
+        //            final Project project = ProjectUtil.guessCurrentProject(myMainPanel);
+        //            DirDiffManager diffManager = DirDiffManager.getInstance(project);
+        //            DiffElement<VirtualFile> templateElem = getDirContent(diffManager, file);
+        //            File bundledTemplateDir = TemplateResolver.INSTANCE.getTemplatesDirectory();
+        //            DiffElement<VirtualFile> bundledTemplateElem = getDirContent(diffManager, bundledTemplateDir);
+        //
+        //            if (templateElem != null && bundledTemplateElem != null && diffManager.canShow(bundledTemplateElem, templateElem)) {
+        //                diffManager.showDiff(bundledTemplateElem, templateElem);
+        //            }
+        //        }
+        //    }
+        //});
+
+        myTemplatesCreate.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                // copy templates to location
+                String templatesPathText = myTemplatesPath.getText();
+                if (!myBundledTemplates.isSelected() && !templatesPathText.trim().isEmpty()) {
+                    File file = new File(templatesPathText);
+                    if (!file.exists()) {
+                        File parent = file.getParentFile();
+                        boolean canCreate = parent != null && parent.canRead() && parent.canWrite();
+                        if (canCreate) {
+                            try {
+                                TemplateResolver.INSTANCE.copyTemplatesDirectoryTo(file);
+                                //FileUtil.copyDir(bundledTemplateDir, file);
+                                updateOptions(false);
+                                Messages.showMessageDialog(
+                                        myMainPanel,
+                                        Bundle.message("settings.templates-create-success.label", file.getPath()),
+                                        Bundle.message("settings.templates-create-success.title"),
+                                        Messages.getErrorIcon());
+                            } catch (IOException e1) {
+                                LOG.info("Create template dir failed", e1);
+
+                                Messages.showMessageDialog(
+                                        myMainPanel,
+                                        Bundle.message("settings.templates-create-failed.label"),
+                                        Bundle.message("settings.templates-create-failed.title"),
+                                        Messages.getErrorIcon());
+
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
         updateOptions(true);
     }
 
     DiffContent getContent(String content) {
         return DiffContentFactoryEx.getInstanceEx().create(content, PlainTextFileType.INSTANCE, true);
+    }
+
+    @Nullable DiffElement getDirContent(@NotNull DirDiffManager diffManager, File content) {
+        try {
+            VirtualFile dir = VirtualFileManager.getInstance().findFileByUrl(content.toURI().toURL().toString());
+            if (dir != null) {
+                return diffManager.createDiffElement(dir);
+            }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     void showDiff(DiffRequest request) {
@@ -182,18 +281,28 @@ public class ApplicationSettingsForm implements Disposable, ApplicationSettingsL
     void updateOptions(boolean onSet) {
         myBoardsTxtPath.setEnabled(!myBundledBoardsTxt.isSelected());
         myProgrammersTxtPath.setEnabled(!myBundledProgrammersTxt.isSelected());
+        myTemplatesPath.setEnabled(!myBundledTemplates.isSelected());
 
         if (myBundledBoardsTxt.isSelected()) {
             myBoardsTxtDiff.setVisible(false);
+            myBoardsTxtLabel.setVisible(true);
         }
 
         if (myBundledProgrammersTxt.isSelected()) {
             myProgrammersTxtDiff.setVisible(false);
+            myProgrammersTxtLabel.setVisible(true);
+        }
+
+        if (myBundledTemplates.isSelected()) {
+            myTemplatesDiff.setVisible(false);
+            myTemplatesCreate.setVisible(false);
+            myTemplatesLabel.setVisible(true);
         }
 
         if (myBoardsTxtPath.isEnabled()) {
             String boardsTxtPath = myBoardsTxtPath.getText();
             String error = "";
+            boolean canShowDiff = false;
             if (boardsTxtPath.isEmpty()) {
                 // using bundled boards txt
                 error = Bundle.message("settings.bundled-boards-txt.message");
@@ -206,6 +315,7 @@ public class ApplicationSettingsForm implements Disposable, ApplicationSettingsL
                 } else if (file.isDirectory()) {
                     error = "<html><body><span style='color: red'>" + Bundle.message("settings.directory-boards-txt.message") + "</span></body></html>";
                 } else {
+                    canShowDiff = true;
                     String fileTxt = ResourceUtils.getFileContent(file);
                     ArduinoConfig arduinoConfig = new ArduinoConfig(fileTxt, "");
                     if (arduinoConfig.getBoardIdMap().size() == 0) {
@@ -218,7 +328,7 @@ public class ApplicationSettingsForm implements Disposable, ApplicationSettingsL
             if (!error.isEmpty()) {
                 myBoardsTxtLabel.setText(error);
                 myBoardsTxtLabel.setVisible(true);
-                myBoardsTxtDiff.setVisible(false);
+                myBoardsTxtDiff.setVisible(canShowDiff);
 
                 if (onSet) {
                     myBundledBoardsTxt.setSelected(true);
@@ -227,11 +337,15 @@ public class ApplicationSettingsForm implements Disposable, ApplicationSettingsL
                 myBoardsTxtLabel.setVisible(false);
                 myBoardsTxtDiff.setVisible(true);
             }
+        } else {
+            String error = Bundle.message("settings.bundled-boards-txt.message");
+            myBoardsTxtLabel.setText(error);
         }
 
         if (myProgrammersTxtPath.isEnabled()) {
             String programmersTxtPath = myProgrammersTxtPath.getText();
             String error = "";
+            boolean canShowDiff = false;
             if (programmersTxtPath.isEmpty()) {
                 // using bundled programmers txt
                 error = Bundle.message("settings.bundled-programmers-txt.message");
@@ -244,6 +358,7 @@ public class ApplicationSettingsForm implements Disposable, ApplicationSettingsL
                 } else if (file.isDirectory()) {
                     error = "<html><body><span style='color: red'>" + Bundle.message("settings.directory-programmers-txt.message") + "</span></body></html>";
                 } else {
+                    canShowDiff = true;
                     String fileTxt = ResourceUtils.getFileContent(file);
                     ArduinoConfig arduinoConfig = new ArduinoConfig("", fileTxt);
                     if (arduinoConfig.getProgrammerIdMap().size() == 0) {
@@ -252,10 +367,11 @@ public class ApplicationSettingsForm implements Disposable, ApplicationSettingsL
                     }
                 }
             }
+
             if (!error.isEmpty()) {
                 myProgrammersTxtLabel.setText(error);
                 myProgrammersTxtLabel.setVisible(true);
-                myProgrammersTxtDiff.setVisible(false);
+                myProgrammersTxtDiff.setVisible(canShowDiff);
 
                 if (onSet) {
                     myBundledProgrammersTxt.setSelected(true);
@@ -264,6 +380,61 @@ public class ApplicationSettingsForm implements Disposable, ApplicationSettingsL
                 myProgrammersTxtLabel.setVisible(false);
                 myProgrammersTxtDiff.setVisible(true);
             }
+        } else {
+            String error = Bundle.message("settings.bundled-programmers-txt.message");
+            myProgrammersTxtLabel.setText(error);
+        }
+
+        if (myTemplatesPath.isEnabled()) {
+            String templatesPath = myTemplatesPath.getText();
+            String error = "";
+            boolean canCreate = false;
+            boolean canShowDiff = false;
+            if (templatesPath.isEmpty()) {
+                // using bundled programmers txt
+                error = Bundle.message("settings.bundled-templates.message");
+            } else {
+                // try to open and read the file
+                File file = new File(templatesPath);
+                if (!file.exists()) {
+                    // should not happen
+                    File parent = file.getParentFile();
+                    canCreate = parent != null && parent.canRead() && parent.canWrite();
+                    if (!canCreate) {
+                        error = "<html><body><span style='color: red'>" + Bundle.message("settings.not-exists-templates-rw.message") + "</span></body></html>";
+                    } else {
+                        error = "<html><body><span style='color: red'>" + Bundle.message("settings.not-exists-templates.message") + "</span></body></html>";
+                    }
+                } else if (file.isFile()) {
+                    error = "<html><body><span style='color: red'>" + Bundle.message("settings.file-templates.message") + "</span></body></html>";
+                } else {
+                    canShowDiff = false; // does not work for non-project files
+
+                    // should have all files in respective template types
+                    if (!TemplateResolver.INSTANCE.haveAllTemplates(file)) {
+                        // invalid
+                        error = "<html><body><span style='color: red'>" + Bundle.message("settings.invalid-templates.message") + "</span></body></html>";
+                    }
+                }
+            }
+
+            if (!error.isEmpty()) {
+                myTemplatesLabel.setText(error);
+                myTemplatesLabel.setVisible(true);
+                myTemplatesDiff.setVisible(canShowDiff);
+                myTemplatesCreate.setVisible(canCreate);
+
+                if (onSet) {
+                    myBundledTemplates.setSelected(true);
+                }
+            } else {
+                myTemplatesLabel.setVisible(false);
+                myTemplatesDiff.setVisible(canShowDiff);
+                myTemplatesCreate.setVisible(false);
+            }
+        } else {
+            String error = Bundle.message("settings.bundled-templates.message");
+            myTemplatesLabel.setText(error);
         }
     }
 

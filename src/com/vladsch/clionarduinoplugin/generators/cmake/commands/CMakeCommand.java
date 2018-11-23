@@ -12,13 +12,15 @@ public class CMakeCommand implements CMakeElement {
     final protected @NotNull CMakeCommandType myCommandType;
     final protected @NotNull ArrayList<String> myArgs;
     protected boolean myAddEOL;
-    protected boolean myCommentedOut;
+    protected boolean myCommented;
+    protected boolean mySuppressibleCommented;
 
-    public CMakeCommand(@NotNull final CMakeCommandType commandType, @NotNull final List<String> args, boolean isAddEOL, boolean commentedOut) {
+    public CMakeCommand(@NotNull final CMakeCommandType commandType, @NotNull final List<String> args, boolean isAddEOL, boolean commented, boolean suppressibleCommented) {
         myCommandType = commandType;
         myArgs = new ArrayList<>(args);
         myAddEOL = isAddEOL;
-        myCommentedOut = commentedOut;
+        myCommented = commented;
+        mySuppressibleCommented = suppressibleCommented;
 
         String[] defaults = commandType.getDefaultArgs();
         int iMax = defaults.length;
@@ -32,34 +34,51 @@ public class CMakeCommand implements CMakeElement {
     }
 
     public CMakeCommand(@NotNull final CMakeCommandType commandType, @NotNull final List<String> args) {
-        this(commandType, args, true, false);
+        this(commandType, args, true, false, false);
     }
 
     public CMakeCommand(@NotNull final CMakeCommandType commandType, boolean isAddEOL) {
-        this(commandType, new ArrayList<>(), isAddEOL,false);
+        this(commandType, new ArrayList<>(), isAddEOL,false,false);
     }
 
     public CMakeCommand(@NotNull final CMakeCommandType commandType) {
-        this(commandType, new ArrayList<>(), true,false);
+        this(commandType, new ArrayList<>(), true,false,false);
     }
 
     public CMakeCommand(@NotNull final CMakeCommand other) {
-        this(other.myCommandType, other.myArgs, other.myAddEOL, other.myCommentedOut);
+        this(other.myCommandType, other.myArgs, other.myAddEOL, other.myCommented, other.mySuppressibleCommented);
     }
 
-    public boolean isCommentedOut() {
-        return myCommentedOut;
+    public boolean isSuppressibleCommented() {
+        return mySuppressibleCommented;
+    }
+
+    public void setSuppressibleCommented(final boolean suppressibleCommented) {
+        mySuppressibleCommented = suppressibleCommented;
+    }
+
+    public void setSuppressible(final boolean suppressibleCommented) {
+        if (suppressibleCommented) myCommented = true;
+        mySuppressibleCommented = suppressibleCommented;
+    }
+
+    public boolean isCommented() {
+        return myCommented;
     }
 
     public void commentOut(final boolean commentedOut) {
-        myCommentedOut = commentedOut;
+        myCommented = commentedOut;
+    }
+
+    public void setCommentOut(final boolean commentedOut) {
+        myCommented = commentedOut;
     }
 
     @Override
-    public @NotNull String getText(@Nullable Map<String, Object> valueSet) {
+    public String getText(@Nullable Map<String, Object> valueSet, final boolean suppressCommented) {
         StringBuilder sb = new StringBuilder();
         try {
-            appendTo(sb, valueSet);
+            appendTo(sb, valueSet, suppressCommented);
         } catch (IOException ignored) {
 
         }
@@ -77,8 +96,9 @@ public class CMakeCommand implements CMakeElement {
     }
 
     @Override
-    public void appendTo(StringBuilder out, @Nullable Map<String, Object> valueSet) throws IOException {
-        if (myCommentedOut) {
+    public void appendTo(StringBuilder out, @Nullable Map<String, Object> valueSet, final boolean suppressCommented) throws IOException {
+        if (myCommented) {
+            if (mySuppressibleCommented && suppressCommented) return;
             out.append("# ");
         }
 

@@ -1,6 +1,7 @@
 package com.vladsch.clionarduinoplugin.resources
 
 import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.Test
 
 class TemplateResolverTest {
@@ -8,6 +9,11 @@ class TemplateResolverTest {
         get() {
             return replace('@', '$').replace('&', '@')
         }
+
+    @Before
+    fun setUp() {
+        TemplateResolver.inTest = true
+    }
 
     fun compareFiles(expected: Map<String, String>, actual: Map<String, String>) {
         val sortedKeys = expected.keys.sorted()
@@ -20,13 +26,13 @@ class TemplateResolverTest {
 
     @Test
     fun test_sketch() {
-        val files = TemplateResolver.getTemplates("sketch")
+        val files = TemplateResolver.getTemplates("sketch", null)
         compareFiles(mapOf(SKETCH_FILE to SKETCH_CONTENT), files)
     }
 
     @Test
     fun test_library() {
-        val files = TemplateResolver.getTemplates("library")
+        val files = TemplateResolver.getTemplates("library", null)
         compareFiles(mapOf(
                 LIBRARY_CPP_FILE to LIBRARY_CPP_CONTENT,
                 LIBRARY_H_FILE to LIBRARY_H_CONTENT
@@ -35,7 +41,7 @@ class TemplateResolverTest {
 
     @Test
     fun test_project_static_library() {
-        val files = TemplateResolver.getTemplates("project/library_static")
+        val files = TemplateResolver.getTemplates("project/library_static", null)
         compareFiles(mapOf(
                 CMAKELISTS_TXT_FILE to CMAKELISTS_TXT_CONTENT,
                 LIBRARY_CPP_FILE to LIBRARY_CPP_CONTENT,
@@ -45,7 +51,7 @@ class TemplateResolverTest {
 
     @Test
     fun test_project_arduino_library() {
-        val files = TemplateResolver.getTemplates("project/library_arduino")
+        val files = TemplateResolver.getTemplates("project/library_arduino", null)
         compareFiles(mapOf(
                 LIBRARY_CPP_FILE to LIBRARY_CPP_CONTENT,
                 LIBRARY_H_FILE to LIBRARY_H_CONTENT,
@@ -59,7 +65,7 @@ class TemplateResolverTest {
 
     @Test
     fun test_project_sketch() {
-        val files = TemplateResolver.getTemplates("project/sketch")
+        val files = TemplateResolver.getTemplates("project/sketch", null)
         compareFiles(mapOf(
                 USER_SETUP_H_FILE to USER_SETUP_H_CONTENT,
                 PROJECT_NAME_INO_FILE to PROJECT_NAME_INO_CONTENT,
@@ -69,7 +75,7 @@ class TemplateResolverTest {
 
     @Test
     fun test_project_sketch_subdir() {
-        val files = TemplateResolver.getTemplates("project/sketchsubdir")
+        val files = TemplateResolver.getTemplates("project/sketchsubdir", null)
         compareFiles(mapOf(
                 SUB_LIBRARY_CPP_FILE to LIBRARY_CPP_CONTENT,
                 SUB_LIBRARY_H_FILE to LIBRARY_H_CONTENT,
@@ -81,7 +87,7 @@ class TemplateResolverTest {
 
     @Test
     fun test_variables() {
-        val files = TemplateResolver.getTemplates("project/sketchsubdir")
+        val files = TemplateResolver.getTemplates("project/sketchsubdir", null)
         val values = mapOf("library_name" to "lib_name", "LIBRARY_NAME" to "LIB_NAME", "libraryName" to "libName", "LibraryName" to "LibName")
         val templates = TemplateResolver.resolveTemplates(files, values)
 
@@ -96,7 +102,7 @@ class TemplateResolverTest {
 
     @Test
     fun test_variables_arduino_library() {
-        val files = TemplateResolver.getTemplates("project/library_arduino")
+        val files = TemplateResolver.getTemplates("project/library_arduino", null)
         val values = mapOf("library_name" to "lib_name", "LIBRARY_NAME" to "LIB_NAME", "libraryName" to "libName", "LibraryName" to "LibName", "PROJECT_NAME" to "LIB_NAME",
                 "LIBRARY_DISPLAY_NAME" to "Library Name", "USER_NAME" to "Author Name", "E_MAIL" to "email@email.com", "LIBRARY_CATEGORY" to "Library Category"
         )
@@ -126,7 +132,7 @@ class TemplateResolverTest {
 
     @Test
     fun test_variablesDirective() {
-        val files = TemplateResolver.getTemplates("project/sketchsubdir")
+        val files = TemplateResolver.getTemplates("project/sketchsubdir", null)
         val values = mapOf("PROJECT_NAME" to "PROJECT_NAME", "project_name" to "project_name")
         val templates = TemplateResolver.resolveTemplates(files, values)
 
@@ -249,7 +255,6 @@ link_directories()
 
 # For nested library sources replace @{LIB_NAME} with library name for each library
 # set(@{LIB_NAME}_RECURSE true)
-set(@{LIB_NAME}_RECURSE)
 
 #### Additional settings for programmer. From programmers.txt
 set(@{CMAKE_PROJECT_NAME}_PROGRAMMER)

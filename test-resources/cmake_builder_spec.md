@@ -823,3 +823,125 @@ CMakeFile[0, 116]
 ````````````````````````````````
 
 
+test commented suppression command
+
+```````````````````````````````` example(Arduno: 14) options(no-comment-unused)
+set(CMAKE_TOOLCHAIN_FILE setCmakeToolchainFile)
+set(CMAKE_CXX_STANDARD setCmakeCxxStandard)
+## Top
+
+## Before project
+set(${CMAKE_PROJECT_NAME}_BOARD setBoard)
+set(ARDUINO_CPU setCpu)
+#project(${CMAKE_PROJECT_NAME})
+link_directories(linkDirectories)
+add_subdirectory(addSubdirectory)
+set(${CMAKE_PROJECT_NAME}_SKETCH setSketch)
+#set(${CMAKE_PROJECT_NAME}_PROGRAMMER setProgrammer)
+set(${CMAKE_PROJECT_NAME}_PORT setPort)
+set(${CMAKE_PROJECT_NAME}_AFLAGS setAflags)
+set(${CMAKE_PROJECT_NAME}_HDRS setHdrs)
+set(${CMAKE_PROJECT_NAME}_SRCS setSrcs)
+set(libName_RECURSE setLibNameRecurse)
+set(setBoard.upload.speed setUploadSpeed)
+## After project
+
+## Bottom
+generate_arduino_firmware(${CMAKE_PROJECT_NAME} )
+generate_arduino_library(${CMAKE_PROJECT_NAME} )
+.
+set(CMAKE_TOOLCHAIN_FILE setCmakeToolchainFile)
+set(CMAKE_CXX_STANDARD setCmakeCxxStandard)
+## Top
+
+## Before project
+set(${CMAKE_PROJECT_NAME}_BOARD setBoard)
+set(ARDUINO_CPU setCpu)
+# project(${CMAKE_PROJECT_NAME})
+link_directories(linkDirectories)
+add_subdirectory(addSubdirectory)
+set(${CMAKE_PROJECT_NAME}_SKETCH setSketch)
+# set(${CMAKE_PROJECT_NAME}_PROGRAMMER setProgrammer)
+set(${CMAKE_PROJECT_NAME}_AFLAGS setAflags)
+set(${CMAKE_PROJECT_NAME}_HDRS setHdrs)
+set(${CMAKE_PROJECT_NAME}_SRCS setSrcs)
+set(libName_RECURSE setLibNameRecurse)
+set(setBoard.upload.speed setUploadSpeed)
+## After project
+
+## Bottom
+generate_arduino_firmware(${CMAKE_PROJECT_NAME})
+generate_arduino_library(${CMAKE_PROJECT_NAME})
+.
+CMakeFile[0, 752]
+  Command[0, 47] text:[0, 3, "set"] open:[3, 4, "("] arguments:[4, 46, "CMAKE_TOOLCHAIN_FILE setCmakeToolchainFile"] close:[46, 47, ")"]
+    Argument[4, 24] text:[4, 24, "CMAKE_TOOLCHAIN_FILE"]
+    Argument[25, 46] text:[25, 46, "setCmakeToolchainFile"]
+  LineEnding[47, 48]
+  Command[48, 91] text:[48, 51, "set"] open:[51, 52, "("] arguments:[52, 90, "CMAKE_CXX_STANDARD setCmakeCxxStandard"] close:[90, 91, ")"]
+    Argument[52, 70] text:[52, 70, "CMAKE_CXX_STANDARD"]
+    Argument[71, 90] text:[71, 90, "setCmakeCxxStandard"]
+  LineEnding[91, 92]
+  LineComment[92, 99] open:[92, 93, "#"] text:[93, 99, "# Top\n"]
+  BlankLine[99, 100]
+  LineComment[100, 118] open:[100, 101, "#"] text:[101, 118, "# Before project\n"]
+  Command[118, 159] text:[118, 121, "set"] open:[121, 122, "("] arguments:[122, 158, "${CMAKE_PROJECT_NAME}_BOARD setBoard"] close:[158, 159, ")"]
+    Argument[122, 149] text:[122, 149, "${CMAKE_PROJECT_NAME}_BOARD"]
+    Argument[150, 158] text:[150, 158, "setBoard"]
+  LineEnding[159, 160]
+  Command[160, 183] text:[160, 163, "set"] open:[163, 164, "("] arguments:[164, 182, "ARDUINO_CPU setCpu"] close:[182, 183, ")"]
+    Argument[164, 175] text:[164, 175, "ARDUINO_CPU"]
+    Argument[176, 182] text:[176, 182, "setCpu"]
+  LineEnding[183, 184]
+  CommentedOutCommand[185, 215] comment:[184, 185, "#"] text:[185, 192, "project"] open:[192, 193, "("] arguments:[193, 214, "${CMAKE_PROJECT_NAME}"] close:[214, 215, ")"]
+    Argument[193, 214] text:[193, 214, "${CMAKE_PROJECT_NAME}"]
+  LineEnding[215, 216]
+  Command[216, 249] text:[216, 232, "link_directories"] open:[232, 233, "("] arguments:[233, 248, "linkDirectories"] close:[248, 249, ")"]
+    Argument[233, 248] text:[233, 248, "linkDirectories"]
+  LineEnding[249, 250]
+  Command[250, 283] text:[250, 266, "add_subdirectory"] open:[266, 267, "("] arguments:[267, 282, "addSubdirectory"] close:[282, 283, ")"]
+    Argument[267, 282] text:[267, 282, "addSubdirectory"]
+  LineEnding[283, 284]
+  Command[284, 327] text:[284, 287, "set"] open:[287, 288, "("] arguments:[288, 326, "${CMAKE_PROJECT_NAME}_SKETCH setSketch"] close:[326, 327, ")"]
+    Argument[288, 316] text:[288, 316, "${CMAKE_PROJECT_NAME}_SKETCH"]
+    Argument[317, 326] text:[317, 326, "setSketch"]
+  LineEnding[327, 328]
+  CommentedOutCommand[329, 380] comment:[328, 329, "#"] text:[329, 332, "set"] open:[332, 333, "("] arguments:[333, 379, "${CMAKE_PROJECT_NAME}_PROGRAMMER setProgrammer"] close:[379, 380, ")"]
+    Argument[333, 365] text:[333, 365, "${CMAKE_PROJECT_NAME}_PROGRAMMER"]
+    Argument[366, 379] text:[366, 379, "setProgrammer"]
+  LineEnding[380, 381]
+  Command[381, 420] text:[381, 384, "set"] open:[384, 385, "("] arguments:[385, 419, "${CMAKE_PROJECT_NAME}_PORT setPort"] close:[419, 420, ")"]
+    Argument[385, 411] text:[385, 411, "${CMAKE_PROJECT_NAME}_PORT"]
+    Argument[412, 419] text:[412, 419, "setPort"]
+  LineEnding[420, 421]
+  Command[421, 464] text:[421, 424, "set"] open:[424, 425, "("] arguments:[425, 463, "${CMAKE_PROJECT_NAME}_AFLAGS setAflags"] close:[463, 464, ")"]
+    Argument[425, 453] text:[425, 453, "${CMAKE_PROJECT_NAME}_AFLAGS"]
+    Argument[454, 463] text:[454, 463, "setAflags"]
+  LineEnding[464, 465]
+  Command[465, 504] text:[465, 468, "set"] open:[468, 469, "("] arguments:[469, 503, "${CMAKE_PROJECT_NAME}_HDRS setHdrs"] close:[503, 504, ")"]
+    Argument[469, 495] text:[469, 495, "${CMAKE_PROJECT_NAME}_HDRS"]
+    Argument[496, 503] text:[496, 503, "setHdrs"]
+  LineEnding[504, 505]
+  Command[505, 544] text:[505, 508, "set"] open:[508, 509, "("] arguments:[509, 543, "${CMAKE_PROJECT_NAME}_SRCS setSrcs"] close:[543, 544, ")"]
+    Argument[509, 535] text:[509, 535, "${CMAKE_PROJECT_NAME}_SRCS"]
+    Argument[536, 543] text:[536, 543, "setSrcs"]
+  LineEnding[544, 545]
+  Command[545, 583] text:[545, 548, "set"] open:[548, 549, "("] arguments:[549, 582, "libName_RECURSE setLibNameRecurse"] close:[582, 583, ")"]
+    Argument[549, 564] text:[549, 564, "libName_RECURSE"]
+    Argument[565, 582] text:[565, 582, "setLibNameRecurse"]
+  LineEnding[583, 584]
+  Command[584, 625] text:[584, 587, "set"] open:[587, 588, "("] arguments:[588, 624, "setBoard.upload.speed setUploadSpeed"] close:[624, 625, ")"]
+    Argument[588, 609] text:[588, 609, "setBoard.upload.speed"]
+    Argument[610, 624] text:[610, 624, "setUploadSpeed"]
+  LineEnding[625, 626]
+  LineComment[626, 643] open:[626, 627, "#"] text:[627, 643, "# After project\n"]
+  BlankLine[643, 644]
+  LineComment[644, 654] open:[644, 645, "#"] text:[645, 654, "# Bottom\n"]
+  Command[654, 703] text:[654, 679, "generate_arduino_firmware"] open:[679, 680, "("] arguments:[680, 702, "${CMAKE_PROJECT_NAME} "] close:[702, 703, ")"]
+    Argument[680, 701] text:[680, 701, "${CMAKE_PROJECT_NAME}"]
+  LineEnding[703, 704]
+  Command[704, 752] text:[704, 728, "generate_arduino_library"] open:[728, 729, "("] arguments:[729, 751, "${CMAKE_PROJECT_NAME} "] close:[751, 752, ")"]
+    Argument[729, 750] text:[729, 750, "${CMAKE_PROJECT_NAME}"]
+````````````````````````````````
+
+

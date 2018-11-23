@@ -37,6 +37,7 @@ public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSetting
     JBCheckBox myAddLibraryDirectory;
     JBCheckBox myVerbose;
     TextFieldWithHistory myPort;
+    JBCheckBox myCommentOutUnusedSettings;
 
     JComboBox myLibraryCategories;
     JTextField myLibraryDirectory;
@@ -89,6 +90,7 @@ public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSetting
                             component(myLibraryDirectory, i::getLibraryDirectory, i::setLibraryDirectory),
                             component(myLibraryDisplayName, i::getLibraryDisplayName, i::setLibraryDisplayName),
                             component(myVerbose, i::isVerbose, i::setVerbose),
+                            component(myCommentOutUnusedSettings, i::isCommentUnusedSettings, i::setCommentUnusedSettings),
                             componentString(myLanguageVersionNames.ADAPTER, myLanguageVersion, i::getLanguageVersion, i::setLanguageVersion),
 
                             // library only
@@ -106,6 +108,7 @@ public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSetting
                             component(myAddLibraryDirectory, i::isAddLibraryDirectory, i::setAddLibraryDirectory),
                             component(myLibraryDirectory, i::getLibraryDirectory, i::setLibraryDirectory),
                             component(myVerbose, i::isVerbose, i::setVerbose),
+                            component(myCommentOutUnusedSettings, i::isCommentUnusedSettings, i::setCommentUnusedSettings),
                             componentString(myLanguageVersionNames.ADAPTER, myLanguageVersion, i::getLanguageVersion, i::setLanguageVersion),
                     };
                 }

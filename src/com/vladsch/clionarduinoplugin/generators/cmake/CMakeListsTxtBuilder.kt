@@ -39,7 +39,7 @@ abstract class CMakeListsTxtBuilder(commands: Array<CMakeCommandType>, anchors: 
     private val myBeforeAnchorsMap: HashMap<CMakeCommandType, ArrayList<CMakeCommandType>>
     private val myAfterAnchorsMap: HashMap<CMakeCommandType, ArrayList<CMakeCommandType>>
     private var myCMakeFile: CMakeFile? = null
-    var isWantCommentedOut: Boolean = false
+    var isWantCommented: Boolean = false
 
     val elements: List<CMakeElement>
         get() = myElements
@@ -50,7 +50,7 @@ abstract class CMakeListsTxtBuilder(commands: Array<CMakeCommandType>, anchors: 
         myAnchorsMap = HashMap()
         mySetCommands = HashMap()
         mySetCommandsArg0 = HashMap()
-        isWantCommentedOut = false
+        isWantCommented = false
 
         for (commandType in commands) {
             if ("set" == commandType.command && commandType.fixedArgs.size > 0) {
@@ -144,7 +144,7 @@ abstract class CMakeListsTxtBuilder(commands: Array<CMakeCommandType>, anchors: 
         }
     }
 
-    fun getCMakeContents(values: Map<String, Any>?): String {
+    fun getCMakeContents(values: Map<String, Any>?, suppressCommentedCommands: Boolean): String {
         val sb = StringBuilder()
         val valueSet = HashMap<String, Any>()
         if (values != null) valueSet.putAll(values)
@@ -158,9 +158,23 @@ abstract class CMakeListsTxtBuilder(commands: Array<CMakeCommandType>, anchors: 
             }
         }
 
+        var skipNextLineEnding = false
         for (element in myElements) {
             try {
-                element.appendTo(sb, valueSet)
+                if (skipNextLineEnding) {
+                    skipNextLineEnding = false
+
+                    if (element is CMakeText && element.text =="\n") {
+                        continue
+                    }
+                }
+
+                element.appendTo(sb, valueSet, suppressCommentedCommands)
+
+                if (suppressCommentedCommands && element is CMakeCommand && element.isCommented && element.isSuppressibleCommented && !element.isAddEOL) {
+                    // suppress next eol
+                    skipNextLineEnding = true
+                }
             } catch (e: IOException) {
                 e.printStackTrace()
             }
@@ -219,6 +233,7 @@ abstract class CMakeListsTxtBuilder(commands: Array<CMakeCommandType>, anchors: 
                 if (node is CommentedOutCommand) {
                     makeCommand.commentOut(true)
                 }
+
                 return makeCommand
             }
         }
@@ -325,8 +340,8 @@ abstract class CMakeListsTxtBuilder(commands: Array<CMakeCommandType>, anchors: 
             for ((i, element) in myElements.withIndex()) {
                 if (element is CMakeCommand) {
                     if (element.commandType === commandType) {
-                        if (element.isCommentedOut) {
-                            if (isWantCommentedOut && firstCommented == -1) {
+                        if (element.isCommented) {
+                            if (isWantCommented && firstCommented == -1) {
                                 firstCommented = i
                             }
                         } else {
@@ -667,7 +682,6 @@ abstract class CMakeListsTxtBuilder(commands: Array<CMakeCommandType>, anchors: 
                 .set(CMakeParser.AST_BLANK_LINES, true)
                 .set(CMakeParser.AST_ARGUMENT_SEPARATORS, true)
                 .set(CMakeParser.AST_COMMENTED_OUT_COMMANDS, true)
-                ;
 
         const val INF_MAX_ARGS = 1000
         @Suppress("MemberVisibilityCanBePrivate")
@@ -702,7 +716,7 @@ abstract class CMakeListsTxtBuilder(commands: Array<CMakeCommandType>, anchors: 
                 } else {
                     val command = ref as? CMakeCommand
                     var varIndex = try {
-                        if (index == null) 0 else Integer.parseInt(index ?: "")
+                        if (index == null) 0 else Integer.parseInt(index)
                     } catch (ignored: NumberFormatException) {
                         command!!.argCount
                     }

@@ -10,10 +10,7 @@ import com.vladsch.flexmark.util.options.DataHolder;
 import com.vladsch.flexmark.util.options.MutableDataSet;
 import org.junit.runners.Parameterized;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CMakeBuilderSpecTest extends ComboSpecTestCase {
     private static final String SPEC_RESOURCE = "/cmake_builder_spec.md";
@@ -25,7 +22,7 @@ public class CMakeBuilderSpecTest extends ComboSpecTestCase {
             .set(CMakeParser.AST_ARGUMENT_SEPARATORS, true)
             .set(CMakeParser.AST_COMMENTED_OUT_COMMANDS, true)
             //.set(ExtraRenderer.DUMP_OPTIONS, true)
-    ;
+            ;
 
     protected static final Map<String, DataHolder> optionsMap = new HashMap<String, DataHolder>();
 
@@ -42,9 +39,20 @@ public class CMakeBuilderSpecTest extends ComboSpecTestCase {
         return valueSet;
     }
 
+    static Set<String> suppressSet(String... values) {
+        int i = values.length;
+        HashSet<String> valueSet = new HashSet<>();
+
+        while (i > 1) {
+            String value = values[--i];
+            valueSet.add(value);
+        }
+        return valueSet;
+    }
+
     static {
-        optionsMap.put("board-pro", new MutableDataSet().set(ArduinoCMakeListsTxtBuilderRenderer.VALUE_SET, valueSet("SET_BOARD", "pro", "SET_CPU", "8MHzatmega328")));
-        optionsMap.put("change-all", new MutableDataSet().set(ArduinoCMakeListsTxtBuilderRenderer.VALUE_SET, valueSet(
+        optionsMap.put("board-pro", new MutableDataSet().set(ArduinoCMakeListsTxtBuilderRenderer.VALUE_MAP, valueSet("SET_BOARD", "pro", "SET_CPU", "8MHzatmega328")));
+        optionsMap.put("change-all", new MutableDataSet().set(ArduinoCMakeListsTxtBuilderRenderer.VALUE_MAP, valueSet(
                 "SET_CMAKE_TOOLCHAIN_FILE", "setCmakeToolchainFile",
                 "SET_CMAKE_CXX_STANDARD", "setCmakeCxxStandard",
                 "SET_PROJECT_NAME", "setProjectName",
@@ -64,13 +72,21 @@ public class CMakeBuilderSpecTest extends ComboSpecTestCase {
                 "ADD_SUBDIRECTORY", "addSubdirectory",
                 "GENERATE_ARDUINO_LIBRARY", "",
                 "GENERATE_ARDUINO_FIRMWARE", "",
-                "",""
+                "", ""
         )));
-        optionsMap.put("add-project", new MutableDataSet().set(ArduinoCMakeListsTxtBuilderRenderer.VALUE_SET, valueSet(
+        optionsMap.put("add-project", new MutableDataSet().set(ArduinoCMakeListsTxtBuilderRenderer.VALUE_MAP, valueSet(
                 "PROJECT", "",
                 "SET_PROGRAMMER", "setProgrammer",
-                "",""
+                "", ""
         )));
+        optionsMap.put("no-comment-unused", new MutableDataSet()
+                .set(ArduinoCMakeListsTxtBuilderRenderer.SUPPRESS_COMMENTED_SET, suppressSet(
+                        "SET_PROJECT_NAME",
+                        "SET_PORT",
+                        ""
+                ))
+                .set(ArduinoCMakeListsTxtBuilderRenderer.SUPPRESS_COMMENTED, true)
+        );
         optionsMap.put("dump-options", new MutableDataSet().set(ExtraRenderer.DUMP_OPTIONS, true));
         optionsMap.put("set-or-add", new MutableDataSet().set(ArduinoCMakeListsTxtBuilderRenderer.SET_OR_ADD, true));
     }

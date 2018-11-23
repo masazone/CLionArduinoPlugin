@@ -75,8 +75,11 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
     private boolean nestedLibrarySources = false;
     private @NotNull String boardsTxtPath = "";
     private @NotNull String programmersTxtPath = "";
+    private @NotNull String templatesPath = "";
     private boolean bundledBoardsTxt = true;
     private boolean bundledProgrammersTxt = true;
+    private boolean bundledTemplates = true;
+    private boolean commentUnusedSettings = true;
 
     private ArduinoConfig myArduinoConfig = null;
 
@@ -98,6 +101,22 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
 
     public void setLibraryType(@Nullable String libraryType) {
         this.libraryType = libraryType == null ? ARDUINO_LIB_TYPE : libraryType;
+    }
+
+    public String getTemplatesPath() {
+        return templatesPath.trim();
+    }
+
+    public void setTemplatesPath(final String templatesPath) {
+        this.templatesPath = templatesPath.trim();
+    }
+
+    public boolean isBundledTemplates() {
+        return bundledTemplates;
+    }
+
+    public void setBundledTemplates(final boolean bundledTemplates) {
+        this.bundledTemplates = bundledTemplates;
     }
 
     @NotNull
@@ -249,6 +268,14 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
     @XMap
     public Map<String, String> getBoardCpuMap() {
         return boardCpuMap;
+    }
+
+    public boolean isCommentUnusedSettings() {
+        return commentUnusedSettings;
+    }
+
+    public void setCommentUnusedSettings(final boolean commentUnusedSettings) {
+        this.commentUnusedSettings = commentUnusedSettings;
     }
 
     @XMap

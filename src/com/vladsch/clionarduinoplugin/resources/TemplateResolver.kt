@@ -1,44 +1,129 @@
-@file:Suppress("MemberVisibilityCanBePrivate")
-
 package com.vladsch.clionarduinoplugin.resources
 
-import com.vladsch.clionarduinoplugin.generators.cmake.CMakeListsTxtBuilder
+import com.intellij.openapi.diagnostic.Logger
 import com.vladsch.clionarduinoplugin.util.helpers.*
 import com.vladsch.flexmark.util.sequence.BasedSequence
 import com.vladsch.flexmark.util.sequence.BasedSequenceImpl
 import java.io.File
+import java.io.IOException
+import java.net.URL
+import java.net.URLDecoder
+import java.util.jar.JarFile
 import java.util.regex.Pattern
-import javax.print.attribute.IntegerSyntax
 
+@Suppress("MemberVisibilityCanBePrivate")
 object TemplateResolver {
-    const val BUNDLED_TEMPLATES = "/com/vladsch/clionarduinoplugin/templates"
+    private val LOG = Logger.getInstance("com.vladsch.clionarduinoplugin")
 
-    fun getTemplatesDirectory(): File {
+    private const val BUNDLED_TEMPLATES = "/com/vladsch/clionarduinoplugin/templates"
+    val templateTypes = setOf("sketch", "library", "project${File.separator}library_arduino", "project${File.separator}library_static", "project${File.separator}sketch")
+    val templateTypesTest = setOf("sketch", "library", "project${File.separator}library_arduino", "project${File.separator}library_static", "project${File.separator}sketch", "project${File.separator}sketchsubdir")
+    val templateLevel1Dirs = setOf("sketch", "library", "project")
+    val templateTypesPrefixes = templateTypes.map { it + File.separator }.toSet()
+    val templateTypesTestPrefixes = templateTypesTest.map { it + File.separator }.toSet()
+
+    var inTest = false
+
+    fun haveAllTemplates(templateDir: File?): Boolean {
+        if (templateDir == null || !isValidTemplateDir(templateDir)) return false
+
+        for (templateType in templateTypes()) {
+            val templates = TemplateResolver.getTemplates(templateType, templateDir)
+            val bundledTemplates = TemplateResolver.getTemplates(templateType, null)
+            if (!templates.keys.containsAll(bundledTemplates.keys)) return false
+        }
+        return true
+    }
+
+    @Throws(IOException::class)
+    fun copyTemplatesDirectoryTo(templateDir: File) {
+        val bundledTemplates = TemplateResolver.getTemplates("", null)
+        for ((path, content) in bundledTemplates) {
+            if (!path.startsWith("project${File.separator}sketchsubdir/")) {
+                val file = templateDir + path
+                val parentDir = file.parentFile
+                if (!parentDir.exists()) {
+                    parentDir.mkdirs()
+                }
+                file.writeText(content, Charsets.UTF_8)
+            }
+        }
+    }
+
+    private fun getTemplatesURL(): URL {
         val resource = TemplateResolver.javaClass.getResource(BUNDLED_TEMPLATES)
-        return File(resource.toURI())
+        LOG.info("Bundled Templates $resource")
+        return resource;
+    }
+
+    fun isValidTemplateDir(templatesDir: File): Boolean {
+        if (!templatesDir.exists() || !templatesDir.isDirectory) return false;
+
+        var count = 0;
+        templatesDir.list { _, name ->
+            if (templateLevel1Dirs.contains(name)) {
+                count++
+            }
+            false
+        }
+
+        return count == templateLevel1Dirs.size
     }
 
     /**
      * return map of file path relative to templateType dir -> template content
      */
-    fun getTemplates(templateType: String): Map<String, String> {
-        val baseDir = getTemplatesDirectory()
-        val templateDir = baseDir + templateType
-        val templateFiles = ArrayList<File>()
-
-        getTemplateFiles(baseDir, baseDir, templateFiles)
-
-        val templates = HashMap<String, String>()
-
-        // resolve all templates to actual content
-        templateFiles.forEach { templates[it.path] = getContent(it) }
-
+    fun getTemplates(templateType: String, templatesDir: File?): Map<String, String> {
         val result = HashMap<String, String>()
+        if (templatesDir != null && !isValidTemplateDir(templatesDir)) return result;
+
+        val resource = getTemplatesURL() //URL("jar:file:/Users/vlad/Library/Application%20Support/CLion2018.1/CLionArduinoPlugin/lib/CLionArduinoPlugin.jar!/com/vladsch/clionarduinoplugin/templates") //getTemplatesURL();
+        val baseDir: File
+        val templateDir: File
+        val templateFiles = HashMap<File, String>()
+
+        if (resource.protocol == "jar" && templatesDir == null) {
+            val jarPath = resource.path.substring(5, resource.path.indexOf("!")) //strip out only the JAR file
+            val jar = JarFile(URLDecoder.decode(jarPath, "UTF-8"))
+            baseDir = File(resource.path.substring(5 + 1 + jarPath.length))
+            templateDir = baseDir + templateType
+
+            val entries = jar.entries() //gives ALL entries in jar
+            val prefix = baseDir.path.substring(1) + File.separator
+//            System.out.println(prefix)
+
+            while (entries.hasMoreElements()) {
+                val jarEntry = entries.nextElement()
+                if (!jarEntry.isDirectory) {
+                    val name = jarEntry.name
+//                System.out.println(name)
+                    if (name.startsWith(prefix)) { //filter according to the path
+                        val entry = name.substring(prefix.length)
+                        if (!entry.isEmpty()) {
+                            val stream = jar.getInputStream(jarEntry);
+                            val sb = StringBuilder()
+                            sb.streamAppend(stream)
+                            val entryFile = baseDir + entry
+                            templateFiles[entryFile] = sb.toString()
+                        }
+                    } else {
+//                        System.out.println("Excluding $name")
+                    }
+                }
+            }
+        } else if (resource.protocol == "file" || templatesDir != null) {
+            baseDir = templatesDir ?: File(resource.toURI())
+            templateDir = baseDir + templateType
+
+            getTemplateFiles(baseDir, baseDir, templateFiles, 1, false)
+        } else {
+            throw IllegalStateException("Bundled templates not accessible")
+        }
 
         // now resolve based on content inheritance but only for directory requested
-        for (file in templateFiles) {
+        for (file in templateFiles.keys) {
             if (file.isChildOf(templateDir)) {
-                var content = templates[file.path] ?: ""
+                var content = templateFiles[file] ?: ""
 
                 result[file.relativeTo(templateDir).path] = content
 
@@ -51,7 +136,7 @@ object TemplateResolver {
                         var starMatch: File? = null
                         var nameMatch: File? = null
 
-                        for (parentTemplate in templateFiles) {
+                        for (parentTemplate in templateFiles.keys) {
                             if (parentTemplate.parentFile == parentDir) {
                                 if (parentTemplate.extension == file.extension) {
                                     if (parentTemplate.name == "@@" + if (file.extension.isEmpty()) "" else "." + file.extension) {
@@ -68,9 +153,9 @@ object TemplateResolver {
                         if (nameMatch == null) nameMatch = starMatch
                         if (nameMatch != null) {
 
-                            content = templates[nameMatch.path] ?: ""
+                            content = templateFiles[nameMatch] ?: ""
                             if (!content.isEmpty()) {
-                                templates[file.path] = content   // just in case there is a sub directory with an empty template that would match
+                                templateFiles[file] = content   // just in case there is a sub directory with an empty template that would match
                                 result[file.relativeTo(templateDir).path] = content
                                 break
                             }
@@ -83,27 +168,41 @@ object TemplateResolver {
         return result
     }
 
-    fun getTemplateFiles(baseDir: File, templateDir: File, files: ArrayList<File>) {
-        if (templateDir.isDirectory) {
-            for (resource in templateDir.list()) {
-                val resourceFile = templateDir + resource
-                if (resourceFile.isDirectory) {
-                    getTemplateFiles(baseDir, resourceFile, files)
-                } else {
-                    files.add(resourceFile)
+    private fun String.startsWith(prefixes: Set<String>): Boolean {
+        val suffixed = this + File.separator
+        return prefixes.any { suffixed.startsWith(it) }
+    }
+
+    fun getTemplateFiles(baseDir: File, templateDir: File, files: HashMap<File, String>, level: Int, isBundled: Boolean) {
+        if (level >= 5 || files.size > 200) {
+            return
+        }
+
+        for (resource in templateDir.list()) {
+            val resourceFile = templateDir + resource
+            if (!isBundled && resourceFile.isDirectory) {
+                if (level == 1 && !templateLevel1Dirs.contains(resource)) {
+                    continue
+                }
+                if (level >= 2 && !resourceFile.relativeTo(baseDir).path.startsWith(templateTypePrefixes())) {
+                    continue
                 }
             }
-        } else {
-            val resourceFiles = getResourceFiles(this.javaClass, templateDir.path)
-            if (resourceFiles.isEmpty()) {
-                files.add(templateDir)
+
+            if (resourceFile.isDirectory) {
+                getTemplateFiles(baseDir, resourceFile, files, level + 1, isBundled)
             } else {
-                for (resource in resourceFiles) {
-                    val resourceFile = templateDir + resource
-                    getTemplateFiles(baseDir, resourceFile, files)
-                }
+                files[resourceFile] = getContent(resourceFile)
             }
         }
+    }
+
+    private fun templateTypes(): Set<String> {
+        return if (inTest) templateTypesTest else templateTypes
+    }
+
+    private fun templateTypePrefixes(): Set<String> {
+        return if (inTest) templateTypesTestPrefixes else templateTypesPrefixes
     }
 
     fun getContent(file: File): String {
@@ -131,11 +230,10 @@ object TemplateResolver {
     }
 
     fun simpleRefResolver(values: Map<String, String>): (String, String?) -> String? {
-        val simpleResolver: (String, String?) -> String? = { name1, index1 ->
+        return { name1, index1 ->
             if (index1 != null) null
             else values[name1]
         }
-        return simpleResolver
     }
 
     val COMMAND_REF = Pattern.compile("<@([a-zA-Z_$][a-zA-Z_0-9$]*)(?:\\[([^]]*)])?@>")!!
@@ -150,12 +248,12 @@ object TemplateResolver {
             val fileNameOnly = file.nameOnly
             val resolvedFile = resolveRefs(fileNameOnly, FILE_NAME_REF, simpleResolver)
             if (!resolvedFile.isEmpty()) {
-                val lines = BasedSequenceImpl.of(content).split('\n', Integer.MAX_VALUE-2, BasedSequence.SPLIT_INCLUDE_DELIMS)
+                val lines = BasedSequenceImpl.of(content).split('\n', Integer.MAX_VALUE - 2, BasedSequence.SPLIT_INCLUDE_DELIMS)
                 val template = StringBuilder()
 
                 for (line in lines) {
                     var skip = false
-                    val resolved = resolveRefs(line, COMMAND_REF) { name,index->
+                    val resolved = resolveRefs(line, COMMAND_REF) { name, index ->
                         if (name == "DELETE_IF_BLANK") {
                             skip = resolveRefs(index, COMMAND_REF, simpleResolver).isEmpty()
                             ""

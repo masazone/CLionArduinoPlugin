@@ -38,6 +38,9 @@
 * Fix: basic builder properly modifying/inserting commands and generating `CMakeLists.txt`
 * Add: using CMakeParser and CMakeBuilder for generating `CMakeLists.txt` for new projects. One
   step away from UI to modify project config.
+* Add: template path option and button to copy bundled if path does not exist. Can now customize
+  templates used to create projects/sketches
+* Fix: templates only accessible as files under debug environment.
 
 ### 1.3.14
 

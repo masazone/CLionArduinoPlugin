@@ -8,7 +8,7 @@
     <properties/>
     <border type="none"/>
     <children>
-      <grid id="dd8ca" layout-manager="GridLayoutManager" row-count="11" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+      <grid id="dd8ca" layout-manager="GridLayoutManager" row-count="12" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
@@ -110,12 +110,6 @@
               <text resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.baud.label"/>
             </properties>
           </component>
-          <component id="8127c" class="javax.swing.JComboBox" binding="myBaudRate" custom-create="true">
-            <constraints>
-              <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties/>
-          </component>
           <component id="2ac07" class="com.intellij.ui.TextFieldWithHistory" binding="myPort">
             <constraints>
               <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
@@ -210,6 +204,39 @@
             </constraints>
             <properties>
               <toolTipText resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="new-project.library-display-name.description"/>
+            </properties>
+          </component>
+          <grid id="18145" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="8127c" class="javax.swing.JComboBox" binding="myBaudRate" custom-create="true">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+              </component>
+              <component id="72336" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="4" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="new-project.baud-rate.messge.label"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <component id="433b7" class="com.intellij.ui.components.JBCheckBox" binding="myCommentOutUnusedSettings">
+            <constraints>
+              <grid row="11" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.new-project.comment-unused.label"/>
+              <toolTipText resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.new-project.comment-unused.description"/>
             </properties>
           </component>
         </children>
