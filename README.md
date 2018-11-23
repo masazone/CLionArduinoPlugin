@@ -84,9 +84,11 @@ interest. Then maybe someone else will pick up the torch at take it further.
         a block but naturally flows as you would expect, while hex view can be either a block or
         flow to match the text.
   * [ ] Display of ascii codes without resorting to hex display in text mode console.
+* [x] add CMake parser and builder to allow extracting and modifying CMake files
+      programmatically, after project creation
 * [ ] Add UI for changing existing CMakeLists.txt configuration
   * [ ] Change board, cpu, programmer, port, etc. All options which were available on project
-        creation.
+        creation and make sense to modify on existing project.
   * [ ] Load Additional Libraries from URLs
 * [ ] Refactoring support which CLion does not handle:
   * [ ] Add file to sources or headers (CLion cannot make sense of the Arduino project file)
