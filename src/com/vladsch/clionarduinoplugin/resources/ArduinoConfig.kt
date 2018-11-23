@@ -63,14 +63,14 @@ class ArduinoConfig(boardTxt: String?, programmersTxt: String?) {
     }
 
     companion object {
-        const val MENU_CPU = "menu.cpu"
-        const val PROCESSOR = "Processor"
+        private const val MENU_CPU = "menu.cpu"
+        private const val DEFAULT_CPU_MENU = "Processor"
 
         val boardsTxtString: String
-            get() = ResourceUtils.getResourceFileContent(ArduinoConfig::class.java, "config/boards.txt")
+            get() = ResourceUtils.getResourceFileContent(ArduinoConfig::class.java, "/com/vladsch/clionarduinoplugin/config/boards.txt")
 
         val programmersTxtString: String
-            get() = ResourceUtils.getResourceFileContent(ArduinoConfig::class.java, "config/programmers.txt")
+            get() = ResourceUtils.getResourceFileContent(ArduinoConfig::class.java, "/com/vladsch/clionarduinoplugin/config/programmers.txt")
 
         fun parseProgrammers(programmersText: String?): LinkedHashMap<String, Programmer> {
             val programmers = LinkedHashMap<String, Programmer>()
@@ -99,7 +99,7 @@ class ArduinoConfig(boardTxt: String?, programmersTxt: String?) {
 
         fun parseBoards(boardText: String?): Pair<LinkedHashMap<String, Board>, String> {
             val boards = LinkedHashMap<String, Board>()
-            var cpuMenu = PROCESSOR
+            var cpuMenu = DEFAULT_CPU_MENU
 
             if (boardText != null) {
                 val lines = boardText.split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()

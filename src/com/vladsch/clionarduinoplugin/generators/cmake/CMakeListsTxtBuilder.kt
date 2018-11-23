@@ -9,12 +9,12 @@ import com.vladsch.clionarduinoplugin.generators.cmake.commands.CMakeCommand
 import com.vladsch.clionarduinoplugin.generators.cmake.commands.CMakeCommandType
 import com.vladsch.clionarduinoplugin.generators.cmake.commands.CMakeElement
 import com.vladsch.clionarduinoplugin.generators.cmake.commands.CMakeText
+import com.vladsch.clionarduinoplugin.resources.TemplateResolver
 import com.vladsch.flexmark.ast.Node
 import com.vladsch.flexmark.util.options.DataHolder
 import com.vladsch.flexmark.util.sequence.BasedSequenceImpl
 import java.io.IOException
 import java.util.*
-import java.util.regex.Pattern
 
 /**
  * Class for creating, reading and modifying CMakeLists.txt files with specific flavour
@@ -662,66 +662,48 @@ abstract class CMakeListsTxtBuilder(commands: Array<CMakeCommandType>, anchors: 
 
         const val INF_MAX_ARGS = 1000
         @Suppress("MemberVisibilityCanBePrivate")
-        val COMMAND_REF = Pattern.compile("<\\$([a-zA-Z_$][a-zA-Z_0-9$]*)(?:\\[(\\d+)])?\\$>")!!
 
-        /**
-         * replace other commands' argument references in the given string
-         *
-         *
-         *
-         * <$COMMAND_NAME$> refers to variable arg 0 of command with name COMMAND_NAME or string mapped by COMMAND_NAME
-         * <$COMMAND_NAME[2]$> refers to variable arg 2 of command with name COMMAND_NAME
-         * <$COMMAND_NAME[]$> invalid, always empty result
-         * <$COMMAND_NAME[-1]$> first from from the end, ie. command.getArgCount() - 1
-         * <$COMMAND_NAME[-3]$> third from from the end, ie. command.getArgCount() - 3
-         *
-         *
-         * NOTE: if Value or Command is not found or index is invalid then it is the same as the value not being empty
-         *
-         *
-         * if command is not found or has less args then an empty value will be used
-         *
-         * @param arg      string with possible command references and variable value references
-         * @param valueSet map of names to values, if value is CMakeCommand then its argument value will be extracted, otherwise the argument value will be the String value of passed object
-         * @return string with variables replaced
-         */
+                /**
+                 * replace other commands' argument references in the given string
+                 *
+                 *
+                 *
+                 * <$COMMAND_NAME$> refers to variable arg 0 of command with name COMMAND_NAME or string mapped by COMMAND_NAME
+                 * <$COMMAND_NAME[2]$> refers to variable arg 2 of command with name COMMAND_NAME
+                 * <$COMMAND_NAME[]$> invalid, always empty result
+                 * <$COMMAND_NAME[-1]$> first from from the end, ie. command.getArgCount() - 1
+                 * <$COMMAND_NAME[-3]$> third from from the end, ie. command.getArgCount() - 3
+                 *
+                 *
+                 * NOTE: if Value or Command is not found or index is invalid then it is the same as the value not being empty
+                 *
+                 *
+                 * if command is not found or has less args then an empty value will be used
+                 *
+                 * @param arg      string with possible command references and variable value references
+                 * @param valueSet map of names to values, if value is CMakeCommand then its argument value will be extracted, otherwise the argument value will be the String value of passed object
+                 * @return string with variables replaced
+                 */
         fun replacedCommandParams(arg: String, valueSet: Map<String, Any>): String {
-            val matcher = COMMAND_REF.matcher(arg)
-            if (matcher.find()) {
-                val sb = StringBuffer()
-                do {
-                    val commandRef = matcher.group(1)
-                    val ref = valueSet[commandRef]
-                    var value: String? = ""
-
-                    if (ref != null) {
-                        if (ref is CMakeCommand) {
-                            val command = ref as CMakeCommand?
-                            var index = 0
-                            value = matcher.group(2)
-                            if (value != null) {
-                                index = try {
-                                    Integer.parseInt(value)
-                                } catch (ignored: NumberFormatException) {
-                                    command!!.argCount
-                                }
-                            }
-
-                            if (index < 0) index += command!!.argCount
-
-                            value = if (index >= 0 && index < command!!.argCount) command.getArg(index) else ""
-                        } else {
-                            value = ref.toString()
-                        }
+            val result = TemplateResolver.resolveRefs(arg, TemplateResolver.COMMAND_REF) { name, index ->
+                val ref = valueSet[name]
+                if (ref == null) null
+                else if (ref !is CMakeCommand) {
+                    ref.toString() + if (index == null) "" else "[$index]"
+                } else {
+                    val command = ref as? CMakeCommand
+                    var varIndex = try {
+                        if (index == null) 0 else Integer.parseInt(index ?: "")
+                    } catch (ignored: NumberFormatException) {
+                        command!!.argCount
                     }
 
-                    matcher.appendReplacement(sb, value)
-                } while (matcher.find())
+                    if (varIndex < 0) varIndex += command!!.argCount
 
-                matcher.appendTail(sb)
-                return sb.toString()
+                    if (varIndex >= 0 && varIndex < command!!.argCount) command.getArg(varIndex) else ""
+                }
             }
-            return arg
+            return result
         }
     }
 }

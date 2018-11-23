@@ -71,7 +71,7 @@ class ArduinoCMakeListsTxtBuilder : CMakeListsTxtBuilder {
         //
         val CMAKE_MINIMUM_REQUIRED = CMakeCommandType("CMAKE_MINIMUM_REQUIRED", "cmake_minimum_required", arrayOf("VERSION"), 1, 1)
         val LINK_DIRECTORIES = CMakeCommandType("LINK_DIRECTORIES", "link_directories", arrayOf(), 1, CMakeListsTxtBuilder.INF_MAX_ARGS, true, false, true)
-        val ADD_SUBDIRECTORY = CMakeCommandType("ADD_SUBDIRECTORY", "add_subdirectory", arrayOf(), 1, 3, false)
+        val ADD_SUBDIRECTORY = CMakeCommandType("ADD_SUBDIRECTORY", "add_subdirectory", arrayOf(), 1, 3, true, true, false)
         val PROJECT = CMakeCommandType("PROJECT", "project", arrayOf("\${CMAKE_PROJECT_NAME}"), 1, CMakeListsTxtBuilder.INF_MAX_ARGS, true, false, false)
         val SET = CMakeCommandType("SET", "set", arrayOf(), 1, CMakeListsTxtBuilder.INF_MAX_ARGS)
 
@@ -93,8 +93,8 @@ class ArduinoCMakeListsTxtBuilder : CMakeListsTxtBuilder {
         // @formatter:on
 
         // with variables that need to be provided
-        val SET_LIB_NAME_RECURSE = CMakeCommandType("SET_LIB_NAME_RECURSE", "set", arrayOf("<\$LIB_NAME$>_RECURSE"), 1, 1, false, false, true)
-        val SET_UPLOAD_SPEED = CMakeCommandType("SET_UPLOAD_SPEED", "set", arrayOf("<\$SET_BOARD$>.upload.speed"), 1, 1, false, false, true)
+        val SET_LIB_NAME_RECURSE = CMakeCommandType("SET_LIB_NAME_RECURSE", "set", arrayOf("<@LIB_NAME@>_RECURSE"), 1, 1, false, false, true)
+        val SET_UPLOAD_SPEED = CMakeCommandType("SET_UPLOAD_SPEED", "set", arrayOf("<@SET_BOARD@>.upload.speed"), 1, 1, false, false, true)
 
         val ourCommands = arrayOf(
                 CMAKE_MINIMUM_REQUIRED,
@@ -168,7 +168,7 @@ class ArduinoCMakeListsTxtBuilder : CMakeListsTxtBuilder {
         }
 
         fun getCMakeFileContent(template: String, projectName: String, mySettings: ArduinoApplicationSettings, myIsLibrary: Boolean, sourceFiles: Iterable<String>): String {
-            val command: CMakeCommand?
+            var command: CMakeCommand?
             val builder = ArduinoCMakeListsTxtBuilder(template, OPTIONS)
             val isStaticLib = myIsLibrary && "static" == mySettings.libraryType
 
@@ -199,11 +199,14 @@ class ArduinoCMakeListsTxtBuilder : CMakeListsTxtBuilder {
             builder.setOrAddCommand(SET_SRCS, cppFiles).commentOut(cppFiles.isEmpty())
             builder.setOrAddCommand(SET_HDRS, hFiles).commentOut(hFiles.isEmpty())
 
-            // TODO: implement
-            // builder.addCommand("SET_LIBS", libFiles).commentOut(libFiles.isEmpty());
-
             builder.setOrAddCommand(SET_SKETCH, projectName + Strings.DOT_INO_EXT)
                     .commentOut(sketchFile == null)
+
+            // TODO: implement
+            command = builder.getCommand(ADD_SUBDIRECTORY);
+            if (command == null || command.argCount == 0) {
+                builder.setOrAddCommand(ADD_SUBDIRECTORY).commentOut(true);
+            }
 
             builder.setOrAddCommand(LINK_DIRECTORIES, "\${CMAKE_CURRENT_SOURCE_DIR}/" + mySettings.libraryDirectory)
                     .commentOut(!mySettings.isAddLibraryDirectory || mySettings.libraryDirectory.isEmpty())

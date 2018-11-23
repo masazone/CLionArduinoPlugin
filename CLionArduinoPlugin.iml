@@ -15,7 +15,7 @@
     <orderEntry type="library" name="jssc" level="project" />
     <orderEntry type="library" name="flexmark-util" level="project" />
     <orderEntry type="library" scope="TEST" name="junit" level="project" />
-    <orderEntry type="library" name="kotlin-reflect" level="project" />
+    <orderEntry type="library" name="Kotlin" level="project" />
     <orderEntry type="module-library" scope="TEST">
       <library name="JUnit4">
         <CLASSES>
