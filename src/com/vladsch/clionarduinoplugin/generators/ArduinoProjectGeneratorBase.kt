@@ -34,11 +34,14 @@ import com.jetbrains.cidr.cpp.cmake.workspace.CMakeWorkspace
 import com.jetbrains.cidr.cpp.cmake.workspace.CMakeWorkspaceListener
 import com.vladsch.clionarduinoplugin.Bundle
 import com.vladsch.clionarduinoplugin.components.ArduinoApplicationSettings
+import com.vladsch.clionarduinoplugin.generators.cmake.ArduinoCMakeListsTxtBuilder
 import com.vladsch.clionarduinoplugin.resources.ArduinoToolchainFiles
 import com.vladsch.clionarduinoplugin.resources.Strings
+import com.vladsch.clionarduinoplugin.resources.TemplateResolver
 import com.vladsch.clionarduinoplugin.settings.NewProjectSettingsForm
 import com.vladsch.clionarduinoplugin.util.ApplicationSettingsListener
-import com.vladsch.clionarduinoplugin.util.Utils
+import com.vladsch.clionarduinoplugin.util.StudiedWord
+import com.vladsch.clionarduinoplugin.util.helpers.plus
 import icons.PluginIcons
 import org.jetbrains.annotations.Nls
 import java.awt.BorderLayout
@@ -69,10 +72,6 @@ abstract class ArduinoProjectGeneratorBase(protected val myIsLibrary: Boolean) :
         return PluginIcons.arduino_logo
     }
 
-    override fun getCMakeFileContent(projectName: String): String {
-        return ""
-    }
-
     override fun getLanguageVersion(): String {
         return mySettings.languageVersion
     }
@@ -93,149 +92,59 @@ abstract class ArduinoProjectGeneratorBase(protected val myIsLibrary: Boolean) :
         return ArduinoApplicationSettings.LANGUAGE_VERSIONS
     }
 
-    protected fun getCMakeFileContent(projectName: String, sourceFiles: Array<VirtualFile>): String {
-        val sb = LineStringBuilder("# ")
-        val isStaticLib = myIsLibrary && "static" == mySettings.libraryType
-
-        val boardId = Utils.ifNullOrEmpty(mySettings.boardId, "uno")
-
-        sb.appendln("cmake_minimum_required(VERSION 2.8.4)")
-        sb.appendln("set(CMAKE_TOOLCHAIN_FILE \${CMAKE_SOURCE_DIR}/cmake/ArduinoToolchain.cmake)")
-        val languageVersion = CppLanguageVersions.fromDisplayString(languageVersion)
-        if (!languageVersion.isEmpty()) {
-            sb.appendln("set(CMAKE_CXX_STANDARD $languageVersion)")
-        }
-        sb.line()
-
-        sb.appendln("set(PROJECT_NAME $projectName)")
-
-        sb.appendln("set(\${CMAKE_PROJECT_NAME}_BOARD $boardId)")
-        val cpu = mySettings.cpuId
-        sb.prefixNullOrEmpty(cpu).appendln("set(ARDUINO_CPU " + Utils.ifNullOrEmpty(cpu, "8MHzatmega328") + ")")
-        sb.appendln("project(\${PROJECT_NAME})")
-        sb.line()
-
-        sb.appendln("# Define the source code for cpp files or default arduino sketch files")
-        val cppFiles = StringBuilder()
-        val hFiles = StringBuilder()
-        val sep = ""
-        var sketchFile: String? = null
-
-        for (file in sourceFiles) {
-            val ext = file.extension
-            if (ext != null) {
-                if (ext.equals("c", ignoreCase = true) || ext.equals(Strings.CPP_EXT, ignoreCase = true)) {
-                    cppFiles.append(" ").append(file.name)
-                } else if (ext.equals("hpp", ignoreCase = true) || ext.equals(Strings.H_EXT, ignoreCase = true)) {
-                    hFiles.append(" ").append(file.name)
-                } else if (ext.equals(Strings.INO_EXT, ignoreCase = true) || ext.equals(Strings.PDE_EXT, ignoreCase = true)) {
-                    sketchFile = file.name
-                }
-            }
-        }
-
-        if (cppFiles.isNotEmpty()) {
-            sb.appendln("set(\${PROJECT_NAME}_SRCS " + cppFiles.toString() + ")")
-        } else {
-            sb.appendln("# set(\${PROJECT_NAME}_SRCS " + projectName + Strings.DOT_CPP_EXT + ")")
-        }
-
-        if (hFiles.isNotEmpty()) {
-            sb.appendln("set(\${PROJECT_NAME}_HDRS " + hFiles.toString() + ")")
-        }
-
-        sb.appendln("### Additional static libraries to include in the target.")
-        sb.appendln("# set(\${CMAKE_PROJECT_NAME}_LIBS lib_name)")
-        sb.line()
-
-        if (sketchFile != null) {
-            sb.appendln("set(\${CMAKE_PROJECT_NAME}_SKETCH $sketchFile)")
-        } else {
-            sb.appendln("# set(\${CMAKE_PROJECT_NAME}_SKETCH " + projectName + Strings.DOT_INO_EXT + ")")
-        }
-
-        sb.line()
-
-        if (mySettings.isAddLibraryDirectory && !mySettings.libraryDirectory.isEmpty()) {
-            sb.appendln("### Additional settings to add non-standard or your own Arduino libraries.")
-            sb.appendln("# An Arduino library my_lib will contain files in " + mySettings.libraryDirectory + "/my_lib/: my_lib.h, my_lib.cpp + any other cpp files")
-            sb.appendln("link_directories(\${CMAKE_CURRENT_SOURCE_DIR}/" + mySettings.libraryDirectory + ")")
-            sb.line()
-        } else {
-            sb.appendln("### Additional settings to add non-standard or your own Arduino libraries.")
-            sb.appendln("# For this example (libs will contain additional arduino libraries)")
-            sb.appendln("# An Arduino library my_lib will contain files in libs/my_lib/: my_lib.h, my_lib.cpp + any other cpp files")
-            sb.prefix().appendln("link_directories(\${CMAKE_CURRENT_SOURCE_DIR}/libs)")
-            sb.line()
-        }
-
-        if (!myIsLibrary) {
-
-            if (sketchFile != null) {
-                sb.appendln("# For nested library sources replace \${LIB_NAME} with library name for each library")
-                sb.prefix().appendln("set(\${LIB_NAME}_RECURSE true)")
-                sb.line()
-            }
-        }
-
-        sb.appendln("#### Additional settings for programmer. From programmers.txt")
-        val programmer = mySettings.programmerId
-        sb.prefix(programmer).appendln("set(\${CMAKE_PROJECT_NAME}_PROGRAMMER " + Utils.ifNullOrEmpty(programmer, "avrispmkii") + ")")
-        sb.prefixNullOrEmpty(mySettings.port).appendln("set(\${CMAKE_PROJECT_NAME}_PORT " + Utils.ifNullOrEmpty(mySettings.port, "/dev/cu.usbserial-00000000") + ")")
-        if (mySettings.baudRate > 0) {
-            sb.prefix().appendln(String.format("set(%s.upload.speed %s)", boardId, Utils.ifNullOrEmpty(mySettings.baudRateText, "9600")))
-        } else {
-            sb.prefix().appendln("set(pro.upload.speed 9600)")
-        }
-        sb.line()
-        sb.appendln("## Verbose build process")
-        sb.prefix(!mySettings.isVerbose).appendln("set(\${CMAKE_PROJECT_NAME}_AFLAGS -v)")
-        sb.line()
-
-        if (isStaticLib) {
-            sb.appendln("generate_arduino_library(\${CMAKE_PROJECT_NAME})")
-        } else {
-            sb.appendln("generate_arduino_firmware(\${CMAKE_PROJECT_NAME})")
-        }
-        return sb.toString()
+    // not used
+    override fun getCMakeFileContent(projectName: String): String {
+        return ""
     }
+
+    // not used
+    override fun createSourceFiles(p0: String, p1: VirtualFile): Array<VirtualFile> {
+        return arrayOf()
+    }
+
+    abstract val templateType: String
+    abstract fun templateVars(name: String, pascalName: String, camelName: String, snakeName: String): Map<String, String>
 
     @Throws(IOException::class)
-    abstract override fun createSourceFiles(name: String, dir: VirtualFile): Array<VirtualFile>
+    private fun createFiles(projectName: String, rootDir: VirtualFile): CreatedFilesHolder {
+        val name = FileUtil.sanitizeFileName(projectName)
+        val word = StudiedWord(name, StudiedWord.DOT or StudiedWord.DASH or StudiedWord.UNDER)
+        val snakeName = word.makeSnakeCase()
+        val camelName = word.makeProperCamelCase()
+        val pascalName = word.makePascalCase()
+        val templateVars = mutableMapOf(
+                "PROJECT_NAME" to snakeName.toUpperCase(),
+                "project_name" to snakeName.toLowerCase(),
+                "ProjectName" to pascalName,
+                "projectName" to camelName
+        )
 
-    override fun validate(baseDirPath: String): ValidationResult {
-        if (StringUtil.isEmptyOrSpaces(baseDirPath)) {
-            return ValidationResult("Enter project location")
+        templateVars.putAll(
+                templateVars(name, pascalName, camelName, snakeName).toMutableMap()
+        )
+
+        val templates = TemplateResolver.getTemplates(templateType)
+        val resolvedTemplates = TemplateResolver.resolveTemplates(templates, templateVars)
+
+        val sourceFiles = resolvedTemplates.map { (name, content) ->
+            if (name != Strings.CMAKE_LISTS_FILENAME) createProjectFileWithContent(rootDir, name, content) else null
+        }.filterNotNull().toTypedArray()
+
+        val cMakeFileTemplate = resolvedTemplates[Strings.CMAKE_LISTS_FILENAME] ?: ""
+
+        val projectDir = File(rootDir.path)
+        val fileList = sourceFiles.map { File(it.path).relativeTo(projectDir).path }
+        val cMakeFileContent = ArduinoCMakeListsTxtBuilder.getCMakeFileContent(cMakeFileTemplate, name, mySettings, myIsLibrary, fileList)
+        val cMakeFile = createProjectFileWithContent(rootDir, Strings.CMAKE_LISTS_FILENAME, cMakeFileContent)
+
+        val extraFiles = ArduinoToolchainFiles.copyToDirectory(VfsUtil.findFileByIoFile(VfsUtilCore.virtualToIoFile(rootDir), false))
+        if (mySettings.isAddLibraryDirectory) {
+            val libDir = File(rootDir.path) + mySettings.libraryDirectory
+            if (!libDir.exists() && libDir.canonicalPath != rootDir.canonicalPath) {
+                libDir.mkdirs()
+            }
         }
-        val baseDir = File(baseDirPath)
-        if (!baseDir.isAbsolute) {
-            return ValidationResult("Project location path should be absolute")
-        } else if (baseDir.exists() && !baseDir.canWrite()) {
-            return ValidationResult(String.format("Directory '%s' is not writable.\nPlease choose another directory.", baseDirPath))
-        } else {
-            // validate other fields, but only if the location text field was found so we can trigger another validation
-            if (mySettings.boardId.isEmpty()) {
-                return filterFailure(ValidationResult(Bundle.message("new-project.no-board")))
-            }
-
-            if (mySettings.getBoardCpuNames(mySettings.boardName).isNotEmpty() && mySettings.cpuId.isEmpty()) {
-                return filterFailure(ValidationResult(Bundle.message("new-project.1.no-cpu", mySettings.cpuLabel, mySettings.boardName)))
-            }
-
-            if (mySettings.isAddLibraryDirectory) {
-                if (mySettings.libraryDirectory.startsWith("/")) {
-                    return filterFailure(ValidationResult(String.format("Library sub-directory '%s' must be relative to project path.", mySettings.libraryDirectory)))
-                }
-            }
-        }
-        return super.validate(baseDirPath)
-        //return ValidationResult.OK;
-    }
-
-    private fun filterFailure(result: ValidationResult): ValidationResult {
-        val canFail = fireValidationFailed()
-        return if (canFail) result else ValidationResult.OK
-        // here we have a problem, we'll use defaults and hope for the best
+        return CreatedFilesHolder(cMakeFile, sourceFiles, extraFiles)
     }
 
     override fun generateProject(project: Project, baseDir: VirtualFile, settings: CMakeProjectSettings, module: Module) {
@@ -261,6 +170,45 @@ abstract class ArduinoProjectGeneratorBase(protected val myIsLibrary: Boolean) :
 
         val busConnection = project.messageBus.connect()
         busConnection.subscribe(CMakeWorkspaceListener.TOPIC, MyCMakeWorkspaceListener(busConnection, workspace))
+    }
+
+    override fun formatSourceFilesAsCpp(): Boolean {
+        return false
+    }
+
+    override fun validate(baseDirPath: String): ValidationResult {
+        if (StringUtil.isEmptyOrSpaces(baseDirPath)) {
+            return ValidationResult("Enter project location")
+        }
+        val baseDir = File(baseDirPath)
+        if (!baseDir.isAbsolute) {
+            return ValidationResult("Project location path should be absolute")
+        } else if (baseDir.exists() && !baseDir.canWrite()) {
+            return ValidationResult(String.format("Directory '%s' is not writable.\nPlease choose another directory.", baseDirPath))
+        } else {
+            // validate other fields, but only if the location text field was found so we can trigger another validation
+            if (mySettings.boardId.isEmpty()) {
+                return filterFailure(ValidationResult(Bundle.message("new-project.no-board")))
+            }
+
+            if (mySettings.getBoardCpuNames(mySettings.boardName).isNotEmpty() && mySettings.cpuId.isEmpty()) {
+                return filterFailure(ValidationResult(Bundle.message("new-project.1.no-cpu", mySettings.cpuLabel, mySettings.boardName)))
+            }
+
+            if (mySettings.isAddLibraryDirectory) {
+                if (File(mySettings.libraryDirectory).isAbsolute) {
+                    return filterFailure(ValidationResult(String.format("Library sub-directory '%s' must be relative to project path.", mySettings.libraryDirectory)))
+                }
+            }
+        }
+        return super.validate(baseDirPath)
+        //return ValidationResult.OK;
+    }
+
+    private fun filterFailure(result: ValidationResult): ValidationResult {
+        val canFail = fireValidationFailed()
+        return if (canFail) result else ValidationResult.OK
+        // here we have a problem, we'll use defaults and hope for the best
     }
 
     private class MyCMakeWorkspaceListener(private val myBusConnection: MessageBusConnection, private val myWorkspace: CMakeWorkspace) : CMakeWorkspaceListener {
@@ -411,32 +359,6 @@ abstract class ArduinoProjectGeneratorBase(protected val myIsLibrary: Boolean) :
 
         override fun dispose() {
         }
-    }
-
-    @Throws(IOException::class)
-    protected fun createFiles(projectName: String, rootDir: VirtualFile): CreatedFilesHolder {
-        val sanitizedName = FileUtil.sanitizeFileName(projectName)
-        val sourceFiles = createSourceFiles(sanitizedName, rootDir)
-
-        val cMakeFile = createCMakeFile(sanitizedName, rootDir, sourceFiles)
-
-        val extraFiles = ArduinoToolchainFiles.copyToDirectory(VfsUtil.findFileByIoFile(VfsUtilCore.virtualToIoFile(rootDir), false))
-        if (mySettings.isAddLibraryDirectory) {
-            val libDir = File(rootDir.path + "/" + mySettings.libraryDirectory)
-            if (!libDir.exists() && libDir.canonicalPath != rootDir.canonicalPath) {
-                libDir.mkdirs()
-            }
-        }
-        return CreatedFilesHolder(cMakeFile, sourceFiles, extraFiles)
-    }
-
-    @Throws(IOException::class)
-    protected fun createCMakeFile(name: String, dir: VirtualFile, sourceFiles: Array<VirtualFile>): VirtualFile {
-        return createProjectFileWithContent(dir, "CMakeLists.txt", getCMakeFileContent(name, sourceFiles))
-    }
-
-    override fun formatSourceFilesAsCpp(): Boolean {
-        return false
     }
 
     protected class CreatedFilesHolder constructor(val cMakeFile: VirtualFile, val sourceFiles: Array<VirtualFile>, val extraFiles: Array<VirtualFile>)

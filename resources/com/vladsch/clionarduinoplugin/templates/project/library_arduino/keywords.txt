@@ -1,5 +1,5 @@
 #######################################
-# Syntax Coloring Map For <@LIBRARY_NAME@>
+# Syntax Coloring Map For <@LIBRARY_DISPLAY_NAME@>
 #######################################
 
 #######################################

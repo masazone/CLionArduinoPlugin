@@ -66,6 +66,7 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
     private @NotNull String port = "";
     private int baudRate = 0;
     private @NotNull String libraryCategory = "";
+    private @NotNull String libraryDisplayName = "";
     private @NotNull String authorName = "";
     private @NotNull String authorEMail = "";
     private boolean verbose = false;
@@ -88,7 +89,7 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
     @NotNull
     @Override
     public String getLanguageVersionLineForCMake() {
-        return CppLanguageVersions.fromDisplayString(languageVersion);
+        return CppLanguageVersions.fromDisplayString(languageVersion).trim();
     }
 
     public void setLanguageVersion(@NotNull String languageVersion) {
@@ -107,6 +108,14 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
     @NotNull
     public String getLibraryType() {
         return libraryType;
+    }
+
+    public String getLibraryDisplayName() {
+        return libraryDisplayName;
+    }
+
+    public void setLibraryDisplayName(final String libraryDisplayName) {
+        this.libraryDisplayName = libraryDisplayName;
     }
 
     @NotNull
@@ -540,5 +549,13 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
     @Override
     public void loadState(@NotNull ArduinoApplicationSettings state) {
         XmlSerializerUtil.copyBean(state, this);
+    }
+
+    public boolean isStaticLibraryType() {
+        return STATIC_LIB_TYPE.equals(libraryType);
+    }
+
+    public boolean isArduinoLibraryType() {
+        return ARDUINO_LIB_TYPE.equals(libraryType);
     }
 }

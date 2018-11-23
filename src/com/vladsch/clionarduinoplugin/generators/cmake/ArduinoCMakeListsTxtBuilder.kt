@@ -6,7 +6,6 @@ import com.vladsch.clionarduinoplugin.generators.cmake.commands.CMakeCommand
 import com.vladsch.clionarduinoplugin.generators.cmake.commands.CMakeCommandType
 import com.vladsch.clionarduinoplugin.resources.Strings
 import com.vladsch.flexmark.util.options.DataHolder
-import com.vladsch.flexmark.util.options.MutableDataSet
 import java.io.File
 
 /**
@@ -81,7 +80,8 @@ class ArduinoCMakeListsTxtBuilder : CMakeListsTxtBuilder {
         // @formatter:off
         val SET_CMAKE_TOOLCHAIN_FILE = CMakeCommandType("SET_CMAKE_TOOLCHAIN_FILE", "set", arrayOf("CMAKE_TOOLCHAIN_FILE"), 1, 1, false, false, true, arrayOf("\${CMAKE_SOURCE_DIR}/cmake/ArduinoToolchain.cmake"))
         val SET_CMAKE_CXX_STANDARD = CMakeCommandType("SET_CMAKE_CXX_STANDARD", "set", arrayOf("CMAKE_CXX_STANDARD"), 1, 1, false, false, true)
-        val SET_PROJECT_NAME = CMakeCommandType("SET_PROJECT_NAME", "set", arrayOf("PROJECT_NAME"), 2, 2, false, false, true)
+        val SET_PROJECT_NAME = CMakeCommandType("SET_PROJECT_NAME", "set", arrayOf("PROJECT_NAME"), 1, 1, false, false, true)
+        val SET_CMAKE_PROJECT_NAME = CMakeCommandType("SET_CMAKE_PROJECT_NAME", "set", arrayOf("CMAKE_PROJECT_NAME"), 1, 1, false, false, true)
         val SET_BOARD = CMakeCommandType("SET_BOARD", "set", arrayOf("\${CMAKE_PROJECT_NAME}_BOARD"), 1, 1, false, false, true)
         val SET_CPU = CMakeCommandType("SET_CPU", "set", arrayOf("ARDUINO_CPU"), 1, 1, false, false, true)
         val SET_SKETCH = CMakeCommandType("SET_SKETCH", "set", arrayOf("\${CMAKE_PROJECT_NAME}_SKETCH"), 1, 1, false, false, true)
@@ -108,6 +108,7 @@ class ArduinoCMakeListsTxtBuilder : CMakeListsTxtBuilder {
                 SET_CMAKE_TOOLCHAIN_FILE,
                 SET_CMAKE_CXX_STANDARD,
                 SET_PROJECT_NAME,
+                SET_CMAKE_PROJECT_NAME,
                 SET_BOARD,
                 SET_CPU,
                 SET_SKETCH,
@@ -124,6 +125,7 @@ class ArduinoCMakeListsTxtBuilder : CMakeListsTxtBuilder {
                 CMakeCommandAnchor.first(CMAKE_MINIMUM_REQUIRED),
                 CMakeCommandAnchor.first(SET_CMAKE_TOOLCHAIN_FILE),
                 CMakeCommandAnchor.first(SET_CMAKE_CXX_STANDARD),
+                CMakeCommandAnchor.first(SET_CMAKE_PROJECT_NAME),
 
                 CMakeCommandAnchor.before(PROJECT, SET_PROJECT_NAME),
                 CMakeCommandAnchor.before(PROJECT, SET_BOARD),
@@ -144,18 +146,10 @@ class ArduinoCMakeListsTxtBuilder : CMakeListsTxtBuilder {
                 CMakeCommandAnchor.last(GENERATE_ARDUINO_LIBRARY)
         )
 
-        private val OPTIONS = MutableDataSet()
-                .set(CMakeParser.AUTO_CONFIG, true)
-                .set(CMakeParser.AST_LINE_END_EOL, true)
-                .set(CMakeParser.AST_COMMENTS, true)
-                .set(CMakeParser.AST_BLANK_LINES, true)
-                .set(CMakeParser.AST_ARGUMENT_SEPARATORS, true)
-
         private val String.extension: String
             get() {
                 val pos = lastIndexOf('.')
-                if (pos > 0) substring(pos + 1)
-                return "";
+                return if (pos > 0) substring(pos + 1) else "";
             }
 
         private val String.name: String
@@ -167,16 +161,18 @@ class ArduinoCMakeListsTxtBuilder : CMakeListsTxtBuilder {
             return if (isEmpty()) defValue else this;
         }
 
-        fun getCMakeFileContent(template: String, projectName: String, mySettings: ArduinoApplicationSettings, myIsLibrary: Boolean, sourceFiles: Iterable<String>): String {
+        // sourceFiles are paths relative to project directory
+        fun getCMakeFileContent(template: String, projectName: String, mySettings: ArduinoApplicationSettings, myIsLibrary: Boolean, sourceFiles: List<String>): String {
             var command: CMakeCommand?
-            val builder = ArduinoCMakeListsTxtBuilder(template, OPTIONS)
-            val isStaticLib = myIsLibrary && "static" == mySettings.libraryType
+            val builder = ArduinoCMakeListsTxtBuilder(template, null) // use default options
+            val isStaticLib = myIsLibrary && mySettings.isStaticLibraryType
 
             builder.isWantCommentedOut = true
 
             builder.setOrAddCommand(CMAKE_MINIMUM_REQUIRED, "2.8.4")
             builder.setOrAddCommand(SET_CMAKE_TOOLCHAIN_FILE, "\${CMAKE_SOURCE_DIR}/cmake/ArduinoToolchain.cmake")
             builder.setOrAddCommand(SET_CMAKE_CXX_STANDARD, mySettings.languageVersionLineForCMake).commentOut(mySettings.languageVersion.isEmpty())
+            builder.setOrAddCommand(SET_CMAKE_PROJECT_NAME, projectName)
 
             // not needed, we remove it
             command = builder.getCommand(SET_PROJECT_NAME)
@@ -191,16 +187,14 @@ class ArduinoCMakeListsTxtBuilder : CMakeListsTxtBuilder {
 
             builder.setOrAddCommand(PROJECT).clearArgs()
 
-            val fileNames = sourceFiles.toList().map { it.name }
-            val cppFiles = fileNames.filter { it.extension.matches("(?i:c|cpp|cxx)".toRegex()) }
-            val hFiles = fileNames.filter { it.extension.matches("(?i:h|hpp|hxx)".toRegex()) }
-            val sketchFile = fileNames.findLast { it.extension.matches("(?i:${Strings.PDE_EXT}|${Strings.INO_EXT})".toRegex()) }
+            val cppFiles = sourceFiles.filter { it.extension.matches("(?i:cpp|cxx|c)".toRegex()) }
+            val hFiles = sourceFiles.filter { it.extension.matches("(?i:hpp|hxx|h)".toRegex()) }
+            val sketchFile = sourceFiles.findLast { it.extension.matches("(?i:${Strings.PDE_EXT}|${Strings.INO_EXT})".toRegex()) }
 
             builder.setOrAddCommand(SET_SRCS, cppFiles).commentOut(cppFiles.isEmpty())
             builder.setOrAddCommand(SET_HDRS, hFiles).commentOut(hFiles.isEmpty())
 
-            builder.setOrAddCommand(SET_SKETCH, projectName + Strings.DOT_INO_EXT)
-                    .commentOut(sketchFile == null)
+            builder.setOrAddCommand(SET_SKETCH, sketchFile ?: projectName + Strings.DOT_INO_EXT).commentOut(sketchFile == null)
 
             // TODO: implement
             command = builder.getCommand(ADD_SUBDIRECTORY);

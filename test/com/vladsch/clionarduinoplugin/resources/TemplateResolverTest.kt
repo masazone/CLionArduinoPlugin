@@ -82,13 +82,43 @@ class TemplateResolverTest {
     @Test
     fun test_variables() {
         val files = TemplateResolver.getTemplates("project/sketchsubdir")
-        val values = mapOf("LIBRARY_NAME" to "libName")
+        val values = mapOf("library_name" to "lib_name", "LIBRARY_NAME" to "LIB_NAME", "libraryName" to "libName", "LibraryName" to "LibName")
         val templates = TemplateResolver.resolveTemplates(files, values)
 
         compareFiles(mapOf(
-                "sub/libName.cpp" to LIBRARY_CPP_CONTENT.replace("<@LIBRARY_NAME@>","libName"),
-                "sub/libName.h" to LIBRARY_H_CONTENT.replace("<@LIBRARY_NAME@>","libName"),
+                "sub/lib_name.cpp" to LIBRARY_CPP_CONTENT.replace("<@library_name@>","lib_name").replace("<@LIBRARY_NAME@>","LIB_NAME").replace("<@LibraryName@>","LibName"),
+                "sub/lib_name.h" to LIBRARY_H_CONTENT.replace("<@library_name@>","lib_name").replace("<@LIBRARY_NAME@>","LIB_NAME").replace("<@LibraryName@>","LibName"),
                 USER_SETUP_H_FILE to USER_SETUP_H_CONTENT.replace("<@PROJECT_NAME@>",""),
+//                PROJECT_NAME_INO_FILE to PROJECT_NAME_INO_CONTENT,
+                CMAKELISTS_TXT_FILE to CMAKELISTS_TXT_CONTENT.replace("<@SET_BOARD@>","")
+        ), templates)
+    }
+
+    @Test
+    fun test_variables_arduino_library() {
+        val files = TemplateResolver.getTemplates("project/library_arduino")
+        val values = mapOf("library_name" to "lib_name", "LIBRARY_NAME" to "LIB_NAME", "libraryName" to "libName", "LibraryName" to "LibName", "PROJECT_NAME" to "LIB_NAME",
+                "LIBRARY_DISPLAY_NAME" to "Library Name", "USER_NAME" to "Author Name", "E_MAIL" to "email@email.com", "LIBRARY_CATEGORY" to "Library Category"
+        )
+        val templates = TemplateResolver.resolveTemplates(files, values)
+
+        compareFiles(mapOf(
+                "lib_name.cpp" to LIBRARY_CPP_CONTENT.replace("<@library_name@>","lib_name").replace("<@LIBRARY_NAME@>","LIB_NAME").replace("<@LibraryName@>","LibName"),
+                "lib_name.h" to LIBRARY_H_CONTENT.replace("<@library_name@>","lib_name").replace("<@LIBRARY_NAME@>","LIB_NAME").replace("<@LibraryName@>","LibName"),
+                "lib_name_test.cpp" to LIBRARY_NAME_TEST_INO_CONTENT.replace("<@library_name@>","lib_name").replace("<@LIBRARY_NAME@>","LIB_NAME").replace("<@LibraryName@>","LibName")
+                        .replace("<@DELETE_IF_BLANK[lib_name]@>",""),
+                USER_SETUP_H_FILE to USER_SETUP_H_CONTENT,
+                KEYWORDS_TXT_FILE to KEYWORDS_TXT_CONTENT.replace("<@library_name@>","lib_name")
+                        .replace("<@LIBRARY_DISPLAY_NAME@>", "Library Name")
+                        .replace("<@LIBRARY_NAME@>","LIB_NAME")
+                        .replace("<@LibraryName@>","LibName"),
+                LIBRARY_PROPERTIES_FILE to LIBRARY_PROPERTIES_CONTENT
+                        .replace("<@LIBRARY_DISPLAY_NAME@>", "Library Name")
+                        .replace("<@USER_NAME@>", "Author Name")
+                        .replace("<@LIBRARY_CATEGORY@>", "Library Category")
+                        .replace("<@E_MAIL@>", "email@email.com"),
+                CMAKELISTS_TXT_FILE to CMAKELISTS_TXT_CONTENT,
+                USER_SETUP_H_FILE to USER_SETUP_H_CONTENT.replace("<@PROJECT_NAME@>","LIB_NAME"),
 //                PROJECT_NAME_INO_FILE to PROJECT_NAME_INO_CONTENT,
                 CMAKELISTS_TXT_FILE to CMAKELISTS_TXT_CONTENT.replace("<@SET_BOARD@>","")
         ), templates)
@@ -97,22 +127,22 @@ class TemplateResolverTest {
     @Test
     fun test_variablesDirective() {
         val files = TemplateResolver.getTemplates("project/sketchsubdir")
-        val values = mapOf("PROJECT_NAME" to "projectName")
+        val values = mapOf("PROJECT_NAME" to "PROJECT_NAME", "project_name" to "project_name")
         val templates = TemplateResolver.resolveTemplates(files, values)
 
         compareFiles(mapOf(
 //                "sub/libName.cpp" to LIBRARY_CPP_CONTENT.replace("<@LIBRARY_NAME@>",""),
 //                "sub/libName.h" to LIBRARY_H_CONTENT.replace("<@LIBRARY_NAME@>",""),
-                USER_SETUP_H_FILE to USER_SETUP_H_CONTENT.replace("<@PROJECT_NAME@>","projectName"),
-                "projectName.ino" to PROJECT_NAME_INO_CONTENT.replace("#include \"<@LIBRARY_NAME@>.h\"  // <@DELETE_IF_BLANK[<@LIBRARY_NAME@>]@>\n",""),
+                USER_SETUP_H_FILE to USER_SETUP_H_CONTENT.replace("<@PROJECT_NAME@>","PROJECT_NAME"),
+                "project_name.ino" to PROJECT_NAME_INO_CONTENT.replace("#include \"<@library_name@>.h\"<@DELETE_IF_BLANK[<@library_name@>]@>\n",""),
                 CMAKELISTS_TXT_FILE to CMAKELISTS_TXT_CONTENT.replace("<@SET_BOARD@>","")
         ), templates)
     }
 
-    val SKETCH_FILE = "@SKETCH_NAME@.ino"
+    val SKETCH_FILE = "@sketch_name@.ino"
     val SKETCH_CONTENT = """#include <Arduino.h>
 #include "User_Setup.h"
-#include "<@LIBRARY_NAME@>.h"  // <@DELETE_IF_BLANK[<@LIBRARY_NAME@>]@>
+#include "<@library_name@>.h"<@DELETE_IF_BLANK[<@library_name@>]@>
 
 void setup() {
 
@@ -122,29 +152,29 @@ void loop() {
 
 }
 """
-    val LIBRARY_NAME_TEST_INO_FILE = "@LIBRARY_NAME@_test.ino"
+    val LIBRARY_NAME_TEST_INO_FILE = "@library_name@_test.cpp"
     val LIBRARY_NAME_TEST_INO_CONTENT = SKETCH_CONTENT
 
-    val PROJECT_NAME_INO_FILE = "@PROJECT_NAME@.ino"
+    val PROJECT_NAME_INO_FILE = "@project_name@.ino"
     val PROJECT_NAME_INO_CONTENT = SKETCH_CONTENT
 
-    val LIBRARY_CPP_FILE = "@LIBRARY_NAME@.cpp"
-    val SUB_LIBRARY_CPP_FILE = "sub/@LIBRARY_NAME@.cpp"
-    val LIBRARY_CPP_CONTENT = """#include "<@LIBRARY_NAME@>.h"
+    val LIBRARY_CPP_FILE = "@library_name@.cpp"
+    val SUB_LIBRARY_CPP_FILE = "sub/@library_name@.cpp"
+    val LIBRARY_CPP_CONTENT = """#include "<@library_name@>.h"
+"""
 
-class <@LIBRARY_NAME@> {
+    val LIBRARY_H_FILE = "@library_name@.h"
+    val SUB_LIBRARY_H_FILE = "sub/@library_name@.h"
+    val LIBRARY_H_CONTENT = """#ifdef _<@LIBRARY_NAME@>_H_
+#define _<@LIBRARY_NAME@>_H_
+
+class <@LibraryName@> {
 
 public:
 
 }
-"""
 
-    val LIBRARY_H_FILE = "@LIBRARY_NAME@.h"
-    val SUB_LIBRARY_H_FILE = "sub/@LIBRARY_NAME@.h"
-    val LIBRARY_H_CONTENT = """#ifdef _<LIBRARY_NAME>_H_
-#define _<LIBRARY_NAME>_H_
-
-#endif //_<LIBRARY_NAME>_H_
+#endif //_<@LIBRARY_NAME@>_H_
 """
 
     val USER_SETUP_H_FILE = "User_Setup.h"
@@ -155,7 +185,7 @@ public:
 """
 
     val LIBRARY_PROPERTIES_FILE = "library.properties"
-    val LIBRARY_PROPERTIES_CONTENT = """name=<@LIBRARY_NAME@>
+    val LIBRARY_PROPERTIES_CONTENT = """name=<@LIBRARY_DISPLAY_NAME@>
 version=0.0.0
 author=<@USER_NAME@>
 maintainer=<@USER_NAME@> <@E_MAIL@>
@@ -168,7 +198,7 @@ architectures=*
 
     val KEYWORDS_TXT_FILE = "keywords.txt"
     val KEYWORDS_TXT_CONTENT = """#######################################
-# Syntax Coloring Map For <@LIBRARY_NAME@>
+# Syntax Coloring Map For <@LIBRARY_DISPLAY_NAME@>
 #######################################
 
 #######################################
@@ -188,10 +218,11 @@ architectures=*
 #######################################
 """
 
-    val CMAKELISTS_TXT_FILE = "CMakeLists.txt"
+    val CMAKELISTS_TXT_FILE = Strings.CMAKE_LISTS_FILENAME
     val CMAKELISTS_TXT_CONTENT = """cmake_minimum_required(VERSION 2.8.4)
 set(CMAKE_TOOLCHAIN_FILE @{CMAKE_SOURCE_DIR}/cmake/ArduinoToolchain.cmake)
 set(CMAKE_CXX_STANDARD)
+set(CMAKE_PROJECT_NAME)
 
 set(@{CMAKE_PROJECT_NAME}_BOARD)
 set(ARDUINO_CPU)

@@ -12,6 +12,7 @@ import com.vladsch.clionarduinoplugin.generators.cmake.commands.CMakeText
 import com.vladsch.clionarduinoplugin.resources.TemplateResolver
 import com.vladsch.flexmark.ast.Node
 import com.vladsch.flexmark.util.options.DataHolder
+import com.vladsch.flexmark.util.options.MutableDataSet
 import com.vladsch.flexmark.util.sequence.BasedSequenceImpl
 import java.io.IOException
 import java.util.*
@@ -108,7 +109,7 @@ abstract class CMakeListsTxtBuilder(commands: Array<CMakeCommandType>, anchors: 
         val valueSet = HashMap<String, Any>()
         if (values != null) valueSet.putAll(values)
 
-        val parser = CMakeParser(BasedSequenceImpl.of(text), options)
+        val parser = CMakeParser(BasedSequenceImpl.of(text), options ?: DEFAULT_OPTIONS)
         myCMakeFile = parser.document
 
         // now load the commands
@@ -659,6 +660,14 @@ abstract class CMakeListsTxtBuilder(commands: Array<CMakeCommandType>, anchors: 
         //
         //
         private val LOG = getInstance("com.vladsch.clionarduinoplugin.generators")
+        private val DEFAULT_OPTIONS = MutableDataSet()
+                .set(CMakeParser.AUTO_CONFIG, true)
+                .set(CMakeParser.AST_LINE_END_EOL, true)
+                .set(CMakeParser.AST_COMMENTS, true)
+                .set(CMakeParser.AST_BLANK_LINES, true)
+                .set(CMakeParser.AST_ARGUMENT_SEPARATORS, true)
+                .set(CMakeParser.AST_COMMENTED_OUT_COMMANDS, true)
+                ;
 
         const val INF_MAX_ARGS = 1000
         @Suppress("MemberVisibilityCanBePrivate")

@@ -10,7 +10,7 @@ fun getResourceFiles(resourceClass: Class<*>, path: String, prefixPath: Boolean 
             while (true) {
                 val resource = br.readLine() ?: break
                 if (prefixPath) {
-                    filenames.add("$path/$resource")
+                    filenames.add(path + File.separator + resource)
                 } else {
                     filenames.add(resource)
                 }
@@ -59,7 +59,7 @@ fun getResourceAsStream(resourceClass: Class<*>, resource: String): InputStream?
 }
 
 fun File.isChildOf(ancestor: File): Boolean {
-    return "$path/".startsWith("${ancestor.path}/")
+    return (path + File.separator).startsWith(ancestor.path + File.separator)
 }
 
 val File.nameOnly: String
@@ -76,92 +76,14 @@ val File.dotExtension: String
 
 val File.pathSlash: String
     get() {
-        val pos = path.lastIndexOf('/')
+        val pos = path.lastIndexOf(File.separatorChar)
         return if (pos != -1) path.substring(0, pos + 1) else ""
     }
 
 operator fun File.plus(name: String): File {
     val path = this.path
-    val dbDir = File(if (!path.endsWith('/') && !name.startsWith('/')) "$path/$name" else "$path$name")
+    val dbDir = File(if (!path.endsWith(File.separatorChar) && !name.startsWith(File.separatorChar)) path + File.separator + name else "$path$name")
     return dbDir
-}
-
-fun File.ensureExistingDirectory(paramName: String = "directory"): File {
-    if (!this.exists() || !this.isDirectory) {
-        throw IllegalArgumentException("$paramName '${this.path}' must point to existing directory")
-    }
-    return this
-}
-
-fun File.ensureCreateDirectory(paramName: String = "directory"): File {
-    if (!this.exists()) {
-        if (!this.mkdir()) {
-            throw IllegalStateException("could not create directory $paramName '${this.path}' must point to existing directory")
-        }
-    }
-    if (!this.isDirectory) {
-        throw IllegalStateException("$paramName '${this.path}' exists and is not a directory")
-    }
-    return this
-}
-
-fun String.versionCompare(other: String): Int {
-    val theseParts = this.removePrefix("V").split('_', limit = 4)
-    val otherParts = other.removePrefix("V").split('_', limit = 4)
-
-    val iMax = Math.min(theseParts.size, otherParts.size)
-    for (i in 0 until iMax) {
-        if (i < 3) {
-            // use integer compare
-            val thisVersion = theseParts[i].toInt()
-            val otherVersion = otherParts[i].toInt()
-            if (thisVersion != otherVersion) {
-                return thisVersion.compareTo(otherVersion)
-            }
-        } else {
-            return theseParts[i].compareTo(otherParts[i])
-        }
-    }
-
-    return when {
-        theseParts.size > iMax -> 1
-        otherParts.size > iMax -> -1
-        else -> 0
-    }
-}
-
-fun getVersionDirectory(dbDir: File, dbVersion: String, createDir: Boolean?): File {
-    if (createDir != null) {
-        dbDir.ensureExistingDirectory("dbDir")
-    }
-
-    val dbVersionDir = dbDir + dbVersion
-
-    if (createDir == true) {
-        dbVersionDir.ensureCreateDirectory("dbDir/dbVersion")
-    } else if (createDir == false) {
-        dbVersionDir.ensureExistingDirectory("dbDir/dbVersion")
-    }
-    return dbVersionDir
-}
-
-fun String.toSnakeCase(): String {
-    var lastWasUpper = true
-    val sb = StringBuilder()
-    for (i in 0 until length) {
-        val c = this[i]
-        if (c.isUpperCase()) {
-            if (!lastWasUpper) {
-                sb.append('_')
-            }
-            sb.append(c.toLowerCase())
-            lastWasUpper = true
-        } else {
-            lastWasUpper = false
-            sb.append(c)
-        }
-    }
-    return sb.toString()
 }
 
 fun String?.extractLeadingDigits(): Pair<Int?, String> {

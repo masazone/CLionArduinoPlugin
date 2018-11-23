@@ -40,6 +40,7 @@ public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSetting
 
     JComboBox myLibraryCategories;
     JTextField myLibraryDirectory;
+    JTextField myLibraryDisplayName;
     JTextField myAuthorName;
     JTextField myAuthorEMail;
     private JLabel myLibraryCategoryLabel;
@@ -47,6 +48,7 @@ public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSetting
     private JLabel myAuthorNameLabel;
     private JLabel myAuthorEMailLabel;
     private JComboBox myBaudRate;
+    private JLabel myLibraryDisplayNameLabel;
 
     EnumLike<SerialPortNames> mySerialPortNames;
     EnumLike<LanguageVersionNames> myLanguageVersionNames;
@@ -85,6 +87,7 @@ public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSetting
                             componentString(myProgrammerNames.ADAPTER, myProgrammers, i::getProgrammerName, i::setProgrammerName),
                             component(myAddLibraryDirectory, i::isAddLibraryDirectory, i::setAddLibraryDirectory),
                             component(myLibraryDirectory, i::getLibraryDirectory, i::setLibraryDirectory),
+                            component(myLibraryDisplayName, i::getLibraryDisplayName, i::setLibraryDisplayName),
                             component(myVerbose, i::isVerbose, i::setVerbose),
                             componentString(myLanguageVersionNames.ADAPTER, myLanguageVersion, i::getLanguageVersion, i::setLanguageVersion),
 
@@ -214,6 +217,8 @@ public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSetting
 
             myAuthorEMailLabel.setVisible(isArduinoLibrary);
             myAuthorEMail.setVisible(isArduinoLibrary);
+            myLibraryDisplayName.setVisible(isArduinoLibrary);
+            myLibraryDisplayNameLabel.setVisible(isArduinoLibrary);
 
             myLibraryDirectory.setEnabled(myAddLibraryDirectory.isSelected());
 

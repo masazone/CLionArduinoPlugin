@@ -31,11 +31,13 @@
 
 ### 1.3.15
 
-* Add: empty baud rate in new project wizard to allow using default
+* Add: default baud rate in new project wizard to allow using default
 * Add: baud rate if one was provided to cmake lists
 * Add: basic Arduino CMakeLists.txt builder from template, to have common code for new project
   and change parameters.
-* Fix: basic builder properly modifying/inserting commands and generating CMakeLists.txt
+* Fix: basic builder properly modifying/inserting commands and generating `CMakeLists.txt`
+* Add: using CMakeParser and CMakeBuilder for generating `CMakeLists.txt` for new projects. One
+  step away from UI to modify project config.
 
 ### 1.3.14
 
