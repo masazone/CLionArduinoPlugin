@@ -87,9 +87,9 @@ Will either evaluate to include the library header or be deleted during variable
 This file reflects the template used for creating new projects and is code dependent.
 
 Deleting lines in this file will have no effect because on project creation they will be added
-by the coe. The order of the lines may change since the code does not have an existing location
-to modify the command and will add it based on its layout table.
+by the code. The order of the lines may change since the code does not have an existing location
+to modify the command and will add it based on its built-in layout table.
 
-The exception to this are comments which if removed will not be available in new projects'
+The exception to this are comment lines which if removed will not be available in new projects'
 files.
 
