@@ -4,7 +4,7 @@
 
 ### Version History
 - [TO DO](#to-do)
-- [1.3.15](#1315)
+- [1.3.16](#1316)
 - [1.3.14](#1314)
 - [1.3.12](#1312)
 - [1.3.10](#1310)
@@ -29,7 +29,7 @@
 * [ ] Add: `Generate keywords.txt` action to generate keywords.txt based on contained project
       classes and functions.
 
-### 1.3.15
+### 1.3.16
 
 * Add: default baud rate in new project wizard to allow using default
 * Add: baud rate if one was provided to cmake lists

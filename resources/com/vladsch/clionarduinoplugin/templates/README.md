@@ -7,8 +7,8 @@ and create new sketch files.
 
 Subdirectories contain files for each operation:
 
-- `library/`, not used but intended for `New Library` file action to add a local library to
-  project
+- `library/`, not used but intended for future `New Library` file action to add a local library
+  to project.
 - `project/library_arduino`, used for populating a new arduino library project
 - `project/library_static`, used for populating a new static library project
 - `project/sketch`, used for populating a new sketch project
