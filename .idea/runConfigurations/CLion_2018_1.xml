@@ -3,6 +3,7 @@
     <module name="CLionArduinoPlugin" />
     <option name="VM_PARAMETERS" value="-Xmx2048m -Xms512m -ea" />
     <option name="PROGRAM_PARAMETERS" value="" />
+    <alternative-path path="CLion 2018.1" alternative-path-enabled="true" />
     <predefined_log_file enabled="true" id="idea.log" />
     <method v="2">
       <option name="Make" enabled="true" />

@@ -30,7 +30,6 @@ communications with the integrated serial monitor tool window.
 Both plugins use [jSSC-2.8.0] serial library and only one plugin can load the native libraries.
 Please uninstall or disable `Serial Port Monitor` plugin before installing `Arduino Support`.
 
-
 ## Settings (Preferences on Mac)
 
 Some settings can also be changed in settings under Languages & Frameworks > Arduino, for
@@ -39,11 +38,16 @@ convenience.
 Additionally, you can point the plugin to your own versions of `boards.txt` and
 `programmers.txt`.
 
-
 ![Screenshot_AppSettings](assets/images/Screenshot_AppSettings.png)
 
 The `Show Difference` button is only displayed when a valid file is selected to let you quickly
 see if there are differences from the bundled version.
+
+The `Create From Bundled` button is only displayed when a non-existent directory is given and it
+can be created. Pressing it will create the directory and populate it with the bundled
+templates. For layout and caveats of this directory please refer to the
+[README.md](resources/com/vladsch/clionarduinoplugin/templates/README.md) file in that
+directory.
 
 ## Status
 
@@ -86,6 +90,7 @@ interest. Then maybe someone else will pick up the torch at take it further.
   * [ ] Display of ascii codes without resorting to hex display in text mode console.
 * [x] add CMake parser and builder to allow extracting and modifying CMake files
       programmatically, after project creation
+* [x] add option for using customized project templates
 * [ ] Add UI for changing existing CMakeLists.txt configuration
   * [ ] Change board, cpu, programmer, port, etc. All options which were available on project
         creation and make sense to modify on existing project.
@@ -113,6 +118,6 @@ Francois Campbell.
 For serial port list and functionality the plugin uses [jSSC-2.8.0], Licensed under
 [GNU Lesser GPL]
 
-[jSSC-2.8.0]: https://github.com/scream3r/java-simple-serial-connector
 [GNU Lesser GPL]: http://www.gnu.org/licenses/lgpl.html
+[jSSC-2.8.0]: https://github.com/scream3r/java-simple-serial-connector
 

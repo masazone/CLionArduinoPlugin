@@ -26,12 +26,9 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.diff.DirDiffManager;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileTypes.PlainTextFileType;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.TextComponentAccessor;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
-import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.ui.DocumentAdapter;
@@ -225,8 +222,23 @@ public class ApplicationSettingsForm implements Disposable, ApplicationSettingsL
                 if (!myBundledTemplates.isSelected() && !templatesPathText.trim().isEmpty()) {
                     File file = new File(templatesPathText);
                     if (!file.exists()) {
-                        File parent = file.getParentFile();
-                        boolean canCreate = parent != null && parent.canRead() && parent.canWrite();
+                        // TODO: move this out to utils as two functions: parentPath() and canCreatePath()
+                        String parentPath = file.getPath();
+                        boolean canCreate = false;
+
+                        while (!parentPath.isEmpty()) {
+                            File parent = new File(parentPath);
+                            if (parent.exists()) {
+                                canCreate = parent.isDirectory() && parent.canRead() && parent.canWrite();
+                                break;
+                            }
+
+                            int pos = parentPath.lastIndexOf(File.separator);
+                            if (pos <= 0) break;
+
+                            parentPath = parentPath.substring(0, pos);
+                        }
+
                         if (canCreate) {
                             try {
                                 TemplateResolver.INSTANCE.copyTemplatesDirectoryTo(file);
@@ -245,7 +257,6 @@ public class ApplicationSettingsForm implements Disposable, ApplicationSettingsL
                                         Bundle.message("settings.templates-create-failed.label"),
                                         Bundle.message("settings.templates-create-failed.title"),
                                         Messages.getErrorIcon());
-
                             }
                         }
                     }
@@ -398,8 +409,20 @@ public class ApplicationSettingsForm implements Disposable, ApplicationSettingsL
                 File file = new File(templatesPath);
                 if (!file.exists()) {
                     // should not happen
-                    File parent = file.getParentFile();
-                    canCreate = parent != null && parent.canRead() && parent.canWrite();
+                    String parentPath = file.getPath();
+
+                    while (!parentPath.isEmpty()) {
+                        File parent = new File(parentPath);
+                        if (parent.exists()) {
+                            canCreate = parent.isDirectory() && parent.canRead() && parent.canWrite();
+                            break;
+                        }
+                        int pos = parentPath.lastIndexOf(File.separator);
+                        if (pos <= 0) break;
+
+                        parentPath = parentPath.substring(0, pos);
+                    }
+
                     if (!canCreate) {
                         error = "<html><body><span style='color: red'>" + Bundle.message("settings.not-exists-templates-rw.message") + "</span></body></html>";
                     } else {

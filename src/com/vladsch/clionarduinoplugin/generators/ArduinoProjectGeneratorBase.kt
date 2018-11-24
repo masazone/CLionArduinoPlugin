@@ -123,14 +123,7 @@ abstract class ArduinoProjectGeneratorBase(protected val myIsLibrary: Boolean) :
                 templateVars(name, pascalName, camelName, snakeName).toMutableMap()
         )
 
-        var templateDir:File? = null
-        if (!mySettings.isBundledTemplates && !mySettings.templatesPath.isEmpty()) {
-            val file = File(mySettings.templatesPath)
-            if (TemplateResolver.haveAllTemplates(file)) {
-                templateDir = file;
-            }
-        }
-
+        val templateDir = mySettings.templateDir
         val templates = TemplateResolver.getTemplates(templateType, templateDir)
         val resolvedTemplates = TemplateResolver.resolveTemplates(templates, templateVars)
 
@@ -175,7 +168,6 @@ abstract class ArduinoProjectGeneratorBase(protected val myIsLibrary: Boolean) :
 
         // vsch: Need to reload the CMakeList.txt to generate build files, first time generation is incorrect
         val workspace = CMakeWorkspace.getInstance(project)
-
         val busConnection = project.messageBus.connect()
         busConnection.subscribe(CMakeWorkspaceListener.TOPIC, MyCMakeWorkspaceListener(busConnection, workspace))
     }
@@ -220,7 +212,6 @@ abstract class ArduinoProjectGeneratorBase(protected val myIsLibrary: Boolean) :
     }
 
     private class MyCMakeWorkspaceListener(private val myBusConnection: MessageBusConnection, private val myWorkspace: CMakeWorkspace) : CMakeWorkspaceListener {
-
         override fun reloadingFinished(canceled: Boolean) {
             myBusConnection.disconnect()
 
@@ -281,11 +272,11 @@ abstract class ArduinoProjectGeneratorBase(protected val myIsLibrary: Boolean) :
         private//.getParent();
         val locationTextField: JTextField?
             get() {
-                try {
+                return try {
                     val basePanel = myPanel.parent.parent.parent as JPanel
-                    return findLocationTextField(basePanel)
+                    findLocationTextField(basePanel)
                 } catch (ignored: Throwable) {
-                    return null
+                    null
                 }
             }
 
@@ -370,4 +361,14 @@ abstract class ArduinoProjectGeneratorBase(protected val myIsLibrary: Boolean) :
     }
 
     protected class CreatedFilesHolder constructor(val cMakeFile: VirtualFile, val sourceFiles: Array<VirtualFile>, val extraFiles: Array<VirtualFile>)
+
+    companion object {
+        fun reloadCMakeLists(project: Project) {
+            val workspace = CMakeWorkspace.getInstance(project)
+            ApplicationManager.getApplication().invokeLater {
+                // force reload
+                workspace.selectProjectDir(workspace.projectDir)
+            }
+        }
+    }
 }

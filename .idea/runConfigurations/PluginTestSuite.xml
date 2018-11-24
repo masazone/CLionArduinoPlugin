@@ -3,7 +3,7 @@
     <module name="CLionArduinoPlugin" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="com.vladsch.clionarduinoplugin.*" />
+        <option name="PATTERN" value="com.vladsch.clionarduinoplugin.generators.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

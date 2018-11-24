@@ -52,6 +52,7 @@ public class ProjectSettingsForm extends FormParams<Boolean> implements Disposab
     private JPanel myBuildControlPanel;
     private JLabel myNoBuildMonitorLabel;
     private SendSettingsForm mySendSettings;
+    JBCheckBox myReloadOnFileChange;
 
     private @NotNull String myRegexSampleText;
     EnumLike<SerialPortNames> mySerialPortNames;
@@ -71,7 +72,7 @@ public class ProjectSettingsForm extends FormParams<Boolean> implements Disposab
                 return new Settable[] {
                         componentString(mySerialPortNames.ADAPTER, myPort, i::getPort, i::setPort),
                         component(SerialBaudRates.ADAPTER, myBaudRate, i::getBaudRate, i::setBaudRate),
-                        component(myDisconnectOnBuild, i::isDisconnectOnBuild, i::setDisconnectOnBuild),
+                        component(myReloadOnFileChange, i::isReloadOnFileChange, i::setReloadOnFileChange),
                         component(myLogConnectDisconnect, i::isLogConnectDisconnect, i::setLogConnectDisconnect),
                         component(myReconnectAfterBuild, i::isReconnectAfterBuild, i::setReconnectAfterBuild),
                         component(myActivateOnConnect, i::isActivateOnConnect, i::setActivateOnConnect),

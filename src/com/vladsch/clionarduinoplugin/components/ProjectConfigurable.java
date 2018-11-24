@@ -62,7 +62,7 @@ public class ProjectConfigurable implements SearchableConfigurable {
     @Nls
     @Override
     public String getDisplayName() {
-        return Bundle.message("toolwindow.serial-monitor.title");
+        return Bundle.message("plugin.project-configurable.name");
     }
 
     @Nullable

@@ -15,10 +15,7 @@ import com.intellij.util.xmlb.annotations.XMap;
 import com.jetbrains.cidr.cpp.cmake.projectWizard.generators.CMakeProjectGenerator;
 import com.jetbrains.cidr.cpp.cmake.projectWizard.generators.settings.CMakeProjectSettings;
 import com.vladsch.clionarduinoplugin.generators.CppLanguageVersions;
-import com.vladsch.clionarduinoplugin.resources.ArduinoConfig;
-import com.vladsch.clionarduinoplugin.resources.Board;
-import com.vladsch.clionarduinoplugin.resources.Programmer;
-import com.vladsch.clionarduinoplugin.resources.ResourceUtils;
+import com.vladsch.clionarduinoplugin.resources.*;
 import com.vladsch.clionarduinoplugin.util.ApplicationSettingsListener;
 import com.vladsch.clionarduinoplugin.util.Utils;
 import org.jetbrains.annotations.NotNull;
@@ -554,6 +551,18 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
                 fireSettingsChanged();
             }
         }
+    }
+
+    @Nullable
+    public File getTemplateDir() {
+        File templateDir = null;
+        if (!bundledTemplates && !templatesPath.isEmpty()) {
+            File file = new File(templatesPath);
+            if (TemplateResolver.INSTANCE.haveAllTemplates(file)) {
+                templateDir = file;
+            }
+        }
+        return templateDir;
     }
 
     private void fireSettingsChanged() {

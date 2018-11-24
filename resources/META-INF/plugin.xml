@@ -183,7 +183,7 @@
                              parentId="com.vladsch.clionarduinoplugin.components.ApplicationConfigurable"
                              groupWeight="-1"
                              bundle="com.vladsch.clionarduinoplugin.localization.strings"
-                             key="toolwindow.serial-monitor.title"
+                             key="plugin.project-configurable.name"
                              nonDefaultProject="false"
                              instance="com.vladsch.clionarduinoplugin.components.ProjectConfigurable"/>
     </extensions>
@@ -203,6 +203,11 @@
         <component>
             <implementation-class>com.vladsch.clionarduinoplugin.serial.SerialProjectComponent</implementation-class>
         </component>
+<!--
+        <component>
+            <implementation-class>com.vladsch.clionarduinoplugin.components.PluginProjectComponent</implementation-class>
+        </component>
+-->
     </project-components>
 
     <actions>

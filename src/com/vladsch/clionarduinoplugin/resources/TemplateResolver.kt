@@ -30,7 +30,9 @@ object TemplateResolver {
         for (templateType in templateTypes()) {
             val templates = TemplateResolver.getTemplates(templateType, templateDir)
             val bundledTemplates = TemplateResolver.getTemplates(templateType, null)
-            if (!templates.keys.containsAll(bundledTemplates.keys)) return false
+            if (!templates.keys.containsAll(bundledTemplates.keys)) {
+                return false
+            }
         }
         return true
     }
