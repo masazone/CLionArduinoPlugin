@@ -2,7 +2,6 @@ package com.vladsch.clionarduinoplugin.settings;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.ui.components.JBCheckBox;
-import com.vladsch.clionarduinoplugin.components.ArduinoProjectSettings;
 import com.vladsch.clionarduinoplugin.util.ui.Settable;
 import com.vladsch.clionarduinoplugin.util.ui.SettingsComponents;
 import org.jetbrains.annotations.NotNull;

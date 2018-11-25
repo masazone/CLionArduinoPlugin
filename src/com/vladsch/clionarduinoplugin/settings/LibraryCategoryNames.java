@@ -1,6 +1,5 @@
 package com.vladsch.clionarduinoplugin.settings;
 
-import com.vladsch.clionarduinoplugin.components.ArduinoApplicationSettings;
 import com.vladsch.clionarduinoplugin.util.ui.ComboBoxAdaptable;
 import com.vladsch.clionarduinoplugin.util.ui.ComboBoxAdapter;
 import com.vladsch.clionarduinoplugin.util.ui.EnumLike;
@@ -12,7 +11,7 @@ public class LibraryCategoryNames implements ComboBoxAdaptable<LibraryCategoryNa
     public final @NotNull String displayName;
 
     public static EnumLike<LibraryCategoryNames> createEnum() {
-        return new EnumLike<>(ArduinoApplicationSettings.LIBRARY_CATEGORIES, LibraryCategoryNames::new, true);
+        return new EnumLike<>(ArduinoProjectFileSettings.LIBRARY_CATEGORIES, LibraryCategoryNames::new, true);
     }
 
     public LibraryCategoryNames(final EnumLike parent, final int intValue, @NotNull final String displayName) {

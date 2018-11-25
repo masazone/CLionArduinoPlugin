@@ -32,7 +32,6 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.util.ui.*;
 import com.vladsch.clionarduinoplugin.Bundle;
-import com.vladsch.clionarduinoplugin.components.ArduinoProjectSettings;
 import com.vladsch.clionarduinoplugin.util.Utils;
 import com.vladsch.clionarduinoplugin.util.ui.BackgroundColor;
 import com.vladsch.clionarduinoplugin.util.ui.HtmlBuilder;

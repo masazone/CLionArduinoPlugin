@@ -7,7 +7,6 @@ import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.TextFieldWithHistory;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.util.Alarm;
-import com.vladsch.clionarduinoplugin.components.ArduinoApplicationSettings;
 import com.vladsch.clionarduinoplugin.util.ApplicationSettingsListener;
 import com.vladsch.clionarduinoplugin.util.RecursionGuard;
 import com.vladsch.clionarduinoplugin.util.ui.*;
@@ -39,7 +38,7 @@ public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSetting
     TextFieldWithHistory myPort;
     JBCheckBox myCommentOutUnusedSettings;
 
-    JComboBox myLibraryCategories;
+    JComboBox myLibraryCategory;
     JTextField myLibraryDirectory;
     JTextField myLibraryDisplayName;
     JTextField myAuthorName;
@@ -48,7 +47,7 @@ public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSetting
     private JLabel myLibraryTypeLabel;
     private JLabel myAuthorNameLabel;
     private JLabel myAuthorEMailLabel;
-    private JComboBox myBaudRate;
+    JComboBox myBaudRate;
     private JLabel myLibraryDisplayNameLabel;
 
     EnumLike<SerialPortNames> mySerialPortNames;
@@ -65,21 +64,24 @@ public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSetting
     RecursionGuard myRecursionGuard = new RecursionGuard();
 
     private final SettingsComponents<ArduinoApplicationSettings> components;
-    private final boolean myIsLibrary;
-    private final boolean myIsImmediateUpdate;
+    final boolean myIsLibrary;
+    private final boolean isImmediateUpdate;
+    private final boolean isLimitedConfig;
 
-    public NewProjectSettingsForm(ArduinoApplicationSettings settings, boolean isLibrary, boolean immediateUpdate) {
-        super(settings);
+    public NewProjectSettingsForm(ArduinoApplicationSettingsProxy settings, boolean immediateUpdate, final boolean limitedConfig) {
+        super(settings.getApplicationSettings());
 
-        myIsLibrary = isLibrary;
-        myIsImmediateUpdate = immediateUpdate;
+        myIsLibrary = settings.isLibrary();
+        isImmediateUpdate = immediateUpdate;
+        isLimitedConfig = limitedConfig;
+
         myUpdate = new Alarm(this);
         myPendingUpdates = new LinkedHashSet<>();
 
         components = new SettingsComponents<ArduinoApplicationSettings>() {
             @Override
             protected Settable[] createComponents(ArduinoApplicationSettings i) {
-                if (isLibrary) {
+                if (myIsLibrary) {
                     return new Settable[] {
                             componentString(mySerialPortNames.ADAPTER, myPort, i::getPort, i::setPort),
                             component(SerialBaudRates.ADAPTER, myBaudRate, i::getBaudRate, i::setBaudRate),
@@ -88,13 +90,14 @@ public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSetting
                             componentString(myProgrammerNames.ADAPTER, myProgrammers, i::getProgrammerName, i::setProgrammerName),
                             component(myAddLibraryDirectory, i::isAddLibraryDirectory, i::setAddLibraryDirectory),
                             component(myLibraryDirectory, i::getLibraryDirectory, i::setLibraryDirectory),
-                            component(myLibraryDisplayName, i::getLibraryDisplayName, i::setLibraryDisplayName),
                             component(myVerbose, i::isVerbose, i::setVerbose),
                             component(myCommentOutUnusedSettings, i::isCommentUnusedSettings, i::setCommentUnusedSettings),
-                            componentString(myLanguageVersionNames.ADAPTER, myLanguageVersion, i::getLanguageVersion, i::setLanguageVersion),
+                            componentString(myLanguageVersionNames.ADAPTER, myLanguageVersion, i::getLanguageVersionName, i::setLanguageVersion),
 
                             // library only
+                            component(myLibraryDisplayName, i::getLibraryDisplayName, i::setLibraryDisplayName),
                             componentString(myLibraryTypeNames.ADAPTER, myLibraryType, i::getLibraryType, i::setLibraryType),
+                            componentString(myLibraryCategoryNames.ADAPTER, myLibraryCategory, i::getLibraryCategory, i::setLibraryCategory),
                             component(myAuthorName, i::getAuthorName, i::setAuthorName),
                             component(myAuthorEMail, i::getAuthorEMail, i::setAuthorEMail),
                     };
@@ -109,7 +112,7 @@ public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSetting
                             component(myLibraryDirectory, i::getLibraryDirectory, i::setLibraryDirectory),
                             component(myVerbose, i::isVerbose, i::setVerbose),
                             component(myCommentOutUnusedSettings, i::isCommentUnusedSettings, i::setCommentUnusedSettings),
-                            componentString(myLanguageVersionNames.ADAPTER, myLanguageVersion, i::getLanguageVersion, i::setLanguageVersion),
+                            componentString(myLanguageVersionNames.ADAPTER, myLanguageVersion, i::getLanguageVersionName, i::setLanguageVersion),
                     };
                 }
             }
@@ -178,7 +181,7 @@ public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSetting
             updateOptions(updateCpus);
         }
 
-        if (myIsImmediateUpdate) {
+        if (isImmediateUpdate) {
             if (myUpdate.isDisposed()) {
                 myPendingUpdates.clear();
                 return;
@@ -208,20 +211,21 @@ public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSetting
 
     void updateOptions(boolean updateCpus) {
         myRecursionGuard.enter(COMPONENT_UPDATE, () -> {
-            boolean isArduinoLibrary = myIsLibrary && ArduinoApplicationSettings.ARDUINO_LIB_TYPE.equals(myLibraryType.getSelectedItem());
-            myLibraryTypeLabel.setVisible(myIsLibrary);
-            myLibraryType.setVisible(myIsLibrary);
+            boolean isArduinoLibrary = myIsLibrary && ArduinoProjectFileSettings.ARDUINO_LIB_TYPE.equals(myLibraryType.getSelectedItem());
+            myLibraryTypeLabel.setVisible(myIsLibrary && !isLimitedConfig);
+            myLibraryType.setVisible(myIsLibrary && !isLimitedConfig);
 
-            myLibraryCategoryLabel.setVisible(isArduinoLibrary);
-            myLibraryCategories.setVisible(isArduinoLibrary);
+            myLibraryCategoryLabel.setVisible(isArduinoLibrary && !isLimitedConfig);
+            myLibraryCategory.setVisible(isArduinoLibrary && !isLimitedConfig);
 
-            myAuthorNameLabel.setVisible(isArduinoLibrary);
-            myAuthorName.setVisible(isArduinoLibrary);
+            myAuthorNameLabel.setVisible(isArduinoLibrary && !isLimitedConfig);
+            myAuthorName.setVisible(isArduinoLibrary && !isLimitedConfig);
 
-            myAuthorEMailLabel.setVisible(isArduinoLibrary);
-            myAuthorEMail.setVisible(isArduinoLibrary);
-            myLibraryDisplayName.setVisible(isArduinoLibrary);
-            myLibraryDisplayNameLabel.setVisible(isArduinoLibrary);
+            myAuthorEMailLabel.setVisible(isArduinoLibrary && !isLimitedConfig);
+            myAuthorEMail.setVisible(isArduinoLibrary && !isLimitedConfig);
+
+            myLibraryDisplayName.setVisible(isArduinoLibrary && !isLimitedConfig);
+            myLibraryDisplayNameLabel.setVisible(isArduinoLibrary && !isLimitedConfig);
 
             myLibraryDirectory.setEnabled(myAddLibraryDirectory.isSelected());
 
@@ -268,7 +272,7 @@ public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSetting
         myCpus = myCpuNames.ADAPTER.createComboBox();
 
         myProgrammers = myProgrammerNames.ADAPTER.createComboBox();
-        myLibraryCategories = myLibraryCategoryNames.ADAPTER.createComboBox();
+        myLibraryCategory = myLibraryCategoryNames.ADAPTER.createComboBox();
     }
 
     @Override
@@ -307,7 +311,7 @@ public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSetting
             myProgrammerNames.ADAPTER.fillComboBox(myProgrammers, ComboBoxAdaptable.EMPTY);
             myProgrammers.setSelectedItem(settings.getProgrammerName());
 
-            myLibraryCategoryNames.ADAPTER.fillComboBox(myLibraryCategories, ComboBoxAdaptable.EMPTY);
+            myLibraryCategoryNames.ADAPTER.fillComboBox(myLibraryCategory, ComboBoxAdaptable.EMPTY);
 
             updatePort(settings);
         })) {

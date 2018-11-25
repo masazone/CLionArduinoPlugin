@@ -84,6 +84,9 @@ object TemplateResolver {
         val templateDir: File
         val templateFiles = HashMap<File, String>()
 
+        /**
+         * Adapted from code example by Greg Briggs - http://www.uofr.net/~greg/java/get-resource-listing.html
+         */
         if (resource.protocol == "jar" && templatesDir == null) {
             val jarPath = resource.path.substring(5, resource.path.indexOf("!")) //strip out only the JAR file
             val jar = JarFile(URLDecoder.decode(jarPath, "UTF-8"))
@@ -211,35 +214,9 @@ object TemplateResolver {
         return if (file.exists()) getFileContent(file) else getResourceAsString(this.javaClass, file.path)
     }
 
-    fun resolveRefs(text: CharSequence?, pattern: Pattern, resolver: (name: String, index: String?) -> String?): String {
-        if (text == null) return ""
-
-        val matcher = pattern.matcher(text)
-        if (matcher.find()) {
-            val sb = StringBuffer()
-            do {
-                val name = matcher.group(1)
-                val index = matcher.group(2)
-
-                val resolved = resolver.invoke(name, index)
-                matcher.appendReplacement(sb, resolved ?: "")
-            } while (matcher.find())
-
-            matcher.appendTail(sb)
-            return sb.toString()
-        }
-        return text.toString()
-    }
-
-    fun simpleRefResolver(values: Map<String, String>): (String, String?) -> String? {
-        return { name1, index1 ->
-            if (index1 != null) null
-            else values[name1]
-        }
-    }
-
-    val COMMAND_REF = Pattern.compile("<@([a-zA-Z_$][a-zA-Z_0-9$]*)(?:\\[([^]]*)])?@>")!!
-    val FILE_NAME_REF = Pattern.compile("@([a-zA-Z_$][a-zA-Z_0-9$]*)(?:\\[([^]]*)])?@")!!
+    val COMMAND_REF:Pattern = Pattern.compile("<@([a-zA-Z_$][a-zA-Z_0-9$]+)(?:\\[([^]]*)])?@>")
+    val FILE_NAME_REF: Pattern = Pattern.compile("@([a-zA-Z_$][a-zA-Z_0-9$]+)(?:\\[([^]]*)])?@")
+    val VARIABLE_REF: Pattern = Pattern.compile("\\$\\{([a-zA-Z_$][a-zA-Z_0-9$]+)}")
 
     fun resolveTemplates(templates: Map<String, String>, values: Map<String, String>): Map<String, String> {
         val result = HashMap<String, String>();
@@ -248,23 +225,23 @@ object TemplateResolver {
         for ((templatePath, content) in templates) {
             val file = File(templatePath)
             val fileNameOnly = file.nameOnly
-            val resolvedFile = resolveRefs(fileNameOnly, FILE_NAME_REF, simpleResolver)
+            val resolvedFile = fileNameOnly.resolveRefs(FILE_NAME_REF, simpleResolver)
             if (!resolvedFile.isEmpty()) {
                 val lines = BasedSequenceImpl.of(content).split('\n', Integer.MAX_VALUE - 2, BasedSequence.SPLIT_INCLUDE_DELIMS)
                 val template = StringBuilder()
 
                 for (line in lines) {
-                    var skip = false
-                    val resolved = resolveRefs(line, COMMAND_REF) { name, index ->
+                    var append = true
+                    val resolved = line.resolveRefs(COMMAND_REF) { name, index ->
                         if (name == "DELETE_IF_BLANK") {
-                            skip = resolveRefs(index, COMMAND_REF, simpleResolver).isEmpty()
+                            append = !index.resolveRefs(COMMAND_REF, simpleResolver).isEmpty()
                             ""
                         } else {
                             if (index != null) null
                             else values[name]
                         }
                     }
-                    if (!skip) template.append(resolved)
+                    if (append) template.append(resolved)
                 }
                 result[file.pathSlash + resolvedFile + file.dotExtension] = template.toString()
             }

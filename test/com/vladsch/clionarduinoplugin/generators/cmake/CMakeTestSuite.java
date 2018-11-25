@@ -8,6 +8,7 @@ import org.junit.runners.Suite;
         CMakeParserSpecTest.class,
         CMakeFormatterSpecTest.class,
         CMakeBuilderSpecTest.class,
+        ArduinoCMakeBuilderTest.class,
 })
 public class CMakeTestSuite {
 }

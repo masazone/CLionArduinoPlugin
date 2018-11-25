@@ -53,6 +53,7 @@ public class CMakeBuilderSpecTest extends ComboSpecTestCase {
     static {
         optionsMap.put("board-pro", new MutableDataSet().set(ArduinoCMakeListsTxtBuilderRenderer.VALUE_MAP, valueSet("SET_BOARD", "pro", "SET_CPU", "8MHzatmega328")));
         optionsMap.put("change-all", new MutableDataSet().set(ArduinoCMakeListsTxtBuilderRenderer.VALUE_MAP, valueSet(
+                "CMAKE_MINIMUM_REQUIRED_VERSION", "Maj.Min.Rev.Twk",
                 "SET_CMAKE_TOOLCHAIN_FILE", "setCmakeToolchainFile",
                 "SET_CMAKE_CXX_STANDARD", "setCmakeCxxStandard",
                 "SET_PROJECT_NAME", "setProjectName",
@@ -70,12 +71,12 @@ public class CMakeBuilderSpecTest extends ComboSpecTestCase {
                 "SET_UPLOAD_SPEED", "setUploadSpeed",
                 "LINK_DIRECTORIES", "linkDirectories",
                 "ADD_SUBDIRECTORY", "addSubdirectory",
-                "GENERATE_ARDUINO_LIBRARY", "",
-                "GENERATE_ARDUINO_FIRMWARE", "",
+                "GENERATE_ARDUINO_LIBRARY", "${CMAKE_PROJECT_NAME}",
+                "GENERATE_ARDUINO_FIRMWARE", "${CMAKE_PROJECT_NAME}",
                 "", ""
         )));
         optionsMap.put("add-project", new MutableDataSet().set(ArduinoCMakeListsTxtBuilderRenderer.VALUE_MAP, valueSet(
-                "PROJECT", "",
+                "PROJECT", "${CMAKE_PROJECT_NAME}",
                 "SET_PROGRAMMER", "setProgrammer",
                 "", ""
         )));

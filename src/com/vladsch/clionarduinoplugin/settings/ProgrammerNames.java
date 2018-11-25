@@ -1,6 +1,5 @@
 package com.vladsch.clionarduinoplugin.settings;
 
-import com.vladsch.clionarduinoplugin.components.ArduinoApplicationSettings;
 import com.vladsch.clionarduinoplugin.util.ui.ComboBoxAdaptable;
 import com.vladsch.clionarduinoplugin.util.ui.ComboBoxAdapter;
 import com.vladsch.clionarduinoplugin.util.ui.EnumLike;

@@ -2,6 +2,7 @@ package com.vladsch.clionarduinoplugin.generators;
 
 import com.intellij.openapi.util.text.StringUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public enum CppLanguageVersions {
     CPP98("98"),
@@ -29,5 +30,15 @@ public enum CppLanguageVersions {
     @NotNull
     public static String fromDisplayString(@NotNull String displayString) {
         return StringUtil.trimStart(displayString, "C++");
+    }
+
+    @Nullable
+    public static CppLanguageVersions valueOrNull(@NotNull String value) {
+        for (CppLanguageVersions version : values()) {
+            if (version.version.equals(value)) {
+                return version;
+            }
+        }
+        return null;
     }
 }

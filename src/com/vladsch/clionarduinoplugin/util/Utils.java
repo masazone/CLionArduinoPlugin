@@ -34,6 +34,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.ui.JBColor;
 import com.vladsch.clionarduinoplugin.generators.SerialPortList;
+import com.vladsch.clionarduinoplugin.generators.cmake.commands.CMakeCommandType;
 import com.vladsch.clionarduinoplugin.util.ui.BackgroundColor;
 import com.vladsch.clionarduinoplugin.util.ui.HtmlBuilder;
 import com.vladsch.flexmark.util.sequence.BasedSequence;

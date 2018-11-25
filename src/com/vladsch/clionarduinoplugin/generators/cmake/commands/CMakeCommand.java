@@ -17,11 +17,11 @@ public class CMakeCommand implements CMakeElement {
 
     public CMakeCommand(@NotNull final CMakeCommandType commandType, @NotNull final List<String> args, boolean isAddEOL, boolean commented, boolean suppressibleCommented) {
         myCommandType = commandType;
-        myArgs = new ArrayList<>(args);
         myAddEOL = isAddEOL;
         myCommented = commented;
         mySuppressibleCommented = suppressibleCommented;
 
+        myArgs = new ArrayList<>(args);
         String[] defaults = commandType.getDefaultArgs();
         int iMax = defaults.length;
 
@@ -38,11 +38,11 @@ public class CMakeCommand implements CMakeElement {
     }
 
     public CMakeCommand(@NotNull final CMakeCommandType commandType, boolean isAddEOL) {
-        this(commandType, new ArrayList<>(), isAddEOL,false,false);
+        this(commandType, new ArrayList<>(), isAddEOL, false, false);
     }
 
     public CMakeCommand(@NotNull final CMakeCommandType commandType) {
-        this(commandType, new ArrayList<>(), true,false,false);
+        this(commandType, new ArrayList<>(), true, false, false);
     }
 
     public CMakeCommand(@NotNull final CMakeCommand other) {
@@ -108,7 +108,20 @@ public class CMakeCommand implements CMakeElement {
 
         HashSet<String> argValues = new HashSet<>();
 
+        int wildcardArg = 0;
         for (String arg : myCommandType.getFixedArgs()) {
+            int pos = 0;
+
+            while (pos < arg.length()) {
+                pos = arg.indexOf(CMakeCommandType.WILDCARD_ARG_MARKER, pos);
+                if (pos == -1) break;
+                if (wildcardArg >= myArgs.size()) break;
+
+                String replacement = myArgs.get(wildcardArg++);
+                arg = arg.substring(0, pos) + replacement + arg.substring(pos + CMakeCommandType.WILDCARD_ARG_MARKER.length());
+                pos += replacement.length();
+            }
+
             if (arg.isEmpty()) continue;
 
             if (!myCommandType.isNoDupeArgs() || !argValues.contains(arg)) {
@@ -121,7 +134,10 @@ public class CMakeCommand implements CMakeElement {
             }
         }
 
-        for (String arg : myArgs) {
+        int iMax = myArgs.size();
+        for (int i = wildcardArg; i < iMax; i++) {
+            String arg = myArgs.get(i);
+
             if (arg.isEmpty()) continue;
 
             if (!myCommandType.isNoDupeArgs() || !argValues.contains(arg)) {
@@ -143,6 +159,10 @@ public class CMakeCommand implements CMakeElement {
     @NotNull
     public CMakeCommandType getCommandType() {
         return myCommandType;
+    }
+
+    public boolean isOfType(CMakeCommandType commandType) {
+        return myCommandType.isOfType(commandType);
     }
 
     public List<String> getArgs() {
@@ -168,6 +188,28 @@ public class CMakeCommand implements CMakeElement {
 
     public @NotNull String getArg(int index) {
         return myArgs.get(index);
+    }
+
+    public @NotNull String raw(int index) {
+        @NotNull String[] fixedArgs = myCommandType.getFixedArgs();
+        if (index < fixedArgs.length) {
+            return fixedArgs[index];
+        } else {
+            return arg(index - fixedArgs.length);
+        }
+    }
+
+    // CAUTION: does not work with wildcard fixed args
+    public @NotNull List<String> getRawArgs() {
+        @NotNull String[] fixedArgs = myCommandType.getFixedArgs();
+        ArrayList<String> args = new ArrayList<>(fixedArgs.length + myArgs.size());
+        args.addAll(Arrays.asList(fixedArgs));
+        args.addAll(myArgs);
+        return args;
+    }
+
+    public @NotNull String arg(int index) {
+        return index < myArgs.size() ? myArgs.get(index) : "";
     }
 
     public void addArg(@NotNull String arg) {
@@ -202,7 +244,7 @@ public class CMakeCommand implements CMakeElement {
     }
 
     public boolean allArgsEqual(final Collection<String> args) {
-        return allArgsEqual(args,0, args.size());
+        return allArgsEqual(args, 0, args.size());
     }
 
     public boolean allArgsEqual(final Collection<String> args, int start, int end) {
@@ -234,6 +276,7 @@ public class CMakeCommand implements CMakeElement {
 
     public void clearArgs() {
         myArgs.clear();
+        Collections.addAll(myArgs, myCommandType.myDefaultArgs);
     }
 
     public void addArg(int index, @NotNull String arg) {

@@ -1,4 +1,4 @@
-package com.vladsch.clionarduinoplugin.components;
+package com.vladsch.clionarduinoplugin.settings;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
@@ -12,7 +12,6 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.Transient;
 import com.intellij.util.xmlb.annotations.XCollection;
 import com.intellij.util.xmlb.annotations.XMap;
-import com.jetbrains.cidr.cpp.cmake.projectWizard.generators.CMakeProjectGenerator;
 import com.jetbrains.cidr.cpp.cmake.projectWizard.generators.settings.CMakeProjectSettings;
 import com.vladsch.clionarduinoplugin.generators.CppLanguageVersions;
 import com.vladsch.clionarduinoplugin.resources.*;
@@ -22,41 +21,25 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
+import java.util.*;
 
 @State(name = "Arduino Support Settings",
         storages = @Storage("arduino-plugin-settings.xml")
 )
 public class ArduinoApplicationSettings extends CMakeProjectSettings implements PersistentStateComponent<ArduinoApplicationSettings> {
+    private static final String TEXT_DELIMITER = "|";
+    private static final String TEXT_SPLIT_REGEX = "\\s*\\" + TEXT_DELIMITER + "\\s*";
+
     public static final String[] EMPTY = new String[0];
     public static final @NotNull String[] LANGUAGE_VERSIONS = ContainerUtil.map2Array(CppLanguageVersions.values(), String.class, CppLanguageVersions::getDisplayString);
-    private @NotNull String languageVersion = LANGUAGE_VERSIONS[0];
-    public static final String ARDUINO_LIB_TYPE = "arduino";
-
-    public static final String TEXT_DELIMITER = "|";
-    public static final String TEXT_SPLIT_REGEX = "\\s*\\" + TEXT_DELIMITER + "\\s*";
-    public static final String STATIC_LIB_TYPE = "static";
-    public static final String[] LIBRARY_TYPES = { ARDUINO_LIB_TYPE, CMakeProjectGenerator.STATIC_LIB_TYPE };
-    public static final String[] LIBRARY_CATEGORIES = new String[] {
-            "Communications",
-            "Data Processing",
-            "Data Storage",
-            "Device Control",
-            "Display",
-            "Other",
-            "Sensors",
-            "Signal Input/Output",
-            "Timing",
-    };
 
     private int myGroupCount = 0;
 
-    private @NotNull String libraryType = ARDUINO_LIB_TYPE;
+    private @NotNull String languageVersionName = LANGUAGE_VERSIONS[0];
+    private @NotNull String libraryType = ArduinoProjectFileSettings.ARDUINO_LIB_TYPE;
     private boolean addLibraryDirectory = false;
-    private @NotNull String libraryDirectory = "";
+    private @NotNull String[] libraryDirectories = EMPTY;
+    private @NotNull String[] nestedLibraries = EMPTY;
     private @NotNull String boardId = "uno";
     private @NotNull String cpuId = "";
     private @NotNull String programmerId = "";
@@ -69,7 +52,6 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
     private boolean verbose = false;
     private @NotNull HashMap<String, String> boardCpuMap = new HashMap<>();
     private @NotNull LinkedHashSet<String> portHistory = new LinkedHashSet<>();
-    private boolean nestedLibrarySources = false;
     private @NotNull String boardsTxtPath = "";
     private @NotNull String programmersTxtPath = "";
     private @NotNull String templatesPath = "";
@@ -89,15 +71,29 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
     @NotNull
     @Override
     public String getLanguageVersionLineForCMake() {
-        return CppLanguageVersions.fromDisplayString(languageVersion).trim();
+        return CppLanguageVersions.fromDisplayString(languageVersionName).trim();
     }
 
-    public void setLanguageVersion(@NotNull String languageVersion) {
-        this.languageVersion = languageVersion;
+    @NotNull
+    public String getLanguageVersionId() {
+        return CppLanguageVersions.fromDisplayString(languageVersionName).trim();
+    }
+
+    public void setLanguageVersion(@NotNull String languageVersionName) {
+        this.languageVersionName = this.languageVersionName;
+    }
+
+    public void setLanguageVersionName(@NotNull String languageVersionName) {
+        this.languageVersionName = this.languageVersionName;
+    }
+
+    public void setLanguageVersionId(@NotNull String languageVersionId) {
+        CppLanguageVersions version = CppLanguageVersions.valueOrNull(languageVersionId);
+        languageVersionName = version == null ? "" : version.getDisplayString();
     }
 
     public void setLibraryType(@Nullable String libraryType) {
-        this.libraryType = libraryType == null ? ARDUINO_LIB_TYPE : libraryType;
+        this.libraryType = libraryType == null ? ArduinoProjectFileSettings.ARDUINO_LIB_TYPE : libraryType;
     }
 
     public String getTemplatesPath() {
@@ -117,8 +113,8 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
     }
 
     @NotNull
-    public String getLanguageVersion() {
-        return languageVersion;
+    public String getLanguageVersionName() {
+        return languageVersionName;
     }
 
     @NotNull
@@ -126,17 +122,44 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
         return libraryType;
     }
 
+    public boolean isStaticLibraryType() {
+        return ArduinoProjectFileSettings.STATIC_LIB_TYPE.equals(getLibraryType());
+    }
+
+    public boolean isArduinoLibraryType() {
+        return ArduinoProjectFileSettings.ARDUINO_LIB_TYPE.equals(getLibraryType());
+    }
+    @NotNull
     public String getLibraryDisplayName() {
         return libraryDisplayName;
     }
 
-    public void setLibraryDisplayName(final String libraryDisplayName) {
+    public void setLibraryDisplayName(@NotNull final String libraryDisplayName) {
         this.libraryDisplayName = libraryDisplayName;
     }
 
     @NotNull
+    public String[] getLibraryDirectories() {
+        return libraryDirectories;
+    }
+
+    @Transient
+    @NotNull
     public String getLibraryDirectory() {
-        return libraryDirectory;
+        return libraryDirectories.length > 0 ? libraryDirectories[0] : "";
+    }
+
+    @Transient
+    public void setLibraryDirectory(final @NotNull String libraryDirectory) {
+        libraryDirectories = new String[] { libraryDirectory };
+    }
+
+    public String[] getNestedLibraries() {
+        return nestedLibraries;
+    }
+
+    public void setNestedLibraries(@NotNull final String[] nestedLibraries) {
+        this.nestedLibraries = nestedLibraries;
     }
 
     public boolean isAddLibraryDirectory() {
@@ -147,8 +170,8 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
         this.addLibraryDirectory = addLibraryDirectory;
     }
 
-    public void setLibraryDirectory(@NotNull String libraryDirectory) {
-        this.libraryDirectory = libraryDirectory;
+    public void setLibraryDirectories(@NotNull String[] libraryDirectories) {
+        this.libraryDirectories = libraryDirectories;
     }
 
     @NotNull
@@ -202,7 +225,7 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
     }
 
     public void setCpuName(@NotNull final String cpuName) {
-        this.cpuId = getArduinoConfig().getBoardCpuIdByName(boardId, cpuName);
+        cpuId = getArduinoConfig().getBoardCpuIdByName(boardId, cpuName);
         validateCpuId();
     }
 
@@ -221,7 +244,7 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
     }
 
     public void setProgrammerName(@NotNull final String programmerName) {
-        this.programmerId = getArduinoConfig().getProgrammerByName(programmerName).getId();
+        programmerId = getArduinoConfig().getProgrammerByName(programmerName).getId();
     }
 
     @NotNull
@@ -306,14 +329,6 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
 
     public void setBoardCpu(String board, String cpu) {
         boardCpuMap.put(board, cpu);
-    }
-
-    public boolean isNestedLibrarySources() {
-        return nestedLibrarySources;
-    }
-
-    public void setNestedLibrarySources(final boolean nestedLibrarySources) {
-        this.nestedLibrarySources = nestedLibrarySources;
     }
 
     @NotNull
@@ -474,12 +489,12 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
         if (addLibraryDirectory != settings.addLibraryDirectory) return false;
         if (baudRate != settings.baudRate) return false;
         if (verbose != settings.verbose) return false;
-        if (nestedLibrarySources != settings.nestedLibrarySources) return false;
         if (bundledBoardsTxt != settings.bundledBoardsTxt) return false;
         if (bundledProgrammersTxt != settings.bundledProgrammersTxt) return false;
-        if (!languageVersion.equals(settings.languageVersion)) return false;
+        if (!languageVersionName.equals(settings.languageVersionName)) return false;
         if (!libraryType.equals(settings.libraryType)) return false;
-        if (!libraryDirectory.equals(settings.libraryDirectory)) return false;
+        if (!Arrays.equals(libraryDirectories, settings.libraryDirectories)) return false;
+        if (!Arrays.equals(nestedLibraries, settings.nestedLibraries)) return false;
         if (!boardId.equals(settings.boardId)) return false;
         if (!cpuId.equals(settings.cpuId)) return false;
         if (!programmerId.equals(settings.programmerId)) return false;
@@ -496,10 +511,11 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
     @SuppressWarnings("NonFinalFieldReferencedInHashCode")
     @Override
     public int hashCode() {
-        int result = languageVersion.hashCode();
+        int result = languageVersionName.hashCode();
         result = 31 * result + libraryType.hashCode();
         result = 31 * result + (addLibraryDirectory ? 1 : 0);
-        result = 31 * result + libraryDirectory.hashCode();
+        result = 31 * result + Arrays.hashCode(libraryDirectories);
+        result = 31 * result + Arrays.hashCode(nestedLibraries);
         result = 31 * result + boardId.hashCode();
         result = 31 * result + cpuId.hashCode();
         result = 31 * result + programmerId.hashCode();
@@ -511,7 +527,6 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
         result = 31 * result + (verbose ? 1 : 0);
         result = 31 * result + boardCpuMap.hashCode();
         result = 31 * result + portHistory.hashCode();
-        result = 31 * result + (nestedLibrarySources ? 1 : 0);
         result = 31 * result + boardsTxtPath.hashCode();
         result = 31 * result + programmersTxtPath.hashCode();
         result = 31 * result + (bundledBoardsTxt ? 1 : 0);
@@ -566,9 +581,13 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
     }
 
     private void fireSettingsChanged() {
-        if (myGroupCount == 0) {
+        if (myGroupCount == 0 && isServiceInstance()) {
             ApplicationManager.getApplication().getMessageBus().syncPublisher(ApplicationSettingsListener.TOPIC).onSettingsChanged();
         }
+    }
+
+    boolean isServiceInstance() {
+        return this == getInstance();
     }
 
     @NotNull
@@ -587,11 +606,4 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
         XmlSerializerUtil.copyBean(state, this);
     }
 
-    public boolean isStaticLibraryType() {
-        return STATIC_LIB_TYPE.equals(libraryType);
-    }
-
-    public boolean isArduinoLibraryType() {
-        return ARDUINO_LIB_TYPE.equals(libraryType);
-    }
 }

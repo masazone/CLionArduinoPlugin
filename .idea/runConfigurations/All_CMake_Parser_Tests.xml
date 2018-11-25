@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Test CMake Parser" type="JUnit" factoryName="JUnit">
+  <configuration default="false" name="All CMake Parser Tests" type="JUnit" factoryName="JUnit">
     <module name="CLionArduinoPlugin" />
     <option name="PACKAGE_NAME" value="com.vladsch.clionarduinoplugin.generators.cmake" />
     <option name="MAIN_CLASS_NAME" value="com.vladsch.clionarduinoplugin.generators.cmake.CMakeTestSuite" />

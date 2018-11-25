@@ -190,7 +190,7 @@ public:
 #endif //_<@PROJECT_NAME@>_USER_SETUP_H_
 """
 
-    val LIBRARY_PROPERTIES_FILE = "library.properties"
+    val LIBRARY_PROPERTIES_FILE = Strings.LIBRARY_PROPERTIES_FILENAME
     val LIBRARY_PROPERTIES_CONTENT = """name=<@LIBRARY_DISPLAY_NAME@>
 version=0.0.0
 author=<@USER_NAME@>
@@ -228,21 +228,21 @@ architectures=*
     val CMAKELISTS_TXT_CONTENT = """cmake_minimum_required(VERSION 2.8.4)
 set(CMAKE_TOOLCHAIN_FILE @{CMAKE_SOURCE_DIR}/cmake/ArduinoToolchain.cmake)
 set(CMAKE_CXX_STANDARD)
-set(CMAKE_PROJECT_NAME)
+set(PROJECT_NAME)
 
-set(@{CMAKE_PROJECT_NAME}_BOARD)
+set(@{PROJECT_NAME}_BOARD)
 set(ARDUINO_CPU)
-project(@{CMAKE_PROJECT_NAME})
+project(@{PROJECT_NAME})
 
 # Define the source code for cpp files or default arduino sketch files
-set(@{CMAKE_PROJECT_NAME}_SRCS)
-set(@{CMAKE_PROJECT_NAME}_HDRS)
+set(@{PROJECT_NAME}_SRCS)
+set(@{PROJECT_NAME}_HDRS)
 
 ### Additional static libraries to include in the target.
-set(@{CMAKE_PROJECT_NAME}_LIBS)
+set(@{PROJECT_NAME}_LIBS)
 
 ### Main sketch file
-set(@{CMAKE_PROJECT_NAME}_SKETCH)
+set(@{PROJECT_NAME}_SKETCH)
 
 ### Add project directories into the build
 add_subdirectory()
@@ -257,14 +257,14 @@ link_directories()
 # set(@{LIB_NAME}_RECURSE true)
 
 #### Additional settings for programmer. From programmers.txt
-set(@{CMAKE_PROJECT_NAME}_PROGRAMMER)
-set(@{CMAKE_PROJECT_NAME}_PORT)
+set(@{PROJECT_NAME}_PROGRAMMER)
+set(@{PROJECT_NAME}_PORT)
 set(<&SET_BOARD&>.upload.speed)
 
 ## Verbose build process
-set(@{CMAKE_PROJECT_NAME}_AFLAGS)
+set(@{PROJECT_NAME}_AFLAGS)
 
-generate_arduino_firmware(@{CMAKE_PROJECT_NAME})
-generate_arduino_library(@{CMAKE_PROJECT_NAME})
+generate_arduino_firmware(@{PROJECT_NAME})
+generate_arduino_library(@{PROJECT_NAME})
 """.prep
 }

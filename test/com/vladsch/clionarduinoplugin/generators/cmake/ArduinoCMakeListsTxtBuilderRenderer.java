@@ -117,7 +117,7 @@ class ArduinoCMakeListsTxtBuilderRenderer extends IRenderBase {
                 }
             }
 
-            String contents = builder.getCMakeContents(valueSet, suppressCommented);
+            String contents = builder.getCMakeContents(valueSet, suppressCommented, false);
             output.append(contents);
 
             if (ExtraRenderer.DUMP_OPTIONS.getFrom(cMakeFile)) {

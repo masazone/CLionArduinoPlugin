@@ -36,6 +36,7 @@
             </constraints>
             <properties>
               <text resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.send-immediate.label"/>
+              <toolTipText resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.send-immediate.description"/>
               <verticalAlignment value="0"/>
             </properties>
           </component>
@@ -45,6 +46,7 @@
             </constraints>
             <properties>
               <text resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.log-sent-text.label"/>
+              <toolTipText resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.log-sent-text.description"/>
               <verticalAlignment value="0"/>
             </properties>
           </component>

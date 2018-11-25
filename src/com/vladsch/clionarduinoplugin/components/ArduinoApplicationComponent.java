@@ -7,7 +7,7 @@ import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.vladsch.clionarduinoplugin.resources.Strings;
 import org.jetbrains.annotations.NotNull;
 
-public class ArduinoFileTypeRegistration implements BaseComponent {
+public class ArduinoApplicationComponent implements BaseComponent {
 
     public void initComponent() {
         ApplicationManager.getApplication().invokeLater(() ->

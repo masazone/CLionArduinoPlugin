@@ -12,26 +12,25 @@
  * under the License.
  *
  */
-package com.vladsch.clionarduinoplugin.components;
+package com.vladsch.clionarduinoplugin.settings;
 
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.vladsch.clionarduinoplugin.Bundle;
-import com.vladsch.clionarduinoplugin.settings.ProjectSettingsForm;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 
-public class ProjectConfigurable implements SearchableConfigurable {
+public class ArduinoSerialMonitorConfigurable implements SearchableConfigurable {
     @NotNull final protected Project myProject;
-    @Nullable private ProjectSettingsForm myForm = null;
+    @Nullable private SerialMonitorSettingsForm myForm = null;
     @Nullable final private ArduinoProjectSettings mySettings;
 
-    private ProjectConfigurable(@NotNull Project project) {
+    private ArduinoSerialMonitorConfigurable(@NotNull Project project) {
         this.myProject = project;
         this.mySettings = ArduinoProjectSettings.getInstance(project);
     }
@@ -78,9 +77,9 @@ public class ProjectConfigurable implements SearchableConfigurable {
     }
 
     @NotNull
-    public ProjectSettingsForm getForm() {
+    public SerialMonitorSettingsForm getForm() {
         if (myForm == null) {
-            myForm = new ProjectSettingsForm(mySettings, true);
+            myForm = new SerialMonitorSettingsForm(mySettings, true);
         }
         return myForm;
     }

@@ -7,17 +7,20 @@ import java.util.Arrays;
 
 public class CMakeCommandType {
     public static final String[] EMPTY = new String[0];
-    public static final CMakeCommandType NULL = new CMakeCommandType("", "", EMPTY, 0,0);
+    public static final CMakeCommandType NULL = new CMakeCommandType("", "", EMPTY, 0, 0);
+    public static final String WILDCARD_ARG_MARKER = "<@@>";
 
-    final private @NotNull String myName;
-    final private @NotNull String myCommand;
-    final private @NotNull String[] myFixedArgs;
-    final private @NotNull String[] myDefaultArgs;
-    final private boolean myNoDupeArgs;
-    final private int myMinArgs;
-    final private int myMaxArgs;
-    final private boolean myIsMultiple;     // whether can have multiple commands
-    final private boolean myIsKeepLast;   // if cannot have multiple then which one drives Last, First
+    final protected @NotNull String myName;
+    final protected @NotNull String myCommand;
+    final protected @NotNull String[] myFixedArgs;
+    final protected @NotNull String[] myDefaultArgs;
+    final protected boolean myNoDupeArgs;
+    final protected int myMinArgs;
+    final protected int myMaxArgs;
+    final protected boolean myIsMultiple;     // whether can have multiple commands
+    final protected boolean myIsKeepLast;   // if cannot have multiple then which one drives Last, First
+    final protected int myWildcardFixedArgs;
+    final protected int myWildcardCount;
 
     public CMakeCommandType(@NotNull final String name, @NotNull final String command, final @NotNull String[] fixedArgs, final int minArgs, final int maxArgs) {
         this(name, command, fixedArgs, minArgs, maxArgs, false, true, true, null);
@@ -41,6 +44,44 @@ public class CMakeCommandType {
         myIsMultiple = isMultiple;
         myIsKeepLast = isKeepLast;
         myDefaultArgs = defaults != null ? defaults : EMPTY;
+        myWildcardFixedArgs = getWildcardFixedArgs(fixedArgs);
+        myWildcardCount = getWildcardCount(fixedArgs);
+    }
+
+    public static int getWildcardFixedArgs(final @NotNull String[] fixedArgs) {
+        int wildcardArgs = 0;
+
+        for (String arg : fixedArgs) {
+            if (arg.contains(WILDCARD_ARG_MARKER)) wildcardArgs++;
+        }
+        return wildcardArgs;
+    }
+
+    public static int getWildcardCount(final @NotNull String[] fixedArgs) {
+        int wildcardArgs = 0;
+
+        for (String arg : fixedArgs) {
+            int pos = 0;
+            while (pos < arg.length()) {
+                pos = arg.indexOf(WILDCARD_ARG_MARKER, pos);
+                if (pos == -1) break;
+                wildcardArgs++;
+                pos += WILDCARD_ARG_MARKER.length();
+            }
+        }
+        return wildcardArgs;
+    }
+
+    public int getAncestors() {
+        return 0;
+    }
+
+    public boolean isOfType(CMakeCommandType commandType) {
+        return this == commandType;
+    }
+
+    public boolean isSubTypeOf(CMakeCommandType commandType) {
+        return false;
     }
 
     @NotNull
@@ -56,6 +97,14 @@ public class CMakeCommandType {
     @NotNull
     public String[] getFixedArgs() {
         return myFixedArgs;
+    }
+
+    public int getWildcardFixedArgs() {
+        return myWildcardFixedArgs;
+    }
+
+    public int getWildcardCount() {
+        return myWildcardCount;
     }
 
     public int getMinArgs() {

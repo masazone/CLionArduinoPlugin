@@ -5,7 +5,7 @@ import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.vladsch.clionarduinoplugin.Bundle;
-import com.vladsch.clionarduinoplugin.components.ArduinoProjectSettings;
+import com.vladsch.clionarduinoplugin.settings.ArduinoProjectSettings;
 import icons.PluginIcons;
 import org.jetbrains.annotations.NotNull;
 

@@ -19,7 +19,7 @@ import com.intellij.util.ui.UIUtil;
 import com.vladsch.clionarduinoplugin.Bundle;
 import com.vladsch.clionarduinoplugin.actions.SerialMonitorBaudRateActionBase;
 import com.vladsch.clionarduinoplugin.actions.SerialMonitorPortActionBase;
-import com.vladsch.clionarduinoplugin.components.ArduinoProjectSettings;
+import com.vladsch.clionarduinoplugin.settings.ArduinoProjectSettings;
 import com.vladsch.clionarduinoplugin.util.ProjectSettingsListener;
 import com.vladsch.clionarduinoplugin.util.Utils;
 import icons.PluginIcons;

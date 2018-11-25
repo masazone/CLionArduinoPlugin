@@ -11,7 +11,7 @@ import icons.PluginIcons
 import org.jetbrains.annotations.Nls
 import javax.swing.Icon
 
-class ArduinoSketchProjectGenerator : ArduinoProjectGeneratorBase(false) {
+class ArduinoSketchProjectGenerator : ArduinoProjectGenerator(false) {
 
     @Nls
     override fun getName(): String {

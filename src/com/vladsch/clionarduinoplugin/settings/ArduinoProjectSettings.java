@@ -1,4 +1,4 @@
-package com.vladsch.clionarduinoplugin.components;
+package com.vladsch.clionarduinoplugin.settings;
 
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
@@ -6,8 +6,6 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
-import com.vladsch.clionarduinoplugin.settings.BuildConfigurationPatternType;
-import com.vladsch.clionarduinoplugin.settings.SerialEndOfLineTypes;
 import com.vladsch.clionarduinoplugin.util.ProjectSettingsListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

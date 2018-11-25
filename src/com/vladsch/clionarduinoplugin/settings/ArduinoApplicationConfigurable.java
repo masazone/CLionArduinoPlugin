@@ -12,24 +12,23 @@
  * under the License.
  *
  */
-package com.vladsch.clionarduinoplugin.components;
+package com.vladsch.clionarduinoplugin.settings;
 
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.util.Disposer;
 import com.vladsch.clionarduinoplugin.Bundle;
-import com.vladsch.clionarduinoplugin.settings.ApplicationSettingsForm;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 
-public class ApplicationConfigurable implements SearchableConfigurable {
+public class ArduinoApplicationConfigurable implements SearchableConfigurable {
     @Nullable private ApplicationSettingsForm myForm = null;
     @NotNull final private ArduinoApplicationSettings mySettings;
 
-    private ApplicationConfigurable() {
+    private ArduinoApplicationConfigurable() {
         this.mySettings = ArduinoApplicationSettings.getInstance().getState();
     }
 

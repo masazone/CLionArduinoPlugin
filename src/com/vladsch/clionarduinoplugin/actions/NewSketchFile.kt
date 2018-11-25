@@ -10,8 +10,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.vfs.VirtualFile
 import com.vladsch.clionarduinoplugin.Bundle
-import com.vladsch.clionarduinoplugin.components.ArduinoApplicationSettings
-import com.vladsch.clionarduinoplugin.generators.ArduinoProjectGeneratorBase
+import com.vladsch.clionarduinoplugin.settings.ArduinoApplicationSettings
+import com.vladsch.clionarduinoplugin.generators.ArduinoProjectGenerator
 import com.vladsch.clionarduinoplugin.util.FileCreator
 import com.vladsch.clionarduinoplugin.resources.TemplateResolver
 import com.vladsch.clionarduinoplugin.util.StudiedWord
@@ -96,7 +96,7 @@ class NewSketchFile : AnAction() {
                 if (createdFiles) {
                     // reload CMakeLists.txt
                     // vsch: Need to reload the CMakeList.txt to generate build files, first time generation is incorrect
-                    ArduinoProjectGeneratorBase.reloadCMakeLists(project)
+                    ArduinoProjectGenerator.reloadCMakeLists(project)
                 }
                 break
             }

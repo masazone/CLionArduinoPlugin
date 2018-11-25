@@ -4,7 +4,7 @@ import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.Toggleable
-import com.vladsch.clionarduinoplugin.components.ArduinoProjectSettings
+import com.vladsch.clionarduinoplugin.settings.ArduinoProjectSettings
 import com.vladsch.clionarduinoplugin.util.Utils
 
 class SerialMonitorPortActionBase(internal val myPort: String) : AnAction(myPort), Toggleable {

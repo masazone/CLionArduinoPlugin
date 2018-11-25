@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nls
 
 import javax.swing.Icon
 
-class ArduinoSketchLibraryGenerator : ArduinoProjectGeneratorBase(true) {
+class ArduinoLibraryGenerator : ArduinoProjectGenerator(true) {
 
     @Nls
     override fun getName(): String {

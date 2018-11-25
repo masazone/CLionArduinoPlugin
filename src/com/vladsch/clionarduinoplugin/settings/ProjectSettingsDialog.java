@@ -4,7 +4,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.vladsch.clionarduinoplugin.Bundle;
-import com.vladsch.clionarduinoplugin.components.ArduinoProjectSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,7 +14,7 @@ import java.awt.BorderLayout;
 
 public class ProjectSettingsDialog extends DialogWrapper {
     JPanel myMainPanel;
-    private ProjectSettingsForm myProjectSettingsForm;
+    private SerialMonitorSettingsForm mySerialMonitorSettingsForm;
 
     public ProjectSettingsDialog(@NotNull Project project) {
         super(false);
@@ -25,9 +24,9 @@ public class ProjectSettingsDialog extends DialogWrapper {
         setTitle(Bundle.message("settings.project-settings.title"));
 
         ArduinoProjectSettings projectSettings = ArduinoProjectSettings.getInstance(project);
-        myProjectSettingsForm = new ProjectSettingsForm(projectSettings, true);
-        myMainPanel.add(myProjectSettingsForm.getComponent(), BorderLayout.CENTER);
-        myProjectSettingsForm.reset(projectSettings);
+        mySerialMonitorSettingsForm = new SerialMonitorSettingsForm(projectSettings, true);
+        myMainPanel.add(mySerialMonitorSettingsForm.getComponent(), BorderLayout.CENTER);
+        mySerialMonitorSettingsForm.reset(projectSettings);
 
         init();
     }
@@ -49,7 +48,7 @@ public class ProjectSettingsDialog extends DialogWrapper {
         ProjectSettingsDialog dialog = new ProjectSettingsDialog(project);
         boolean save = dialog.showAndGet();
         if (save) {
-            dialog.myProjectSettingsForm.apply(ArduinoProjectSettings.getInstance(project));
+            dialog.mySerialMonitorSettingsForm.apply(ArduinoProjectSettings.getInstance(project));
         }
     }
 

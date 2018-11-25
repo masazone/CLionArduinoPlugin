@@ -17,7 +17,7 @@ import com.intellij.ui.components.JBTextField;
 import com.vladsch.clionarduinoplugin.actions.ConnectAction;
 import com.vladsch.clionarduinoplugin.actions.EditSettingsAction;
 import com.vladsch.clionarduinoplugin.actions.ShowSendOptionsAction;
-import com.vladsch.clionarduinoplugin.components.ArduinoProjectSettings;
+import com.vladsch.clionarduinoplugin.settings.ArduinoProjectSettings;
 import com.vladsch.clionarduinoplugin.settings.SendSettingsForm;
 import com.vladsch.clionarduinoplugin.util.ProjectSettingsListener;
 import jssc.SerialPortEvent;
