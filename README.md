@@ -91,6 +91,7 @@ interest. Then maybe someone else will pick up the torch at take it further.
 * [x] add CMake parser and builder to allow extracting and modifying CMake files
       programmatically, after project creation
 * [x] add option for using customized project templates
+* [x] add code for loading project options from CMakeLists.txt (for UI modification)
 * [ ] Add UI for changing existing CMakeLists.txt configuration
   * [ ] Change board, cpu, programmer, port, etc. All options which were available on project
         creation and make sense to modify on existing project.
