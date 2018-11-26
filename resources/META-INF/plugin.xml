@@ -12,9 +12,9 @@
     <depends>com.intellij.modules.clion</depends>
 
     <description><![CDATA[
-        <p><img src="https://github.com/vsch/CLionArduinoPlugin/raw/master/resources/META-INF/pluginIcon.png" alt="pluginIcon.png" width="50" align="middle"/>
+        <p><img src="https://github.com/vsch/CLionArduinoPlugin/raw/master/resources/META-INF/pluginIcon.png" alt="pluginIcon.png" width="50" align="middle" />
             Integrates <a href="https://github.com/francoiscampbell/arduino-cmake">Arduino CMake</a> into the CLion IDE.</p>
-        <p>Create an Arduino CMake project in one click with new project wizard types and view
+        <p>Install and create an Arduino CMake projects in one click with new project wizard types and view
             communications with the integrated serial monitor tool window.</p>
         <ul>
             <li>
@@ -27,8 +27,17 @@
             <li>
                 <p>Serial port monitor tool window with options to disconnect on build start and reconnect on
                     build complete.</p>
-                <p><strong>NOTE:</strong> Build events are only available in CLion 2018.3 (or later) so these options are disabled
-                    if you are running an earlier version of CLion.</p>
+                <p><strong>NOTE:</strong> Build events are only available in CLion 2018.3 (or later) so these options are
+                    disabled if you are running an earlier version of CLion.</p>
+            </li>
+            <li>
+                <p>Change current build parameters with the <code>Tools</code> &gt; <code>Arduino Support</code> &gt; <code>Change build settings</code>. Preview changes to <code>CMakeLists.txt</code> before committing to them with the <code>Show Difference</code> button or use it to copy the desired changes to apply them manually.</p>
+            </li>
+            <li>
+                <p>Customize template files used for creating new projects.</p>
+            </li>
+            <li>
+                <p>Use bundled <code>boards.txt</code> and <code>programmers.txt</code> or your own versions.</p>
             </li>
         </ul>
         <h4>** <code>Serial Port Monitor</code> plugin cannot be used with <code>Arduino Support</code></h4>
@@ -36,19 +45,23 @@
             Please uninstall or disable <code>Serial Port Monitor</code> plugin before installing <code>Arduino Support</code>.</p>
         <p>| <a href="https://github.com/vsch/CLionArduinoPlugin/issues">Issues</a> | <a href="https://github.com/vsch/CLionArduinoPlugin">Plugin Source</a> |</p>
         <p><br></p>
-        <p><img src="https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_NewProject.png" alt="Screenshot_NewProject.png" width="400px"/></p>
-        <p><img src="https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_ProjectSettings.png" alt="Screenshot_ProjectSettings" width="400px"/></p>
-        <p><img src="https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_SerialMonitor.png" alt="Screenshot_SerialMonitor" width="400px"/></p>
+        <p><img src="https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_NewProject.png" alt="Screenshot_NewProject.png" width="400px" /><br></p>
+        <!--![Screenshot_ProjectSettings](https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_ProjectSettings.png){width=400px}-->
+        <p><img src="https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_SerialMonitor.png" alt="Screenshot_SerialMonitor" width="400px" /><br></p>
+        <p><img src="https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_ChangeBuildSettings.png" alt="Screenshot_ChangeBuildSettings" width="400px" /><br></p>
+        <!--![Screenshot_ChangeBuildDiff](https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_ChangeBuildDiff.png){width=400px}-->
         <p><br></p>
         <p><strong>*</strong> This plugin is a fork of <a href="https://github.com/rjuang/CLionArduinoPlugin">rjuang/CLionArduinoPlugin</a> which in turn is a fork of
             <a href="https://github.com/francoiscampbell/CLionArduinoPlugin">Original CLionArduinoPlugin</a> written by Francois Campbell.</p>
         ]]></description>
 
-    <version>1.3.17</version>
+    <version>1.4.0</version>
 
     <change-notes><![CDATA[
-        <h3>1.3.17</h3>
+        <h3>1.4.0</h3>
         <ul>
+            <li>Add: UI for changing Arduino build board, cpu, programmer, etc. Under Tools &gt; Arduino Support
+                &gt; Change build settings</li>
             <li>Add: default baud rate in new project wizard to allow using default</li>
             <li>Add: baud rate if one was provided to cmake lists</li>
             <li>Add: basic Arduino CMakeLists.txt builder from template, to have common code for new project
@@ -61,6 +74,10 @@
             <li>Fix: templates only accessible as files under debug environment.</li>
             <li>Fix: rework builder to not depend on <code>set()</code> variable names and resolve values for command
                 matching.</li>
+            <li>Fix: refactor builder to use cmake project name variable used in <code>project()</code> if it was not
+                changed through set/add command, otherwise use one given by mods.</li>
+            <li>Add: generic unknown command to handle commands which have no defined type</li>
+            <li>Add: generating CMakeLists from config options instead of real files</li>
         </ul>
         <h3>1.3.14</h3>
         <ul>
@@ -214,6 +231,18 @@
     </project-components>
 
     <actions>
+        <group id="com.vladsch.clionarduinoplugin.actions.ToolsMenu" text="Arduino Support" popup="true" icon="PluginIcons.arduino_plugin_logo">
+            <add-to-group group-id="ToolsMenu" anchor="after" relative-to-action="ExternalToolsGroup"/>
+            <action class="com.vladsch.clionarduinoplugin.actions.ChangeBuildSettingsAction"
+                    id="com.vladsch.clionarduinoplugin.actions.ChangeBuildSettings"
+                    text="Change build settings"
+                    description="Change Arduino project board, cpu, programmer, etc."
+            >
+<!--                icon="PluginIcons.arduino_sketch"-->
+                <!--<keyboard-shortcut first-keystroke="ctrl shift b" keymap="$default"/>-->
+            </action>
+        </group>
+        
         <!-- Add your actions here -->
         <action id="com.vladsch.clionarduinoplugin.actions.NewSketchFile"
                 class="com.vladsch.clionarduinoplugin.actions.NewSketchFile"

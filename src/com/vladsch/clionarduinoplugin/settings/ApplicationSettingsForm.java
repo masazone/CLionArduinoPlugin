@@ -461,8 +461,10 @@ public class ApplicationSettingsForm implements Disposable, ApplicationSettingsL
     }
 
     @Override
-    public void onSettingsChanged() {
-        reset(mySettings);
+    public void onSettingsChanged(ArduinoApplicationSettings settings) {
+        if (settings == mySettings) {
+            reset(mySettings);
+        }
     }
 
     public boolean isModified(@NotNull ArduinoApplicationSettings settings) {

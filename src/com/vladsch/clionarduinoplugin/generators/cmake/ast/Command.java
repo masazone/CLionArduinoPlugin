@@ -4,6 +4,7 @@ import com.vladsch.flexmark.ast.Node;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 
 public class Command extends Node {
+    protected BasedSequence leadingSpaces = BasedSequence.NULL;
     protected BasedSequence command = BasedSequence.NULL;
     protected BasedSequence openingMarker = BasedSequence.NULL;
     protected BasedSequence arguments = BasedSequence.NULL;
@@ -18,15 +19,24 @@ public class Command extends Node {
 
     @Override
     public BasedSequence[] getSegments() {
-        return new BasedSequence[] { command, openingMarker, arguments, closingMarker };
+        return new BasedSequence[] { leadingSpaces, command, openingMarker, arguments, closingMarker };
     }
 
     @Override
     public void getAstExtra(StringBuilder out) {
+        segmentSpanChars(out, leadingSpaces, "spaces");
         segmentSpanChars(out, command, "text");
         segmentSpanChars(out, openingMarker, "open");
         if (arguments.isNotNull()) segmentSpanChars(out, arguments, "arguments");
         segmentSpanChars(out, closingMarker, "close");
+    }
+
+    public BasedSequence getLeadingSpaces() {
+        return leadingSpaces;
+    }
+
+    public void setLeadingSpaces(final BasedSequence leadingSpaces) {
+        this.leadingSpaces = leadingSpaces.isEmpty() ? BasedSequence.NULL : leadingSpaces;
     }
 
     public BasedSequence getCommand() {

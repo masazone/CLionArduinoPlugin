@@ -14,6 +14,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
+import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.openapi.util.ThrowableComputable
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
@@ -56,7 +57,7 @@ import javax.swing.JPanel
 import javax.swing.JTextField
 
 abstract class ArduinoProjectGenerator(isLibrary: Boolean) : CMakeProjectGenerator(), Disposable {
-    protected val mySettings: ArduinoApplicationSettingsProxy = ArduinoApplicationSettingsProxy(ArduinoApplicationSettings.getInstance().state, isLibrary)
+    protected val mySettings: ArduinoApplicationSettingsProxy = ArduinoApplicationSettingsProxy.wrap(ArduinoApplicationSettings.getInstance().state, isLibrary)
     private val myListeners = HashSet<WeakReference<GeneratorFailedValidationListener>>()
 
     override fun dispose() {
@@ -117,6 +118,7 @@ abstract class ArduinoProjectGenerator(isLibrary: Boolean) : CMakeProjectGenerat
                 "PROJECT_NAME" to snakeName.toUpperCase(),
                 "project_name" to snakeName.toLowerCase(),
                 "ProjectName" to pascalName,
+//                "COMMENT_UNUSED" to if (mySettings.applicationSettings.isCommentUnusedSettings) "true" else "false",
                 "projectName" to camelName
         )
 
@@ -145,7 +147,7 @@ abstract class ArduinoProjectGenerator(isLibrary: Boolean) : CMakeProjectGenerat
 
         val projectDir = File(rootDir.path)
         val fileList = sourceFiles.map { File(it.path).relativeTo(projectDir).path }
-        val cMakeFileContent = ArduinoCMakeListsTxtBuilder.getCMakeFileContent(cMakeFileTemplate, name, mySettings, fileList)
+        val cMakeFileContent = ArduinoCMakeListsTxtBuilder.getCMakeFileContent(cMakeFileTemplate, name, mySettings, fileList, false)
         val cMakeFile = createProjectFileWithContent(rootDir, Strings.CMAKE_LISTS_FILENAME, cMakeFileContent)
 
         val extraFiles = ArduinoToolchainFiles.copyToDirectory(VfsUtil.findFileByIoFile(VfsUtilCore.virtualToIoFile(rootDir), false))
@@ -200,25 +202,13 @@ abstract class ArduinoProjectGenerator(isLibrary: Boolean) : CMakeProjectGenerat
         } else {
             // validate other fields, but only if the location text field was found so we can trigger another validation
             val settings = mySettings.applicationSettings
-
-            if (settings.boardId.isEmpty()) {
-                return filterFailure(ValidationResult(Bundle.message("new-project.no-board")))
-            }
-
-            if (settings.getBoardCpuNames(settings.boardName).isNotEmpty() && settings.cpuId.isEmpty()) {
-                return filterFailure(ValidationResult(Bundle.message("new-project.1.no-cpu", settings.cpuLabel, settings.boardName)))
-            }
-
-            if (settings.isAddLibraryDirectory) {
-                if (File(settings.libraryDirectory).isAbsolute) {
-                    return filterFailure(ValidationResult(String.format("Library sub-directory '%s' must be relative to project path.", settings.libraryDirectories)))
-                }
-            }
+            val result = validateOptions(settings)
+            if (result != null) return filterFailure(result)
         }
         return super.validate(baseDirPath)
         //return ValidationResult.OK;
     }
-
+    
     private fun filterFailure(result: ValidationResult): ValidationResult {
         val canFail = fireValidationFailed()
         return if (canFail) result else ValidationResult.OK
@@ -282,6 +272,7 @@ abstract class ArduinoProjectGenerator(isLibrary: Boolean) : CMakeProjectGenerat
     private class ArduinoNewProjectSettingsPanel(val settings: ArduinoApplicationSettingsProxy, projectGenerator: ArduinoProjectGenerator) : CMakeSettingsPanel(projectGenerator), ApplicationSettingsListener, GeneratorFailedValidationListener, Disposable {
         private val myPanel: JPanel
         private var myHaveFailed = false
+        private val myNewProjectSettingsForm = NewProjectSettingsForm(settings, true, false)
 
         private //.getParent();
         val locationTextField: JTextField?
@@ -295,7 +286,6 @@ abstract class ArduinoProjectGenerator(isLibrary: Boolean) : CMakeProjectGenerat
             }
 
         init {
-            val form = NewProjectSettingsForm(settings, true, false)
 
             layout = BorderLayout()
 
@@ -307,7 +297,7 @@ abstract class ArduinoProjectGenerator(isLibrary: Boolean) : CMakeProjectGenerat
             constraints.column = 0
             constraints.anchor = 8
             constraints.fill = GridConstraints.FILL_HORIZONTAL
-            myPanel.add(form.component, constraints)
+            myPanel.add(myNewProjectSettingsForm.component, constraints)
 
             add(myPanel, "Center")
 
@@ -320,12 +310,14 @@ abstract class ArduinoProjectGenerator(isLibrary: Boolean) : CMakeProjectGenerat
             return myHaveFailed
         }
 
-        override fun onSettingsChanged() {
-            if (myHaveFailed) {
-                myHaveFailed = false
-                val textField = locationTextField
-                if (textField != null) {
-                    textField.text = textField.text
+        override fun onSettingsChanged(settings: ArduinoApplicationSettings) {
+            if (settings === myNewProjectSettingsForm.settings) {
+                if (myHaveFailed) {
+                    myHaveFailed = false
+                    val textField = locationTextField
+                    if (textField != null) {
+                        textField.text = textField.text
+                    }
                 }
             }
         }
@@ -377,6 +369,33 @@ abstract class ArduinoProjectGenerator(isLibrary: Boolean) : CMakeProjectGenerat
     protected class CreatedFilesHolder constructor(val cMakeFile: VirtualFile, val sourceFiles: Array<VirtualFile>, val nonSourceFiles:Array<VirtualFile>, val extraFiles: Array<VirtualFile>)
 
     companion object {
+        fun  validateOptions(settings: ArduinoApplicationSettings):ValidationResult? {
+            val result = validateOptionsInfo(settings,null)
+            if (result != null) {
+                return ValidationResult(result.message)
+            }
+            return null
+        }
+        
+        fun  validateOptionsInfo(settings: ArduinoApplicationSettings, form:NewProjectSettingsForm?):ValidationInfo? {
+            if (settings.boardId.isEmpty()) {
+                return ValidationInfo(Bundle.message("new-project.no-board"), form?.getErrorComponent(NewProjectSettingsForm.ErrorComp.BOARD))
+            }
+
+            if (settings.getBoardCpuNames(settings.boardName).isNotEmpty() && settings.cpuId.isEmpty()) {
+                return ValidationInfo(Bundle.message("new-project.1.no-cpu", settings.cpuLabel, settings.boardName), form?.getErrorComponent(NewProjectSettingsForm.ErrorComp.CPU))
+            }
+
+            if (settings.isAddLibraryDirectory) {
+                for (dir in settings.libraryDirectories) {
+                    if (File(dir).isAbsolute) {
+                        return ValidationInfo(Bundle.message("new-project.0.absolute-lib-dir", dir), form?.getErrorComponent(NewProjectSettingsForm.ErrorComp.LIB_DIR))
+                    }
+                }
+            }
+            return null
+        }
+        
         fun reloadCMakeLists(project: Project) {
             val workspace = CMakeWorkspace.getInstance(project)
             ApplicationManager.getApplication().invokeLater {

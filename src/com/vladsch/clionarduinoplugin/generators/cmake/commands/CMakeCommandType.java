@@ -6,9 +6,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 
 public class CMakeCommandType {
-    public static final String[] EMPTY = new String[0];
-    public static final CMakeCommandType NULL = new CMakeCommandType("", "", EMPTY, 0, 0);
-    public static final String WILDCARD_ARG_MARKER = "<@@>";
+    final public static String[] EMPTY = new String[0];
+    final public static CMakeCommandType NULL = new CMakeCommandType("", "", EMPTY, 0, 0);
+    final public static String WILDCARD_ARG_MARKER = "<@@>";
+    final public static int INF_MAX_ARGS = 1000;
+    final protected static CMakeCommandType UNKNOWN = new CMakeCommandType("", "", EMPTY, 0, INF_MAX_ARGS);
 
     final protected @NotNull String myName;
     final protected @NotNull String myCommand;

@@ -6,9 +6,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 
 public class CMakeCommandSubType extends CMakeCommandType {
-    final protected CMakeCommandType mySpecializationOf;
+    final protected @NotNull CMakeCommandType mySpecializationOf;
 
-    static String[] combineArgs(CMakeCommandType specializationOf, String[] args1, String[] args2) {
+    static String[] combineArgs(@NotNull CMakeCommandType specializationOf, String[] args1, String[] args2) {
         String[] result = new String[args1.length + Math.max(args2.length - specializationOf.myWildcardCount, 0)];
 
         int i = 0;

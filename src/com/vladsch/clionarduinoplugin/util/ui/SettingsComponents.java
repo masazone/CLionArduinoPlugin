@@ -26,10 +26,7 @@ import com.vladsch.flexmark.util.ValueRunnable;
 import org.gradle.internal.impldep.com.google.api.services.storage.model.Objects;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JRadioButton;
-import javax.swing.JSpinner;
+import javax.swing.*;
 import javax.swing.text.JTextComponent;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,6 +35,7 @@ import java.util.Set;
 
 public abstract class SettingsComponents<T> implements SettingsConfigurable<T>, Disposable {
     protected Settable<T>[] mySettables;
+    protected T myCachedSettings;
 
     public SettingsComponents() {
         mySettables = null;
@@ -51,6 +49,10 @@ public abstract class SettingsComponents<T> implements SettingsConfigurable<T>, 
     protected Settable<T>[] getComponents(T i) {
         if (mySettables == null) {
             mySettables = createComponents(i);
+            myCachedSettings = i;
+        } else if (i != myCachedSettings) {
+            // another settings instance, not the right use case 
+            return createComponents(i);
         }
         return mySettables;
     }
@@ -217,15 +219,20 @@ public abstract class SettingsComponents<T> implements SettingsConfigurable<T>, 
         @Override
         public void apply() {
             //noinspection unchecked
-            if (!myGetter.get().equals(myComponentGetter.get())) {
-                mySetter.set(myComponentGetter.get());
+            if (myInstance instanceof JComponent && ((JComponent) myInstance).isVisible()) {
+                if (!myGetter.get().equals(myComponentGetter.get())) {
+                    mySetter.set(myComponentGetter.get());
+                }
             }
         }
 
         @Override
         public boolean isModified() {
             //noinspection unchecked
-            return myGetter.get() == null ? myComponentGetter.get() != null : !myGetter.get().equals(myComponentGetter.get());
+            if (myInstance instanceof JComponent && ((JComponent) myInstance).isVisible()) {
+                return myGetter.get() == null ? myComponentGetter.get() != null : !myGetter.get().equals(myComponentGetter.get());
+            }
+            return false;
         }
     }
 

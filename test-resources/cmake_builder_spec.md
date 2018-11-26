@@ -8,6 +8,77 @@ license: '[CC-BY-SA 4.0](http://creativecommons.org/licenses/by-sa/4.0/)'
 
 ---
 
+## Generic
+
+actual file
+
+```````````````````````````````` example(Generic: 1) options(board-pro)
+cmake_minimum_required(VERSION 2.8.4)
+set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/cmake/ArduinoToolchain.cmake")
+set(CMAKE_CXX_STANDARD 98)
+set(CMAKE_PROJECT_NAME tft_life)
+
+made_up_command(SOME_ARG, more args) 
+another_made_up_command()
+
+## This must be set before project call
+set(${MAKE_PROJECT_NAME}_BOARD pro)
+set(ARDUINO_CPU 8MHzatmega328)
+project(${MAKE_PROJECT_NAME})
+.
+cmake_minimum_required(VERSION 2.8.4)
+set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/ArduinoToolchain.cmake)
+set(CMAKE_CXX_STANDARD 98)
+set(CMAKE_PROJECT_NAME tft_life)
+
+made_up_command(SOME_ARG, more args)
+another_made_up_command()
+
+## This must be set before project call
+set(${MAKE_PROJECT_NAME}_BOARD pro)
+set(ARDUINO_CPU 8MHzatmega328)
+project(${MAKE_PROJECT_NAME})
+.
+CMakeFile[0, 377]
+  Command[0, 37] text:[0, 22, "cmake_minimum_required"] open:[22, 23, "("] arguments:[23, 36, "VERSION 2.8.4"] close:[36, 37, ")"]
+    Argument[23, 30] text:[23, 30, "VERSION"]
+    Argument[31, 36] text:[31, 36, "2.8.4"]
+  LineEnding[37, 38]
+  Command[38, 114] text:[38, 41, "set"] open:[41, 42, "("] arguments:[42, 113, "CMAKE_TOOLCHAIN_FILE \"${CMAKE_SOURCE_DIR}/cmake/ArduinoToolchain.cmake\""] close:[113, 114, ")"]
+    Argument[42, 62] text:[42, 62, "CMAKE_TOOLCHAIN_FILE"]
+    Argument[63, 113] open:[63, 64, "\""] text:[64, 112, "${CMAKE_SOURCE_DIR}/cmake/ArduinoToolchain.cmake"] close:[112, 113, "\""]
+  LineEnding[114, 115]
+  Command[115, 141] text:[115, 118, "set"] open:[118, 119, "("] arguments:[119, 140, "CMAKE_CXX_STANDARD 98"] close:[140, 141, ")"]
+    Argument[119, 137] text:[119, 137, "CMAKE_CXX_STANDARD"]
+    Argument[138, 140] text:[138, 140, "98"]
+  LineEnding[141, 142]
+  Command[142, 174] text:[142, 145, "set"] open:[145, 146, "("] arguments:[146, 173, "CMAKE_PROJECT_NAME tft_life"] close:[173, 174, ")"]
+    Argument[146, 164] text:[146, 164, "CMAKE_PROJECT_NAME"]
+    Argument[165, 173] text:[165, 173, "tft_life"]
+  LineEnding[174, 175]
+  BlankLine[175, 176]
+  Command[176, 212] text:[176, 191, "made_up_command"] open:[191, 192, "("] arguments:[192, 211, "SOME_ARG, more args"] close:[211, 212, ")"]
+    Argument[192, 201] text:[192, 201, "SOME_ARG,"]
+    Argument[202, 206] text:[202, 206, "more"]
+    Argument[207, 211] text:[207, 211, "args"]
+  LineEnding[213, 214]
+  Command[214, 239] text:[214, 237, "another_made_up_command"] open:[237, 238, "("] arguments:[238, 238] close:[238, 239, ")"]
+  LineEnding[239, 240]
+  BlankLine[240, 241]
+  LineComment[241, 281] open:[241, 242, "#"] text:[242, 281, "# This must be set before project call\n"]
+  Command[281, 316] text:[281, 284, "set"] open:[284, 285, "("] arguments:[285, 315, "${MAKE_PROJECT_NAME}_BOARD pro"] close:[315, 316, ")"]
+    Argument[285, 311] text:[285, 311, "${MAKE_PROJECT_NAME}_BOARD"]
+    Argument[312, 315] text:[312, 315, "pro"]
+  LineEnding[316, 317]
+  Command[317, 347] text:[317, 320, "set"] open:[320, 321, "("] arguments:[321, 346, "ARDUINO_CPU 8MHzatmega328"] close:[346, 347, ")"]
+    Argument[321, 332] text:[321, 332, "ARDUINO_CPU"]
+    Argument[333, 346] text:[333, 346, "8MHzatmega328"]
+  LineEnding[347, 348]
+  Command[348, 377] text:[348, 355, "project"] open:[355, 356, "("] arguments:[356, 376, "${MAKE_PROJECT_NAME}"] close:[376, 377, ")"]
+    Argument[356, 376] text:[356, 376, "${MAKE_PROJECT_NAME}"]
+````````````````````````````````
+
+
 ## Arduno
 
 actual file
@@ -46,23 +117,23 @@ set(CMAKE_CXX_STANDARD 98)
 set(CMAKE_PROJECT_NAME tft_life)
 
 ## This must be set before project call
-set(${PROJECT_NAME}_BOARD pro)
+set(${MAKE_PROJECT_NAME}_BOARD pro)
 set(ARDUINO_CPU 8MHzatmega328)
 
-project(${CMAKE_PROJECT_NAME})
+project(${MAKE_PROJECT_NAME})
 
 # Define the source code
-set(${PROJECT_NAME}_SRCS tft_life.cpp)
-# set(${PROJECT_NAME}_SKETCH tft_life.cpp)
+set(${MAKE_PROJECT_NAME}_SRCS tft_life.cpp)
+# set(${MAKE_PROJECT_NAME}_SKETCH tft_life.cpp)
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 ### Add project sub-directories into the build
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/sub)
 
 #### Uncomment below additional settings as needed.
-set(${PROJECT_NAME}_PROGRAMMER avrispmkii)
-set(${PROJECT_NAME}_PORT /dev/cu.usbserial-00000000)
-set(${PROJECT_NAME}_AFLAGS -v)
+set(${MAKE_PROJECT_NAME}_PROGRAMMER avrispmkii)
+set(${MAKE_PROJECT_NAME}_PORT /dev/cu.usbserial-00000000)
+set(${MAKE_PROJECT_NAME}_AFLAGS -v)
 # set(pro.upload.speed 57600)
 
 generate_arduino_firmware(${CMAKE_PROJECT_NAME})
@@ -104,7 +175,7 @@ CMakeFile[0, 851]
     Argument[337, 363] text:[337, 363, "${CMAKE_PROJECT_NAME}_SRCS"]
     Argument[364, 376] text:[364, 376, "tft_life.cpp"]
   LineEnding[377, 378]
-  CommentedOutCommand[379, 425] comment:[378, 379, "#"] text:[379, 382, "set"] open:[382, 383, "("] arguments:[383, 424, "${CMAKE_PROJECT_NAME}_SKETCH tft_life.cpp"] close:[424, 425, ")"]
+  CommentedOutCommand[378, 425] comment:[378, 379, "#"] text:[379, 382, "set"] open:[382, 383, "("] arguments:[383, 424, "${CMAKE_PROJECT_NAME}_SKETCH tft_life.cpp"] close:[424, 425, ")"]
     Argument[383, 411] text:[383, 411, "${CMAKE_PROJECT_NAME}_SKETCH"]
     Argument[412, 424] text:[412, 424, "tft_life.cpp"]
   LineEnding[425, 426]
@@ -130,7 +201,7 @@ CMakeFile[0, 851]
     Argument[739, 767] text:[739, 767, "${CMAKE_PROJECT_NAME}_AFLAGS"]
     Argument[768, 770] text:[768, 770, "-v"]
   LineEnding[771, 772]
-  CommentedOutCommand[774, 801] comment:[772, 773, "#"] text:[774, 777, "set"] open:[777, 778, "("] arguments:[778, 800, "pro.upload.speed 57600"] close:[800, 801, ")"]
+  CommentedOutCommand[772, 801] comment:[772, 773, "#"] text:[774, 777, "set"] open:[777, 778, "("] arguments:[778, 800, "pro.upload.speed 57600"] close:[800, 801, ")"]
     Argument[778, 794] text:[778, 794, "pro.upload.speed"]
     Argument[795, 800] text:[795, 800, "57600"]
   LineEnding[801, 802]
@@ -173,31 +244,31 @@ set(libName_RECURSE false)
 
 generate_arduino_firmware(${CMAKE_PROJECT_NAME})
 .
-cmake_minimum_required(VERSION 2.8.4)
+cmake_minimum_required(VERSION Maj.Min.Rev.Twk)
 set(CMAKE_TOOLCHAIN_FILE setCmakeToolchainFile)
 set(CMAKE_CXX_STANDARD setCmakeCxxStandard)
 set(CMAKE_PROJECT_NAME tft_life)
 
 ## This must be set before project call
-set(${PROJECT_NAME}_BOARD setBoard)
+set(${MAKE_PROJECT_NAME}_BOARD setBoard)
 set(ARDUINO_CPU setCpu)
 
-project(${CMAKE_PROJECT_NAME})
+project(${MAKE_PROJECT_NAME})
 
 # Define the source code
-set(${PROJECT_NAME}_SRCS tft_life.cpp setSrcs)
-set(${PROJECT_NAME}_HDRS tft_life.h setHdrs)
-set(${PROJECT_NAME}_SKETCH setSketch)
-link_directories(${CMAKE_CURRENT_SOURCE_DIR}/.. linkDirectories)
+set(${MAKE_PROJECT_NAME}_SRCS setSrcs)
+set(${MAKE_PROJECT_NAME}_HDRS setHdrs)
+set(${MAKE_PROJECT_NAME}_SKETCH setSketch)
+link_directories(linkDirectories)
 
 ### Add project sub-directories into the build
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/sub)
 add_subdirectory(addSubdirectory)
 
 #### Uncomment below additional settings as needed.
-set(${PROJECT_NAME}_PROGRAMMER setProgrammer)
-set(${PROJECT_NAME}_PORT setPort)
-set(${PROJECT_NAME}_AFLAGS -v setAflags)
+set(${MAKE_PROJECT_NAME}_PROGRAMMER setProgrammer)
+set(${MAKE_PROJECT_NAME}_PORT setPort)
+set(${MAKE_PROJECT_NAME}_AFLAGS setAflags)
 
 set(setBoard.upload.speed setUploadSpeed)
 set(libName_RECURSE setLibNameRecurse)
@@ -292,8 +363,8 @@ test case
 set(${CMAKE_PROJECT_NAME}_SRCS tft_life.cpp)
 set(${CMAKE_PROJECT_NAME}_HDRS tft_life.h)
 .
-set(${PROJECT_NAME}_SRCS tft_life.cpp setSrcs)
-set(${PROJECT_NAME}_HDRS tft_life.h setHdrs)
+set(${PROJECT_NAME}_SRCS setSrcs)
+set(${PROJECT_NAME}_HDRS setHdrs)
 ````````````````````````````````
 
 
@@ -302,7 +373,7 @@ test case
 ```````````````````````````````` example(Arduno: 4) options(change-all)
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/.. ${CMAKE_CURRENT_SOURCE_DIR}/sub)
 .
-link_directories(${CMAKE_CURRENT_SOURCE_DIR}/.. ${CMAKE_CURRENT_SOURCE_DIR}/sub linkDirectories)
+link_directories(linkDirectories)
 ````````````````````````````````
 
 
@@ -311,7 +382,7 @@ test case
 ```````````````````````````````` example(Arduno: 5) options(change-all)
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/.. linkDirectories)
 .
-link_directories(${CMAKE_CURRENT_SOURCE_DIR}/.. linkDirectories)
+link_directories(linkDirectories)
 ````````````````````````````````
 
 
@@ -340,22 +411,24 @@ test case
 ```````````````````````````````` example(Arduno: 8) options(change-all, set-or-add)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/sub)
 .
+cmake_minimum_required(VERSION Maj.Min.Rev.Twk)
 set(CMAKE_TOOLCHAIN_FILE setCmakeToolchainFile)
 set(CMAKE_CXX_STANDARD setCmakeCxxStandard)
 set(PROJECT_NAME setProjectName)
-set(${PROJECT_NAME}_BOARD setBoard)
+set(${MAKE_PROJECT_NAME}_BOARD setBoard)
 set(ARDUINO_CPU setCpu)
-set(${PROJECT_NAME}_SRCS setSrcs)
-set(${PROJECT_NAME}_HDRS setHdrs)
+project(${MAKE_PROJECT_NAME})
+set(${MAKE_PROJECT_NAME}_SRCS setSrcs)
+set(${MAKE_PROJECT_NAME}_HDRS setHdrs)
 link_directories(linkDirectories)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/sub)
-set(${PROJECT_NAME}_SKETCH setSketch)
-set(${PROJECT_NAME}_PROGRAMMER setProgrammer)
-add_subdirectory(addSubdirectory)
-set(${PROJECT_NAME}_PORT setPort)
-set(${PROJECT_NAME}_AFLAGS setAflags)
+set(${MAKE_PROJECT_NAME}_SKETCH setSketch)
+set(${MAKE_PROJECT_NAME}_PROGRAMMER setProgrammer)
+set(${MAKE_PROJECT_NAME}_PORT setPort)
+set(${MAKE_PROJECT_NAME}_AFLAGS setAflags)
 set(libName_RECURSE setLibNameRecurse)
 set(setBoard.upload.speed setUploadSpeed)
+add_subdirectory(addSubdirectory)
 generate_arduino_firmware(${CMAKE_PROJECT_NAME})
 generate_arduino_library(${CMAKE_PROJECT_NAME})
 ````````````````````````````````
@@ -372,23 +445,24 @@ project(${CMAKE_PROJECT_NAME})
 
 ## Bottom
 .
+cmake_minimum_required(VERSION Maj.Min.Rev.Twk)
 set(CMAKE_TOOLCHAIN_FILE setCmakeToolchainFile)
 set(CMAKE_CXX_STANDARD setCmakeCxxStandard)
 set(PROJECT_NAME setProjectName)
 ## Top
 
 ## Before project
-set(${PROJECT_NAME}_BOARD setBoard)
+set(${MAKE_PROJECT_NAME}_BOARD setBoard)
 set(ARDUINO_CPU setCpu)
-project(${CMAKE_PROJECT_NAME})
-set(${PROJECT_NAME}_SRCS setSrcs)
-set(${PROJECT_NAME}_HDRS setHdrs)
+project(${MAKE_PROJECT_NAME})
+set(${MAKE_PROJECT_NAME}_SRCS setSrcs)
+set(${MAKE_PROJECT_NAME}_HDRS setHdrs)
 link_directories(linkDirectories)
 add_subdirectory(addSubdirectory)
-set(${PROJECT_NAME}_SKETCH setSketch)
-set(${PROJECT_NAME}_PROGRAMMER setProgrammer)
-set(${PROJECT_NAME}_PORT setPort)
-set(${PROJECT_NAME}_AFLAGS setAflags)
+set(${MAKE_PROJECT_NAME}_SKETCH setSketch)
+set(${MAKE_PROJECT_NAME}_PROGRAMMER setProgrammer)
+set(${MAKE_PROJECT_NAME}_PORT setPort)
+set(${MAKE_PROJECT_NAME}_AFLAGS setAflags)
 set(libName_RECURSE setLibNameRecurse)
 set(setBoard.upload.speed setUploadSpeed)
 ## After project
@@ -439,17 +513,17 @@ set(CMAKE_CXX_STANDARD setCmakeCxxStandard)
 ## Top
 
 ## Before project
-set(${PROJECT_NAME}_BOARD setBoard)
+set(${A_PROJECT_NAME}_BOARD setBoard)
 set(ARDUINO_CPU setCpu)
-project(${CMAKE_PROJECT_NAME})
+project(${A_PROJECT_NAME})
 link_directories(linkDirectories)
 add_subdirectory(addSubdirectory)
-set(${PROJECT_NAME}_SKETCH setSketch)
-set(${PROJECT_NAME}_PROGRAMMER setProgrammer)
-set(${PROJECT_NAME}_PORT setPort)
-set(${PROJECT_NAME}_AFLAGS setAflags)
-set(${PROJECT_NAME}_HDRS setHdrs)
-set(${PROJECT_NAME}_SRCS setSrcs)
+set(${A_PROJECT_NAME}_SKETCH setSketch)
+set(${A_PROJECT_NAME}_PROGRAMMER setProgrammer)
+set(${A_PROJECT_NAME}_PORT setPort)
+set(${A_PROJECT_NAME}_AFLAGS setAflags)
+set(${A_PROJECT_NAME}_HDRS setHdrs)
+set(${A_PROJECT_NAME}_SRCS setSrcs)
 set(libName_RECURSE setLibNameRecurse)
 set(setBoard.upload.speed setUploadSpeed)
 ## After project
@@ -558,17 +632,17 @@ set(CMAKE_CXX_STANDARD setCmakeCxxStandard)
 ## Top
 
 ## Before project
-set(${PROJECT_NAME}_BOARD setBoard)
+set(${A_PROJECT_NAME}_BOARD setBoard)
 set(ARDUINO_CPU setCpu)
-project(${CMAKE_PROJECT_NAME})
+project(${A_PROJECT_NAME})
 link_directories(linkDirectories)
 add_subdirectory(addSubdirectory)
-set(${PROJECT_NAME}_SKETCH setSketch)
-set(${PROJECT_NAME}_PROGRAMMER setProgrammer)
-set(${PROJECT_NAME}_PORT setPort)
-set(${PROJECT_NAME}_AFLAGS setAflags)
-set(${PROJECT_NAME}_HDRS setHdrs)
-set(${PROJECT_NAME}_SRCS setSrcs)
+set(${A_PROJECT_NAME}_SKETCH setSketch)
+set(${A_PROJECT_NAME}_PROGRAMMER setProgrammer)
+set(${A_PROJECT_NAME}_PORT setPort)
+set(${A_PROJECT_NAME}_AFLAGS setAflags)
+set(${A_PROJECT_NAME}_HDRS setHdrs)
+set(${A_PROJECT_NAME}_SRCS setSrcs)
 set(libName_RECURSE setLibNameRecurse)
 set(setBoard.upload.speed setUploadSpeed)
 ## After project
@@ -607,7 +681,7 @@ CMakeFile[0, 720]
     Argument[256, 284] text:[256, 284, "${CMAKE_PROJECT_NAME}_SKETCH"]
     Argument[285, 294] text:[285, 294, "setSketch"]
   LineEnding[295, 296]
-  CommentedOutCommand[297, 348] comment:[296, 297, "#"] text:[297, 300, "set"] open:[300, 301, "("] arguments:[301, 347, "${CMAKE_PROJECT_NAME}_PROGRAMMER setProgrammer"] close:[347, 348, ")"]
+  CommentedOutCommand[296, 348] comment:[296, 297, "#"] text:[297, 300, "set"] open:[300, 301, "("] arguments:[301, 347, "${CMAKE_PROJECT_NAME}_PROGRAMMER setProgrammer"] close:[347, 348, ")"]
     Argument[301, 333] text:[301, 333, "${CMAKE_PROJECT_NAME}_PROGRAMMER"]
     Argument[334, 347] text:[334, 347, "setProgrammer"]
   LineEnding[348, 349]
@@ -678,17 +752,17 @@ set(CMAKE_CXX_STANDARD setCmakeCxxStandard)
 ## Top
 
 ## Before project
-set(${PROJECT_NAME}_BOARD setBoard)
+set(${A_PROJECT_NAME}_BOARD setBoard)
 set(ARDUINO_CPU setCpu)
-project(${CMAKE_PROJECT_NAME})
+project(${A_PROJECT_NAME})
 link_directories(linkDirectories)
 add_subdirectory(addSubdirectory)
-set(${PROJECT_NAME}_SKETCH setSketch)
-set(${PROJECT_NAME}_PROGRAMMER setProgrammer)
-set(${PROJECT_NAME}_PORT setPort)
-set(${PROJECT_NAME}_AFLAGS setAflags)
-set(${PROJECT_NAME}_HDRS setHdrs)
-set(${PROJECT_NAME}_SRCS setSrcs)
+set(${A_PROJECT_NAME}_SKETCH setSketch)
+set(${A_PROJECT_NAME}_PROGRAMMER setProgrammer)
+set(${A_PROJECT_NAME}_PORT setPort)
+set(${A_PROJECT_NAME}_AFLAGS setAflags)
+set(${A_PROJECT_NAME}_HDRS setHdrs)
+set(${A_PROJECT_NAME}_SRCS setSrcs)
 set(libName_RECURSE setLibNameRecurse)
 set(setBoard.upload.speed setUploadSpeed)
 ## After project
@@ -717,7 +791,7 @@ CMakeFile[0, 752]
     Argument[164, 175] text:[164, 175, "ARDUINO_CPU"]
     Argument[176, 182] text:[176, 182, "setCpu"]
   LineEnding[183, 184]
-  CommentedOutCommand[185, 215] comment:[184, 185, "#"] text:[185, 192, "project"] open:[192, 193, "("] arguments:[193, 214, "${CMAKE_PROJECT_NAME}"] close:[214, 215, ")"]
+  CommentedOutCommand[184, 215] comment:[184, 185, "#"] text:[185, 192, "project"] open:[192, 193, "("] arguments:[193, 214, "${CMAKE_PROJECT_NAME}"] close:[214, 215, ")"]
     Argument[193, 214] text:[193, 214, "${CMAKE_PROJECT_NAME}"]
   LineEnding[215, 216]
   Command[216, 249] text:[216, 232, "link_directories"] open:[232, 233, "("] arguments:[233, 248, "linkDirectories"] close:[248, 249, ")"]
@@ -730,7 +804,7 @@ CMakeFile[0, 752]
     Argument[288, 316] text:[288, 316, "${CMAKE_PROJECT_NAME}_SKETCH"]
     Argument[317, 326] text:[317, 326, "setSketch"]
   LineEnding[327, 328]
-  CommentedOutCommand[329, 380] comment:[328, 329, "#"] text:[329, 332, "set"] open:[332, 333, "("] arguments:[333, 379, "${CMAKE_PROJECT_NAME}_PROGRAMMER setProgrammer"] close:[379, 380, ")"]
+  CommentedOutCommand[328, 380] comment:[328, 329, "#"] text:[329, 332, "set"] open:[332, 333, "("] arguments:[333, 379, "${CMAKE_PROJECT_NAME}_PROGRAMMER setProgrammer"] close:[379, 380, ")"]
     Argument[333, 365] text:[333, 365, "${CMAKE_PROJECT_NAME}_PROGRAMMER"]
     Argument[366, 379] text:[366, 379, "setProgrammer"]
   LineEnding[380, 381]
@@ -781,6 +855,7 @@ project(${CMAKE_PROJECT_NAME})
 
 ## Bottom
 .
+cmake_minimum_required(VERSION Maj.Min.Rev.Twk)
 set(CMAKE_TOOLCHAIN_FILE setCmakeToolchainFile)
 set(CMAKE_CXX_STANDARD setCmakeCxxStandard)
 set(PROJECT_NAME setProjectName)
@@ -788,17 +863,17 @@ set(PROJECT_NAME setProjectName)
 ## Top
 
 ## Before project
-set(${PROJECT_NAME}_BOARD setBoard)
+set(${MAKE_PROJECT_NAME}_BOARD setBoard)
 set(ARDUINO_CPU setCpu)
-project(${CMAKE_PROJECT_NAME})
-set(${PROJECT_NAME}_SRCS setSrcs)
-set(${PROJECT_NAME}_HDRS setHdrs)
+project(${MAKE_PROJECT_NAME})
+set(${MAKE_PROJECT_NAME}_SRCS setSrcs)
+set(${MAKE_PROJECT_NAME}_HDRS setHdrs)
 link_directories(linkDirectories)
 add_subdirectory(addSubdirectory)
-set(${PROJECT_NAME}_SKETCH setSketch)
-set(${PROJECT_NAME}_PROGRAMMER setProgrammer)
-set(${PROJECT_NAME}_PORT setPort)
-set(${PROJECT_NAME}_AFLAGS setAflags)
+set(${MAKE_PROJECT_NAME}_SKETCH setSketch)
+set(${MAKE_PROJECT_NAME}_PROGRAMMER setProgrammer)
+set(${MAKE_PROJECT_NAME}_PORT setPort)
+set(${MAKE_PROJECT_NAME}_AFLAGS setAflags)
 set(libName_RECURSE setLibNameRecurse)
 set(setBoard.upload.speed setUploadSpeed)
 ## After project
@@ -808,7 +883,7 @@ generate_arduino_firmware(${CMAKE_PROJECT_NAME})
 generate_arduino_library(${CMAKE_PROJECT_NAME})
 .
 CMakeFile[0, 116]
-  CommentedOutCommand[1, 31] comment:[0, 1, "#"] text:[1, 8, "project"] open:[8, 9, "("] arguments:[9, 30, "${CMAKE_PROJECT_NAME}"] close:[30, 31, ")"]
+  CommentedOutCommand[0, 31] comment:[0, 1, "#"] text:[1, 8, "project"] open:[8, 9, "("] arguments:[9, 30, "${CMAKE_PROJECT_NAME}"] close:[30, 31, ")"]
     Argument[9, 30] text:[9, 30, "${CMAKE_PROJECT_NAME}"]
   LineEnding[31, 32]
   LineComment[32, 39] open:[32, 33, "#"] text:[33, 39, "# Top\n"]
@@ -893,7 +968,7 @@ CMakeFile[0, 752]
     Argument[164, 175] text:[164, 175, "ARDUINO_CPU"]
     Argument[176, 182] text:[176, 182, "setCpu"]
   LineEnding[183, 184]
-  CommentedOutCommand[185, 215] comment:[184, 185, "#"] text:[185, 192, "project"] open:[192, 193, "("] arguments:[193, 214, "${CMAKE_PROJECT_NAME}"] close:[214, 215, ")"]
+  CommentedOutCommand[184, 215] comment:[184, 185, "#"] text:[185, 192, "project"] open:[192, 193, "("] arguments:[193, 214, "${CMAKE_PROJECT_NAME}"] close:[214, 215, ")"]
     Argument[193, 214] text:[193, 214, "${CMAKE_PROJECT_NAME}"]
   LineEnding[215, 216]
   Command[216, 249] text:[216, 232, "link_directories"] open:[232, 233, "("] arguments:[233, 248, "linkDirectories"] close:[248, 249, ")"]
@@ -906,7 +981,7 @@ CMakeFile[0, 752]
     Argument[288, 316] text:[288, 316, "${CMAKE_PROJECT_NAME}_SKETCH"]
     Argument[317, 326] text:[317, 326, "setSketch"]
   LineEnding[327, 328]
-  CommentedOutCommand[329, 380] comment:[328, 329, "#"] text:[329, 332, "set"] open:[332, 333, "("] arguments:[333, 379, "${CMAKE_PROJECT_NAME}_PROGRAMMER setProgrammer"] close:[379, 380, ")"]
+  CommentedOutCommand[328, 380] comment:[328, 329, "#"] text:[329, 332, "set"] open:[332, 333, "("] arguments:[333, 379, "${CMAKE_PROJECT_NAME}_PROGRAMMER setProgrammer"] close:[379, 380, ")"]
     Argument[333, 365] text:[333, 365, "${CMAKE_PROJECT_NAME}_PROGRAMMER"]
     Argument[366, 379] text:[366, 379, "setProgrammer"]
   LineEnding[380, 381]
@@ -942,6 +1017,111 @@ CMakeFile[0, 752]
   LineEnding[703, 704]
   Command[704, 752] text:[704, 728, "generate_arduino_library"] open:[728, 729, "("] arguments:[729, 751, "${CMAKE_PROJECT_NAME} "] close:[751, 752, ")"]
     Argument[729, 750] text:[729, 750, "${CMAKE_PROJECT_NAME}"]
+````````````````````````````````
+
+
+```````````````````````````````` example(Arduno: 15) options(board-pro)
+cmake_minimum_required(VERSION 2.8.4)
+set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/ArduinoToolchain.cmake)
+set(CMAKE_PROJECT_NAME tft_life)
+
+set(${CMAKE_PROJECT_NAME}_BOARD pro)
+set(ARDUINO_CPU 8MHzatmega328)    ## This must be set before project call
+project(${CMAKE_PROJECT_NAME})
+
+# Define the source code
+set(${CMAKE_PROJECT_NAME}_SRCS tft_life.cpp)
+#set(${CMAKE_PROJECT_NAME}_SKETCH tft_life.cpp)
+link_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
+
+#### Uncomment below additional settings as needed.
+set(${CMAKE_PROJECT_NAME}_PROGRAMMER avrispmkii)
+set(${CMAKE_PROJECT_NAME}_PORT /dev/cu.usbserial-00000000)
+set(${CMAKE_PROJECT_NAME}_AFLAGS -v)
+# set(pro.upload.speed 57600)
+
+generate_arduino_firmware(${CMAKE_PROJECT_NAME})
+.
+cmake_minimum_required(VERSION 2.8.4)
+set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/ArduinoToolchain.cmake)
+set(CMAKE_PROJECT_NAME tft_life)
+
+set(${MAKE_PROJECT_NAME}_BOARD pro)
+set(ARDUINO_CPU 8MHzatmega328)    ## This must be set before project call
+project(${MAKE_PROJECT_NAME})
+
+# Define the source code
+set(${MAKE_PROJECT_NAME}_SRCS tft_life.cpp)
+# set(${MAKE_PROJECT_NAME}_SKETCH tft_life.cpp)
+link_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
+
+#### Uncomment below additional settings as needed.
+set(${MAKE_PROJECT_NAME}_PROGRAMMER avrispmkii)
+set(${MAKE_PROJECT_NAME}_PORT /dev/cu.usbserial-00000000)
+set(${MAKE_PROJECT_NAME}_AFLAGS -v)
+# set(pro.upload.speed 57600)
+
+generate_arduino_firmware(${CMAKE_PROJECT_NAME})
+.
+CMakeFile[0, 734]
+  Command[0, 37] text:[0, 22, "cmake_minimum_required"] open:[22, 23, "("] arguments:[23, 36, "VERSION 2.8.4"] close:[36, 37, ")"]
+    Argument[23, 30] text:[23, 30, "VERSION"]
+    Argument[31, 36] text:[31, 36, "2.8.4"]
+  LineEnding[37, 38]
+  Command[38, 112] text:[38, 41, "set"] open:[41, 42, "("] arguments:[42, 111, "CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/ArduinoToolchain.cmake"] close:[111, 112, ")"]
+    Argument[42, 62] text:[42, 62, "CMAKE_TOOLCHAIN_FILE"]
+    Argument[63, 111] text:[63, 111, "${CMAKE_SOURCE_DIR}/cmake/ArduinoToolchain.cmake"]
+  LineEnding[112, 113]
+  Command[113, 145] text:[113, 116, "set"] open:[116, 117, "("] arguments:[117, 144, "CMAKE_PROJECT_NAME tft_life"] close:[144, 145, ")"]
+    Argument[117, 135] text:[117, 135, "CMAKE_PROJECT_NAME"]
+    Argument[136, 144] text:[136, 144, "tft_life"]
+  LineEnding[145, 146]
+  BlankLine[146, 147]
+  Command[147, 183] text:[147, 150, "set"] open:[150, 151, "("] arguments:[151, 182, "${CMAKE_PROJECT_NAME}_BOARD pro"] close:[182, 183, ")"]
+    Argument[151, 178] text:[151, 178, "${CMAKE_PROJECT_NAME}_BOARD"]
+    Argument[179, 182] text:[179, 182, "pro"]
+  LineEnding[183, 184]
+  Command[184, 214] text:[184, 187, "set"] open:[187, 188, "("] arguments:[188, 213, "ARDUINO_CPU 8MHzatmega328"] close:[213, 214, ")"]
+    Argument[188, 199] text:[188, 199, "ARDUINO_CPU"]
+    Argument[200, 213] text:[200, 213, "8MHzatmega328"]
+  LineComment[214, 258] spaces:[214, 218, "    "] open:[214, 215, " "] text:[215, 258, "   ## This must be set before project call\n"]
+  Command[258, 288] text:[258, 265, "project"] open:[265, 266, "("] arguments:[266, 287, "${CMAKE_PROJECT_NAME}"] close:[287, 288, ")"]
+    Argument[266, 287] text:[266, 287, "${CMAKE_PROJECT_NAME}"]
+  LineEnding[288, 289]
+  BlankLine[289, 290]
+  LineComment[290, 315] open:[290, 291, "#"] text:[291, 315, " Define the source code\n"]
+  Command[315, 359] text:[315, 318, "set"] open:[318, 319, "("] arguments:[319, 358, "${CMAKE_PROJECT_NAME}_SRCS tft_life.cpp"] close:[358, 359, ")"]
+    Argument[319, 345] text:[319, 345, "${CMAKE_PROJECT_NAME}_SRCS"]
+    Argument[346, 358] text:[346, 358, "tft_life.cpp"]
+  LineEnding[359, 360]
+  CommentedOutCommand[360, 407] comment:[360, 361, "#"] text:[361, 364, "set"] open:[364, 365, "("] arguments:[365, 406, "${CMAKE_PROJECT_NAME}_SKETCH tft_life.cpp"] close:[406, 407, ")"]
+    Argument[365, 393] text:[365, 393, "${CMAKE_PROJECT_NAME}_SKETCH"]
+    Argument[394, 406] text:[394, 406, "tft_life.cpp"]
+  LineEnding[407, 408]
+  Command[408, 456] text:[408, 424, "link_directories"] open:[424, 425, "("] arguments:[425, 455, "${CMAKE_CURRENT_SOURCE_DIR}/.."] close:[455, 456, ")"]
+    Argument[425, 455] text:[425, 455, "${CMAKE_CURRENT_SOURCE_DIR}/.."]
+  LineEnding[456, 457]
+  BlankLine[457, 458]
+  LineComment[458, 510] open:[458, 459, "#"] text:[459, 510, "### Uncomment below additional settings as needed.\n"]
+  Command[510, 558] text:[510, 513, "set"] open:[513, 514, "("] arguments:[514, 557, "${CMAKE_PROJECT_NAME}_PROGRAMMER avrispmkii"] close:[557, 558, ")"]
+    Argument[514, 546] text:[514, 546, "${CMAKE_PROJECT_NAME}_PROGRAMMER"]
+    Argument[547, 557] text:[547, 557, "avrispmkii"]
+  LineEnding[558, 559]
+  Command[559, 617] text:[559, 562, "set"] open:[562, 563, "("] arguments:[563, 616, "${CMAKE_PROJECT_NAME}_PORT /dev/cu.usbserial-00000000"] close:[616, 617, ")"]
+    Argument[563, 589] text:[563, 589, "${CMAKE_PROJECT_NAME}_PORT"]
+    Argument[590, 616] text:[590, 616, "/dev/cu.usbserial-00000000"]
+  LineEnding[617, 618]
+  Command[618, 654] text:[618, 621, "set"] open:[621, 622, "("] arguments:[622, 653, "${CMAKE_PROJECT_NAME}_AFLAGS -v"] close:[653, 654, ")"]
+    Argument[622, 650] text:[622, 650, "${CMAKE_PROJECT_NAME}_AFLAGS"]
+    Argument[651, 653] text:[651, 653, "-v"]
+  LineEnding[654, 655]
+  CommentedOutCommand[655, 684] comment:[655, 656, "#"] text:[657, 660, "set"] open:[660, 661, "("] arguments:[661, 683, "pro.upload.speed 57600"] close:[683, 684, ")"]
+    Argument[661, 677] text:[661, 677, "pro.upload.speed"]
+    Argument[678, 683] text:[678, 683, "57600"]
+  LineEnding[684, 685]
+  BlankLine[685, 686]
+  Command[686, 734] text:[686, 711, "generate_arduino_firmware"] open:[711, 712, "("] arguments:[712, 733, "${CMAKE_PROJECT_NAME}"] close:[733, 734, ")"]
+    Argument[712, 733] text:[712, 733, "${CMAKE_PROJECT_NAME}"]
 ````````````````````````````````
 
 

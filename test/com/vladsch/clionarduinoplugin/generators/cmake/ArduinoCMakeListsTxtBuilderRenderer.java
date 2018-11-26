@@ -4,9 +4,11 @@ import com.intellij.openapi.util.Comparing;
 import com.vladsch.clionarduinoplugin.generators.cmake.ast.CMakeFile;
 import com.vladsch.clionarduinoplugin.generators.cmake.commands.CMakeCommand;
 import com.vladsch.clionarduinoplugin.generators.cmake.commands.CMakeCommandType;
+import com.vladsch.clionarduinoplugin.generators.cmake.commands.CMakeElement;
 import com.vladsch.flexmark.IRender;
 import com.vladsch.flexmark.ast.Node;
 import com.vladsch.flexmark.spec.IRenderBase;
+import com.vladsch.flexmark.test.DumpSpecReader;
 import com.vladsch.flexmark.util.collection.DynamicDefaultKey;
 import com.vladsch.flexmark.util.options.DataHolder;
 import com.vladsch.flexmark.util.options.DataKey;
@@ -24,8 +26,10 @@ class ArduinoCMakeListsTxtBuilderRenderer extends IRenderBase {
         super(options);
     }
 
-    final static public DataKey<Map<String, String>> VALUE_MAP = new DynamicDefaultKey<>("VALUE_MAP", (options) -> new HashMap<>());
+    final static public DataKey<Map<String, String>> VALUE_MAP = new DynamicDefaultKey<>("VALUE_MAP", (options) -> new LinkedHashMap<>());
     final static public DataKey<Set<String>> SUPPRESS_COMMENTED_SET = new DynamicDefaultKey<>("SUPPRESS_COMMENTED_SET", (options) -> new HashSet<>());
+    final static public DataKey<Boolean> DUMP_ELEMENTS_BEFORE = new DataKey<>("DUMP_ELEMENTS_BEFORE", false);
+    final static public DataKey<Boolean> DUMP_ELEMENTS_AFTER = new DataKey<>("DUMP_ELEMENTS_AFTER", false);
     final static public DataKey<Boolean> SET_OR_ADD = new DataKey<>("SET_OR_ADD", false);
     final static public DataKey<Boolean> SUPPRESS_COMMENTED = new DataKey<>("SUPPRESS_COMMENTED", false);
 
@@ -41,6 +45,14 @@ class ArduinoCMakeListsTxtBuilderRenderer extends IRenderBase {
         boolean suppressCommented = SUPPRESS_COMMENTED.getFrom(node.getDocument());
 
         try {
+            if (DUMP_ELEMENTS_BEFORE.getFrom(cMakeFile)) {
+                // dump the element tree
+                for (CMakeElement element : builder.getElements()) {
+                    String s = element.toString();
+                    output.append("# ").append(DumpSpecReader.unShowTabs(s.replace('\n', '\r'))).append("\n");
+                }
+            }
+
             LinkedHashMap<String, ArrayList<String>> commandArgs = new LinkedHashMap<>();
 
             // prepare all argument lists for the commands
@@ -128,6 +140,13 @@ class ArduinoCMakeListsTxtBuilderRenderer extends IRenderBase {
 
                 for (DataKey key : keys) {
                     output.append("# ").append(key.getName()).append("->").append(String.valueOf(all.get(key))).append("\n");
+                }
+            }
+            if (DUMP_ELEMENTS_AFTER.getFrom(cMakeFile)) {
+                // dump the element tree
+                for (CMakeElement element : builder.getElements()) {
+                    String s = element.toString();
+                    output.append("# ").append(DumpSpecReader.unShowTabs(s.replace('\n', '\r'))).append("\n");
                 }
             }
         } catch (IOException e) {

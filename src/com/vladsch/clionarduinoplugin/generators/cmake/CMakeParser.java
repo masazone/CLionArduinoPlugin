@@ -169,6 +169,7 @@ public class CMakeParser {
      */
     protected boolean parseElement() {
         boolean res;
+        int start = index;
 
         sp();
 
@@ -187,14 +188,16 @@ public class CMakeParser {
                     if (res) {
                         // it is
                         CommentedOutCommand node = (CommentedOutCommand) document.getLastChildAny(CommentedOutCommand.class);
+                        node.setLeadingSpaces(input.subSequence(start, saved));
                         node.setCommentMarker(input.subSequence(saved, saved + 1));
+                        node.setCharsFromContent();
                         break;
                     } else {
                         index = saved;
                     }
                 }
 
-                res = parseLineEnding(document);
+                res = parseLineEnding(document, start);
                 break;
             case '\r':
             case '\n':
@@ -217,6 +220,8 @@ public class CMakeParser {
         int saved = index;
         BasedSequence command = match(COMMAND);
         if (command != null) {
+            int start = index;
+
             sp();
             char c = peek();
             if (c == '(') {
@@ -237,13 +242,14 @@ public class CMakeParser {
                         BasedSequence close = input.subSequence(index, index + 1);
                         index++;
 
-                        if (parseLineEnding(parent)) {
+                        if (parseLineEnding(parent, index)) {
                             // we are good
+                            commandNode.setLeadingSpaces(input.subSequence(start, command.getEndOffset()));
                             commandNode.setCommand(command);
                             commandNode.setOpeningMarker(open);
                             commandNode.setArguments(input.subSequence(open.getEndOffset(), close.getStartOffset()));
                             commandNode.setClosingMarker(close);
-                            commandNode.setChars(input.subSequence(command.getStartOffset(), close.getEndOffset()));
+                            commandNode.setCharsFromContent();
 
                             if (options.autoConfig) {
                                 // if this is cmake_minimum_required(VERSION v.v.v) configure parser flags for it
@@ -304,6 +310,7 @@ public class CMakeParser {
 
     protected boolean parseArguments(Node parent) {
         while (true) {
+            int start = index;
             sp();
 
             char c = peek();
@@ -321,7 +328,7 @@ public class CMakeParser {
                 }
             } else if (c == '#') {
                 // could be comment
-                parseComment(parent);
+                parseComment(parent, index);
             } else if (c == '(') {
                 // could be arguments if matching )
                 Node node = new Argument(peekedChar, BasedSequence.NULL, peekedChar, BasedSequence.NULL);
@@ -348,7 +355,7 @@ public class CMakeParser {
                     addError(parent, "Argument expected");
                     break;
                 }
-            } else if (!parseLineEnding(parent)) {
+            } else if (!parseLineEnding(parent, start)) {
                 if (!parseArgument(parent)) {
                     break;
                 }
@@ -407,7 +414,7 @@ public class CMakeParser {
         return null;
     }
 
-    public boolean parseLineEnding(Node parent) {
+    public boolean parseLineEnding(Node parent, final int start) {
         BasedSequence chars;
 
         sp();
@@ -416,13 +423,13 @@ public class CMakeParser {
         if (c == '\0') {
             return true;        // valid end of line for the file
         } else if (c == '#') {
-            return parseComment(parent);
+            return parseComment(parent, start);
         } else {
             return parseEOL(parent);
         }
     }
 
-    public boolean parseComment(final Node parent) {
+    public boolean parseComment(final Node parent, final int start) {
         BasedSequence chars;
         if (peek(1) == '[' && options.blockComments) {
             int saved = index++;
@@ -444,7 +451,7 @@ public class CMakeParser {
         int offset = chars.charAt(chars.length() - 1) == '\n' ? 1 : 0;
 
         if (options.astComments) {
-            LineComment node = new LineComment(chars);
+            LineComment node = new LineComment(chars.baseSubSequence(start, chars.getEndOffset()));
             parent.appendChild(node);
         } else if (options.astLineEndEol && offset > 0 && !(parent.getLastChild() instanceof LineEnding)) {
             // remove trailing EOL from comment and add it as separate

@@ -75,16 +75,21 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
     }
 
     @NotNull
+    public String getLanguageVersionName() {
+        return languageVersionName;
+    }
+
+    @NotNull
     public String getLanguageVersionId() {
         return CppLanguageVersions.fromDisplayString(languageVersionName).trim();
     }
 
     public void setLanguageVersion(@NotNull String languageVersionName) {
-        this.languageVersionName = this.languageVersionName;
+        this.languageVersionName = languageVersionName;
     }
 
     public void setLanguageVersionName(@NotNull String languageVersionName) {
-        this.languageVersionName = this.languageVersionName;
+        this.languageVersionName = languageVersionName;
     }
 
     public void setLanguageVersionId(@NotNull String languageVersionId) {
@@ -110,11 +115,6 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
 
     public void setBundledTemplates(final boolean bundledTemplates) {
         this.bundledTemplates = bundledTemplates;
-    }
-
-    @NotNull
-    public String getLanguageVersionName() {
-        return languageVersionName;
     }
 
     @NotNull
@@ -146,12 +146,20 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
     @Transient
     @NotNull
     public String getLibraryDirectory() {
-        return libraryDirectories.length > 0 ? libraryDirectories[0] : "";
+        StringBuilder sb = new StringBuilder();
+        String sep = "";
+
+        for (String dir : libraryDirectories) {
+            sb.append(sep);
+            sep = ";";
+            sb.append(dir);
+        }
+        return sb.toString();
     }
 
     @Transient
     public void setLibraryDirectory(final @NotNull String libraryDirectory) {
-        libraryDirectories = new String[] { libraryDirectory };
+        libraryDirectories = libraryDirectory.split(";");
     }
 
     public String[] getNestedLibraries() {
@@ -581,8 +589,8 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
     }
 
     private void fireSettingsChanged() {
-        if (myGroupCount == 0 && isServiceInstance()) {
-            ApplicationManager.getApplication().getMessageBus().syncPublisher(ApplicationSettingsListener.TOPIC).onSettingsChanged();
+        if (myGroupCount == 0) {
+            ApplicationManager.getApplication().getMessageBus().syncPublisher(ApplicationSettingsListener.TOPIC).onSettingsChanged(this);
         }
     }
 

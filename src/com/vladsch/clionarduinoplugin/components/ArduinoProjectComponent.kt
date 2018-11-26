@@ -12,12 +12,21 @@ import com.vladsch.clionarduinoplugin.settings.ArduinoProjectSettings
 import java.util.concurrent.atomic.AtomicBoolean
 
 class ArduinoProjectComponent(val project: Project) : ProjectComponent, VirtualFileListener, CMakeWorkspaceListener, Disposable {
+    companion object {
+        fun getInstance(project: Project): ArduinoProjectComponent {
+            return project.getComponent(ArduinoProjectComponent::class.java)
+        }
+    }
 
-    private var myInReload = AtomicBoolean(false)
+    var inReload = AtomicBoolean(false)
+        private set
+
     private lateinit var myBusConnection: MessageBusConnection
-//    private val alarm = Alarm()
+    //    private val alarm = Alarm()
     private lateinit var mySettings: ArduinoProjectSettings
-//    private val myRunnables = ListenersRunner<File>()
+    //    private val myRunnables = ListenersRunner<File>()
+    
+    var isArduinoProject: Boolean? = null
 
     override fun getComponentName(): String {
         return Bundle.message("plugin.project-component.name")
@@ -32,7 +41,7 @@ class ArduinoProjectComponent(val project: Project) : ProjectComponent, VirtualF
 
     override fun projectClosed() {
         myBusConnection.disconnect()
-//        VirtualFileManager.getInstance().removeVirtualFileListener(this)
+        //        VirtualFileManager.getInstance().removeVirtualFileListener(this)
     }
 
     override fun initComponent() {
@@ -45,16 +54,18 @@ class ArduinoProjectComponent(val project: Project) : ProjectComponent, VirtualF
         myBusConnection = project.messageBus.connect(this)
         myBusConnection.subscribe(CMakeWorkspaceListener.TOPIC, this)
 
-//        myProjectDir = workspace.projectDir.path + File.separator
-//        VirtualFileManager.getInstance().addVirtualFileListener(this, this)
+        //        myProjectDir = workspace.projectDir.path + File.separator
+        //        VirtualFileManager.getInstance().addVirtualFileListener(this, this)
     }
 
     override fun beforeApplying() {
-        val tmp = 0
+        inReload.set(true)
+        isArduinoProject = null
     }
 
     override fun generationStarted() {
-        val tmp = 0
+        inReload.set(true)
+        isArduinoProject = null
     }
 
     override fun filesRefreshedAfterGeneration() {
@@ -66,45 +77,48 @@ class ArduinoProjectComponent(val project: Project) : ProjectComponent, VirtualF
     }
 
     override fun reloadingStarted() {
-        myInReload.set(true)
-//        alarm.cancelAllRequests()
+        inReload.set(true)
+        isArduinoProject = null
+        //        alarm.cancelAllRequests()
     }
 
     override fun reloadingFinished(canceled: Boolean) {
-        myInReload.set(false)
-//        alarm.cancelAllRequests()
+        inReload.set(false)
+        isArduinoProject = null
+        //        alarm.cancelAllRequests()
     }
 
     override fun reloadingRescheduled() {
-        myInReload.set(true)
-//        alarm.cancelAllRequests()
+        inReload.set(true)
+        isArduinoProject = null
+        //        alarm.cancelAllRequests()
     }
 
-//    private fun triggerReload(event: VirtualFileEvent) {
-//        if (!myInReload && mySettings.isReloadOnFileChange) {
-//            if ((event.file.path + File.separator).startsWith(myProjectDir) && event.file.extension.equals(Strings.INO_EXT, true)) {
-//                myInReload = true
-//                if (alarm.isDisposed) return
-//
-//                alarm.cancelAllRequests()
-//                alarm.addRequest({ ArduinoProjectGeneratorBase.reloadCMakeLists(project) }, 500)
-//            }
-//        }
-//    }
+    //    private fun triggerReload(event: VirtualFileEvent) {
+    //        if (!myInReload && mySettings.isReloadOnFileChange) {
+    //            if ((event.file.path + File.separator).startsWith(myProjectDir) && event.file.extension.equals(Strings.INO_EXT, true)) {
+    //                myInReload = true
+    //                if (alarm.isDisposed) return
+    //
+    //                alarm.cancelAllRequests()
+    //                alarm.addRequest({ ArduinoProjectGeneratorBase.reloadCMakeLists(project) }, 500)
+    //            }
+    //        }
+    //    }
 
-//    override fun fileDeleted(event: VirtualFileEvent) {
-//        triggerReload(event)
-//    }
-//
-//    override fun fileMoved(event: VirtualFileMoveEvent) {
-//        triggerReload(event)
-//    }
-//
-//    override fun fileCreated(event: VirtualFileEvent) {
-//        triggerReload(event)
-//    }
-//
-//    override fun fileCopied(event: VirtualFileCopyEvent) {
-//        triggerReload(event)
-//    }
+    //    override fun fileDeleted(event: VirtualFileEvent) {
+    //        triggerReload(event)
+    //    }
+    //
+    //    override fun fileMoved(event: VirtualFileMoveEvent) {
+    //        triggerReload(event)
+    //    }
+    //
+    //    override fun fileCreated(event: VirtualFileEvent) {
+    //        triggerReload(event)
+    //    }
+    //
+    //    override fun fileCopied(event: VirtualFileCopyEvent) {
+    //        triggerReload(event)
+    //    }
 }

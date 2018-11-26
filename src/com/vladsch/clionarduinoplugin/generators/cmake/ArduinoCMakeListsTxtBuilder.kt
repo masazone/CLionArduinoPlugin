@@ -50,17 +50,11 @@ import java.util.*
  */
 class ArduinoCMakeListsTxtBuilder : CMakeListsTxtBuilder {
 
-    constructor() : super(PROJECT_NAME, ourCommands, ourAnchors)
+    constructor() : super(ourCommands, ourAnchors, PROJECT_NAME)
 
-    constructor(text: CharSequence, options: DataHolder?) : super(PROJECT_NAME, ourCommands, ourAnchors, text, options)
+    constructor(text: CharSequence, options: DataHolder? = null, values: Map<String, Any>? = null) : super(PROJECT_NAME, ourCommands, ourAnchors, text, options, values)
 
-    constructor(text: CharSequence) : super(PROJECT_NAME, ourCommands, ourAnchors, text, null)
-
-    constructor(text: CharSequence, options: DataHolder?, values: Map<String, Any>?) : super(PROJECT_NAME, ourCommands, ourAnchors, text, options, values)
-
-    constructor(cMakeFile: CMakeFile) : super(PROJECT_NAME, ourCommands, ourAnchors, cMakeFile)
-
-    constructor(cMakeFile: CMakeFile, values: Map<String, Any>?) : super(PROJECT_NAME, ourCommands, ourAnchors, cMakeFile, values)
+    constructor(cMakeFile: CMakeFile, values: Map<String, Any>? = null) : super(PROJECT_NAME, ourCommands, ourAnchors, cMakeFile, values)
 
     companion object {
         // commands can have fixed and variable arguments
@@ -75,32 +69,20 @@ class ArduinoCMakeListsTxtBuilder : CMakeListsTxtBuilder {
         //
         // if command is not found or has less args then an empty value will be used
         //
-        const val PROJECT_VAR_NAME = "PROJECT_NAME"
-        const val PROJECT_NAME = "\${$PROJECT_VAR_NAME}"
 
-        val CMAKE_MINIMUM_REQUIRED = CMakeCommandType("CMAKE_MINIMUM_REQUIRED", "cmake_minimum_required", arrayOf(), 1, 2, false, false, true)
-        val CMAKE_MINIMUM_REQUIRED_VERSION = CMakeCommandSubType("CMAKE_MINIMUM_REQUIRED_VERSION", CMAKE_MINIMUM_REQUIRED, arrayOf("VERSION"), 2, 2, true, false, true)
-        val LINK_DIRECTORIES = CMakeCommandType("LINK_DIRECTORIES", "link_directories", arrayOf(), 1, CMakeListsTxtBuilder.INF_MAX_ARGS, true, false, true)
-        val ADD_SUBDIRECTORY = CMakeCommandType("ADD_SUBDIRECTORY", "add_subdirectory", arrayOf(), 1, 3, true, true, false)
-        val PROJECT = CMakeCommandType("PROJECT", "project", arrayOf(), 1, CMakeListsTxtBuilder.INF_MAX_ARGS, true, false, false, arrayOf(PROJECT_NAME))
-        val SET = CMakeCommandType("SET", "set", arrayOf(), 1, CMakeListsTxtBuilder.INF_MAX_ARGS)
-
-        val GENERATE_ARDUINO_FIRMWARE = CMakeCommandType("GENERATE_ARDUINO_FIRMWARE", "generate_arduino_firmware", arrayOf(), 1, 1, true, false, true)
-        val GENERATE_ARDUINO_LIBRARY = CMakeCommandType("GENERATE_ARDUINO_LIBRARY", "generate_arduino_library", arrayOf(), 1, 1, true, false, true)
+        val GENERATE_ARDUINO_FIRMWARE = CMakeCommandType("GENERATE_ARDUINO_FIRMWARE", "generate_arduino_firmware", arrayOf(), 1, 1, true, false, true, arrayOf("\${PROJECT_NAME}"))
+        val GENERATE_ARDUINO_LIBRARY = CMakeCommandType("GENERATE_ARDUINO_LIBRARY", "generate_arduino_library", arrayOf(), 1, 1, true, false, true, arrayOf("\${PROJECT_NAME}"))
 
         // @formatter:off
-        val SET_CMAKE_TOOLCHAIN_FILE = CMakeCommandSubType("SET_CMAKE_TOOLCHAIN_FILE",SET, arrayOf("CMAKE_TOOLCHAIN_FILE"), 1, 1, false, false, true, arrayOf("\${CMAKE_SOURCE_DIR}/cmake/ArduinoToolchain.cmake"))
-        val SET_CMAKE_CXX_STANDARD = CMakeCommandSubType("SET_CMAKE_CXX_STANDARD",SET, arrayOf("CMAKE_CXX_STANDARD"), 1, 1, false, false, true)
-        val SET_PROJECT_NAME = CMakeCommandSubType("SET_PROJECT_NAME",SET, arrayOf("PROJECT_NAME"), 1, 1, false, false, true)
-        val SET_BOARD = CMakeCommandSubType("SET_BOARD",SET, arrayOf("${PROJECT_NAME}_BOARD"), 1, 1, false, false, true)
-        val SET_CPU = CMakeCommandSubType("SET_CPU",SET, arrayOf("ARDUINO_CPU"), 1, 1, false, false, true)
-        val SET_SKETCH = CMakeCommandSubType("SET_SKETCH",SET, arrayOf("${PROJECT_NAME}_SKETCH"), 1, 1, false, false, true)
-        val SET_PROGRAMMER = CMakeCommandSubType("SET_PROGRAMMER",SET, arrayOf("${PROJECT_NAME}_PROGRAMMER"), 1, 1, false, false, true)
-        val SET_PORT = CMakeCommandSubType("SET_PORT",SET, arrayOf("${PROJECT_NAME}_PORT"), 1, 1, false, false, true)
-        val SET_AFLAGS = CMakeCommandSubType("SET_AFLAGS",SET, arrayOf("${PROJECT_NAME}_AFLAGS"), 1, CMakeListsTxtBuilder.INF_MAX_ARGS, true, false, true)
-        val SET_HDRS = CMakeCommandSubType("SET_HDRS",SET, arrayOf("${PROJECT_NAME}_HDRS"), 0, CMakeListsTxtBuilder.INF_MAX_ARGS, true, false, true)
-        val SET_SRCS = CMakeCommandSubType("SET_SRCS",SET, arrayOf("${PROJECT_NAME}_SRCS"), 0, CMakeListsTxtBuilder.INF_MAX_ARGS, true, false, true)
-        val SET_LIBS = CMakeCommandSubType("SET_LIBS",SET, arrayOf("${PROJECT_NAME}_LIBS"), 0, CMakeListsTxtBuilder.INF_MAX_ARGS, true, false, true)
+        val SET_BOARD = CMakeCommandSubType("SET_BOARD", SET, arrayOf("${PROJECT_NAME}_BOARD"), 1, 1, false, false, true)
+        val SET_CPU = CMakeCommandSubType("SET_CPU", SET, arrayOf("ARDUINO_CPU"), 1, 1, false, false, true)
+        val SET_SKETCH = CMakeCommandSubType("SET_SKETCH", SET, arrayOf("${PROJECT_NAME}_SKETCH"), 1, 1, false, false, true)
+        val SET_PROGRAMMER = CMakeCommandSubType("SET_PROGRAMMER", SET, arrayOf("${PROJECT_NAME}_PROGRAMMER"), 1, 1, false, false, true)
+        val SET_PORT = CMakeCommandSubType("SET_PORT", SET, arrayOf("${PROJECT_NAME}_PORT"), 1, 1, false, false, true)
+        val SET_AFLAGS = CMakeCommandSubType("SET_AFLAGS", SET, arrayOf("${PROJECT_NAME}_AFLAGS"), 1, CMakeCommandType.INF_MAX_ARGS, true, false, true)
+        val SET_HDRS = CMakeCommandSubType("SET_HDRS", SET, arrayOf("${PROJECT_NAME}_HDRS"), 0, CMakeCommandType.INF_MAX_ARGS, true, false, true)
+        val SET_SRCS = CMakeCommandSubType("SET_SRCS", SET, arrayOf("${PROJECT_NAME}_SRCS"), 0, CMakeCommandType.INF_MAX_ARGS, true, false, true)
+        val SET_LIBS = CMakeCommandSubType("SET_LIBS", SET, arrayOf("${PROJECT_NAME}_LIBS"), 0, CMakeCommandType.INF_MAX_ARGS, true, false, true)
 
         val SET_LIB_NAMES_RECURSE = CMakeCommandSubType("SET_LIB_NAMES_RECURSE",SET, arrayOf("<@@>_RECURSE"), 2, 2, true, true, false)
         val SET_UPLOAD_SPEEDS = CMakeCommandSubType("SET_UPLOAD_SPEEDS",SET, arrayOf("<@@>.upload.speed"), 2, 2, true, true, false)
@@ -111,18 +93,8 @@ class ArduinoCMakeListsTxtBuilder : CMakeListsTxtBuilder {
         val SET_UPLOAD_SPEED = CMakeCommandSubType("SET_UPLOAD_SPEED", SET_UPLOAD_SPEEDS, arrayOf("<@SET_BOARD@>"), 1, 1, true, false, false)
 
         val ourCommands = arrayOf(
-                CMAKE_MINIMUM_REQUIRED,
-                CMAKE_MINIMUM_REQUIRED_VERSION,
-                LINK_DIRECTORIES,
-                ADD_SUBDIRECTORY,
-                PROJECT,
                 GENERATE_ARDUINO_FIRMWARE,
                 GENERATE_ARDUINO_LIBRARY,
-                SET,
-
-                SET_CMAKE_TOOLCHAIN_FILE,
-                SET_CMAKE_CXX_STANDARD,
-                SET_PROJECT_NAME,
                 SET_BOARD,
                 SET_CPU,
                 SET_SKETCH,
@@ -181,7 +153,20 @@ class ArduinoCMakeListsTxtBuilder : CMakeListsTxtBuilder {
         }
 
         // sourceFiles are paths relative to project directory
-        fun getCMakeFileContent(template: String, projectName: String, settings: ArduinoApplicationSettingsProxy, sourceFiles: List<String>): String {
+        fun getCMakeFileContent(template: String, projectName: String, settings: ArduinoApplicationSettingsProxy, sourceFiles: List<String>, unmodifiedOriginalText: Boolean): String {
+            val cppFiles = sourceFiles.filter { it.extension.matches("(?i:cpp|cxx|c)".toRegex()) }
+            val hFiles = sourceFiles.filter { it.extension.matches("(?i:hpp|hxx|h)".toRegex()) }
+            val sketchFile = sourceFiles.findLast { it.extension.matches("(?i:${Strings.PDE_EXT}|${Strings.INO_EXT})".toRegex()) }
+
+            settings.sources = cppFiles.toTypedArray()
+            settings.headers = hFiles.toTypedArray()
+            settings.sketch = sketchFile ?: ""
+            return getCMakeFileContent(template, projectName, settings, unmodifiedOriginalText)
+        }
+        
+        @Suppress("MemberVisibilityCanBePrivate")
+        fun getCMakeFileContent(template: String, projectName: String, settings: ArduinoApplicationSettingsProxy, unmodifiedOriginalText: Boolean): String {
+            @Suppress("CanBeVal") 
             var command: CMakeCommand?
             val builder = ArduinoCMakeListsTxtBuilder(template, null) // use default options
             val isStaticLib = settings.isLibrary && settings.isStaticLibraryType
@@ -201,11 +186,11 @@ class ArduinoCMakeListsTxtBuilder : CMakeListsTxtBuilder {
             val cpuId = appSettings.cpuId.ifEmpty(cpuIds.firstOrNull() ?: "")
             builder.setOrAddCommand(SET_CPU, cpuId).setSuppressible(cpuId.isEmpty())
 
-            builder.setOrAddCommand(PROJECT).clearArgs()
+            builder.setOrAddCommand(PROJECT).clearToDefaults()
 
-            val cppFiles = sourceFiles.filter { it.extension.matches("(?i:cpp|cxx|c)".toRegex()) }
-            val hFiles = sourceFiles.filter { it.extension.matches("(?i:hpp|hxx|h)".toRegex()) }
-            val sketchFile = sourceFiles.findLast { it.extension.matches("(?i:${Strings.PDE_EXT}|${Strings.INO_EXT})".toRegex()) }
+            val cppFiles = settings.sources.toList()
+            val hFiles = settings.headers.toList()
+            val sketchFile = settings.sketch
 
             builder.setOrAddCommand(SET_SRCS, cppFiles).setSuppressible(cppFiles.isEmpty())
             builder.setOrAddCommand(SET_HDRS, hFiles).setSuppressible(hFiles.isEmpty())
@@ -214,7 +199,7 @@ class ArduinoCMakeListsTxtBuilder : CMakeListsTxtBuilder {
             val staticLibs = arrayOf<String>();
             builder.setOrAddCommand(SET_LIBS, *staticLibs).setSuppressible(staticLibs.isEmpty())
 
-            builder.setOrAddCommand(SET_SKETCH, sketchFile ?: projectName+Strings.DOT_INO_EXT).setSuppressible(sketchFile == null)
+            builder.setOrAddCommand(SET_SKETCH, sketchFile.ifEmpty(projectName+Strings.DOT_INO_EXT)).setSuppressible(sketchFile.isEmpty())
 
             command = builder.getCommand(ADD_SUBDIRECTORY)
             if (command == null || command.argCount == 0) {
@@ -225,14 +210,14 @@ class ArduinoCMakeListsTxtBuilder : CMakeListsTxtBuilder {
                 builder.setOrAddCommand(LINK_DIRECTORIES, "\${CMAKE_CURRENT_SOURCE_DIR}/")
                         .setSuppressible(!appSettings.isAddLibraryDirectory)
             } else {
-                builder.setOrAddCommand(LINK_DIRECTORIES, appSettings.libraryDirectories.joinToString(" ", "\${CMAKE_CURRENT_SOURCE_DIR}/"))
+                builder.setOrAddCommand(LINK_DIRECTORIES, appSettings.libraryDirectories.map { "\${CMAKE_CURRENT_SOURCE_DIR}/$it" })
                         .setSuppressible(!appSettings.isAddLibraryDirectory || appSettings.libraryDirectories.isEmpty())
             }
 
             if (!settings.isLibrary) {
                 // TODO: add UI for recurse library options
                 if (appSettings.nestedLibraries.isEmpty()) {
-                    builder.setOrAddCommand(SET_LIB_NAME_RECURSE, "\${LIB_NAME}", "true").setSuppressible(true)
+                    //                    builder.setOrAddCommand(SET_LIB_NAME_RECURSE, "\${LIB_NAME}", "true").setSuppressible(true)
                 } else {
                     for (library in appSettings.nestedLibraries) {
                         builder.setOrAddCommand(SET_LIB_NAME_RECURSE, library, "true")
@@ -248,27 +233,28 @@ class ArduinoCMakeListsTxtBuilder : CMakeListsTxtBuilder {
 
             val baudRateText = appSettings.baudRateText
             builder.setOrAddCommand(SET_UPLOAD_SPEED, baudRateText.ifEmpty("9600")).setSuppressible(baudRateText.isEmpty())
+            //            builder.removeCommand(SET_UPLOAD_SPEED)
 
             builder.setOrAddCommand(SET_AFLAGS, "-v").setSuppressible(!appSettings.isVerbose)
 
             if (isStaticLib) {
-                builder.setOrAddCommand(GENERATE_ARDUINO_LIBRARY, "\${CMAKE_PROJECT_NAME}")
+                builder.setOrAddCommand(GENERATE_ARDUINO_LIBRARY)
                 builder.removeCommand(GENERATE_ARDUINO_FIRMWARE)
             } else {
-                builder.setOrAddCommand(GENERATE_ARDUINO_FIRMWARE, "\${CMAKE_PROJECT_NAME}")
+                builder.setOrAddCommand(GENERATE_ARDUINO_FIRMWARE)
                 builder.removeCommand(GENERATE_ARDUINO_LIBRARY)
             }
 
             // Can add our own values to resolve variables
-            return builder.getCMakeContents(null, !appSettings.isCommentUnusedSettings, false)
+            // TODO: figure out how to make comments unused false make sense with comments above  
+            return builder.getCMakeContents(null, !appSettings.isCommentUnusedSettings, unmodifiedOriginalText)
         }
 
         /**
          * returns application settings determined from the current project files
-         * NOTE: these settings are not an instance of "Official" application settings and therefore do not
-         * fire modification events
+         * NOTE: these settings are not an instance of "Official" application settings but a non-persisted copy
          */
-        fun loadProjectConfiguration(projectDir: File): ArduinoProjectFileSettings? {
+        fun loadProjectConfiguration(projectDir: File): ArduinoApplicationSettingsProxy? {
 
             val cMakeLists = projectDir + Strings.CMAKE_LISTS_FILENAME
             val libraryProperties: File = projectDir + Strings.LIBRARY_PROPERTIES_FILENAME
@@ -286,7 +272,7 @@ class ArduinoCMakeListsTxtBuilder : CMakeListsTxtBuilder {
                     ?: builder.getCommand(ArduinoCMakeListsTxtBuilder.GENERATE_ARDUINO_LIBRARY) ?: return null
 
             // ok, it is ours
-            val settings: ArduinoProjectFileSettings = ArduinoApplicationSettingsProxy()
+            val settings = ArduinoApplicationSettingsProxy.of() as ArduinoProjectFileSettings
             val cMakeVariableValues = builder.cMakeVariableValues
             val cMakeProjectName = builder.cMakeProjectName
 
@@ -315,10 +301,10 @@ class ArduinoCMakeListsTxtBuilder : CMakeListsTxtBuilder {
 
             settings.languageVersionId = cMakeVariableValues["CMAKE_CXX_STANDARD"].firstOrNull() ?: ""
             if (true) {
-                val list = builder.getCommands(ArduinoCMakeListsTxtBuilder.LINK_DIRECTORIES).flatMap { it.args }
+                val list = builder.getCommands(LINK_DIRECTORIES).flatMap { it.args }
                 if (!list.isEmpty()) {
                     settings.isAddLibraryDirectory = true
-                    settings.libraryDirectories = list.toTypedArray()
+                    settings.libraryDirectories = list.map { it.removePrefix("\${CMAKE_CURRENT_SOURCE_DIR}/") }.toTypedArray()
                 }
             }
 
@@ -344,7 +330,7 @@ class ArduinoCMakeListsTxtBuilder : CMakeListsTxtBuilder {
                 // libraryCategory: String
             }
 
-            return settings
+            return settings as ArduinoApplicationSettingsProxy
         }
     }
 }

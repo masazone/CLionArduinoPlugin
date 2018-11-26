@@ -11,6 +11,7 @@ import com.vladsch.clionarduinoplugin.util.ApplicationSettingsListener;
 import com.vladsch.clionarduinoplugin.util.RecursionGuard;
 import com.vladsch.clionarduinoplugin.util.ui.*;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -67,6 +68,33 @@ public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSetting
     final boolean myIsLibrary;
     private final boolean isImmediateUpdate;
     private final boolean isLimitedConfig;
+    Runnable myRunnable = null;
+
+    public enum ErrorComp {
+        CPU,
+        BOARD,
+        LIB_DIR,
+    }
+
+    @Nullable
+    public JComponent getErrorComponent(ErrorComp comp) {
+        switch (comp) {
+            case CPU:
+                return myCpus;
+            case BOARD:
+                return myBoards;
+            case LIB_DIR:
+                return myLibraryDirectory;
+
+            default:
+                return null;
+        }
+    }
+
+    @Nullable
+    public JComponent getPreferredFocusedComponent() {
+        return myBoards;
+    }
 
     public NewProjectSettingsForm(ArduinoApplicationSettingsProxy settings, boolean immediateUpdate, final boolean limitedConfig) {
         super(settings.getApplicationSettings());
@@ -92,7 +120,7 @@ public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSetting
                             component(myLibraryDirectory, i::getLibraryDirectory, i::setLibraryDirectory),
                             component(myVerbose, i::isVerbose, i::setVerbose),
                             component(myCommentOutUnusedSettings, i::isCommentUnusedSettings, i::setCommentUnusedSettings),
-                            componentString(myLanguageVersionNames.ADAPTER, myLanguageVersion, i::getLanguageVersionName, i::setLanguageVersion),
+                            componentString(myLanguageVersionNames.ADAPTER, myLanguageVersion, i::getLanguageVersionName, i::setLanguageVersionName),
 
                             // library only
                             component(myLibraryDisplayName, i::getLibraryDisplayName, i::setLibraryDisplayName),
@@ -112,7 +140,7 @@ public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSetting
                             component(myLibraryDirectory, i::getLibraryDirectory, i::setLibraryDirectory),
                             component(myVerbose, i::isVerbose, i::setVerbose),
                             component(myCommentOutUnusedSettings, i::isCommentUnusedSettings, i::setCommentUnusedSettings),
-                            componentString(myLanguageVersionNames.ADAPTER, myLanguageVersion, i::getLanguageVersionName, i::setLanguageVersion),
+                            componentString(myLanguageVersionNames.ADAPTER, myLanguageVersion, i::getLanguageVersionName, i::setLanguageVersionName),
                     };
                 }
             }
@@ -156,11 +184,12 @@ public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSetting
             }
         });
 
-        if (immediateUpdate) {
-            reset(mySettings);
-        } else {
-            updateOptions(true);
-        }
+        reset(mySettings);
+        updateOptions(true);
+    }
+
+    public void setRunnable(final Runnable myRunnable) {
+        this.myRunnable = myRunnable;
     }
 
     @Override
@@ -175,7 +204,6 @@ public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSetting
     static final int SETTINGS_UPDATE = 0;
 
     void applyChanges(Object changed) {
-        // don't update on every keystroke for text components
         if (!(changed instanceof JTextComponent)) {
             boolean updateCpus = changed == myBoards;
             updateOptions(updateCpus);
@@ -199,6 +227,17 @@ public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSetting
                     });
                 }, 250, ModalityState.any());
             });
+        } else {
+            if (myUpdate.isDisposed()) {
+                return;
+            }
+
+            myUpdate.cancelAllRequests();
+            if (myRunnable != null) {
+                myUpdate.addRequest(() -> {
+                    myRunnable.run();
+                }, 250, ModalityState.any());
+            }
         }
     }
 
@@ -249,7 +288,6 @@ public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSetting
         mySerialPortNames = SerialPortNames.createEnum(true);
         myBoardNames = BoardNames.createEnum(mySettings.getBoardNames());
         myProgrammerNames = ProgrammerNames.createEnum(mySettings.getProgrammerNames());
-        myLibraryCategoryNames = LibraryCategoryNames.createEnum();
     }
 
     void updateCpuEnum() {
@@ -272,12 +310,16 @@ public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSetting
         myCpus = myCpuNames.ADAPTER.createComboBox();
 
         myProgrammers = myProgrammerNames.ADAPTER.createComboBox();
+        
+        myLibraryCategoryNames = LibraryCategoryNames.createEnum();
         myLibraryCategory = myLibraryCategoryNames.ADAPTER.createComboBox();
     }
 
     @Override
-    public void onSettingsChanged() {
-        reset(mySettings);
+    public void onSettingsChanged(ArduinoApplicationSettings settings) {
+        if (mySettings == settings) {
+            reset(mySettings);
+        }
     }
 
     public boolean isModified(@NotNull ArduinoApplicationSettings settings) {
@@ -286,38 +328,49 @@ public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSetting
 
     public void apply(@NotNull ArduinoApplicationSettings settings) {
         if (isModified(settings)) {
-            myRecursionGuard.enter(SETTINGS_UPDATE, () -> {
+            if (settings == mySettings) {
+                myRecursionGuard.enter(SETTINGS_UPDATE, () -> {
+                    settings.groupChanges(() -> {
+                        components.apply(settings);
+                    });
+                });
+            } else {
                 settings.groupChanges(() -> {
                     components.apply(settings);
                 });
-            });
+            }
         }
     }
 
     public void reset(@NotNull ArduinoApplicationSettings settings) {
         // always set to settings, but prevent callbacks to modify settings
         if (myRecursionGuard.enter(RESET_UPDATE, () -> {
-            components.reset(settings);
-
-            updateEnums();
-
-            myCpuLabel.setText(mySettings.getCpuLabel());
-
-            myBoardNames.ADAPTER.fillComboBox(myBoards, ComboBoxAdaptable.EMPTY);
-            myBoards.setSelectedItem(settings.getBoardName());
-
-            updateCpus();
-
-            myProgrammerNames.ADAPTER.fillComboBox(myProgrammers, ComboBoxAdaptable.EMPTY);
-            myProgrammers.setSelectedItem(settings.getProgrammerName());
-
-            myLibraryCategoryNames.ADAPTER.fillComboBox(myLibraryCategory, ComboBoxAdaptable.EMPTY);
-
-            updatePort(settings);
+            unguardedReset(settings);
         })) {
             // after reset we update options
             updateOptions(false);
         }
+    }
+
+    void unguardedReset(final @NotNull ArduinoApplicationSettings settings) {
+        components.reset(settings);
+
+        updateEnums();
+
+        myCpuLabel.setText(mySettings.getCpuLabel());
+
+        myBoardNames.ADAPTER.fillComboBox(myBoards, ComboBoxAdaptable.EMPTY);
+        myBoards.setSelectedItem(settings.getBoardName());
+
+        updateCpus();
+
+        myProgrammerNames.ADAPTER.fillComboBox(myProgrammers, ComboBoxAdaptable.EMPTY);
+        myProgrammers.setSelectedItem(settings.getProgrammerName());
+
+        myLibraryCategoryNames.ADAPTER.fillComboBox(myLibraryCategory, ComboBoxAdaptable.EMPTY);
+        myLibraryCategory.setSelectedItem(settings.getLibraryCategory());
+
+        updatePort(settings);
     }
 
     public JComponent getComponent() {

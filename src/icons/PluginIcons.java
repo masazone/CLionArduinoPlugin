@@ -9,6 +9,7 @@ import javax.swing.Icon;
  */
 public class PluginIcons {
     public static final Icon arduino_logo = IconLoader.getIcon("/icons/arduino_logo.png");
+    public static final Icon arduino_plugin_logo = IconLoader.getIcon("/icons/arduino_plugin_logo.png");
     public static final Icon arduino_library = IconLoader.getIcon("/icons/arduino_library.png");
     public static final Icon arduino_project = IconLoader.getIcon("/icons/arduino_project.png");
     public static final Icon arduino_sketch = IconLoader.getIcon("/icons/arduino_sketch.png");

@@ -5,7 +5,7 @@ A JetBrains CLion plugin to integrate
 
 [JetBrains Plugin Page](https://plugins.jetbrains.com/plugin/11301-arduino-support)
 
-Create an Arduino CMake project in one click with new project wizard types and view
+Install and create an Arduino CMake projects in one click with new project wizard types and view
 communications with the integrated serial monitor tool window.
 
 * `Arduino Sketch` and `Arduino Library` project types to new project wizard, with Options to
@@ -18,12 +18,24 @@ communications with the integrated serial monitor tool window.
 
   :warning: Build events are only available in CLion 2018.3 (or later) so these options are
   disabled if you are running an earlier version of CLion.
+  
+* Change current build parameters with the `Tools` > `Arduino Support` > `Change build
+  settings`. Preview changes to `CMakeLists.txt` before committing to them with the `Show
+  Difference` button or use it to copy the desired changes to apply them manually.
+
+* Customize template files used for creating new projects
+
+* Use bundled `boards.txt` and `programmers.txt` or your own versions.
 
 ![Screenshot_NewProject.png](assets/images/Screenshot_NewProject.png)
 
 ![Screenshot_ProjectSettings](assets/images/Screenshot_ProjectSettings.png)
 
 ![Screenshot_SerialMonitor](assets/images/Screenshot_SerialMonitor.png)
+
+![Screenshot_ChangeBuildSettings](assets/images/Screenshot_ChangeBuildSettings.png)
+
+![Screenshot_ChangeBuildDiff](assets/images/Screenshot_ChangeBuildDiff.png)
 
 #### :warning: `Serial Port Monitor` plugin cannot be used with `Arduino Support`
 
@@ -92,15 +104,15 @@ interest. Then maybe someone else will pick up the torch at take it further.
       programmatically, after project creation
 * [x] add option for using customized project templates
 * [x] add code for loading project options from CMakeLists.txt (for UI modification)
-* [ ] Add UI for changing existing CMakeLists.txt configuration
-  * [ ] Change board, cpu, programmer, port, etc. All options which were available on project
+* [x] Add UI for changing existing CMakeLists.txt configuration
+  * [x] Change board, cpu, programmer, port, etc. All options which were available on project
         creation and make sense to modify on existing project.
-  * [ ] Load Additional Libraries from URLs
 * [ ] Refactoring support which CLion does not handle:
   * [ ] Add file to sources or headers (CLion cannot make sense of the Arduino project file)
   * [ ] Add updating of `keywords.txt` when identifiers in source or headers are renamed.
   * [ ] Add reload of `CMakeLists.txt` when library includes are added.
 * [ ] Add Import Arduino IDE config, sketches and libraries
+* [ ] Load Additional Libraries from URLs
 * [ ] Add: `Generate keywords.txt` action to generate keywords.txt based on contained project
       classes and functions.
 

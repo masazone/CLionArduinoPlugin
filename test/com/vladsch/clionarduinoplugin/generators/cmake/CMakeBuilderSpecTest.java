@@ -51,12 +51,13 @@ public class CMakeBuilderSpecTest extends ComboSpecTestCase {
     }
 
     static {
-        optionsMap.put("board-pro", new MutableDataSet().set(ArduinoCMakeListsTxtBuilderRenderer.VALUE_MAP, valueSet("SET_BOARD", "pro", "SET_CPU", "8MHzatmega328")));
+        optionsMap.put("board-pro", new MutableDataSet().set(ArduinoCMakeListsTxtBuilderRenderer.VALUE_MAP, valueSet("SET_BOARD", "pro", "SET_CPU", "8MHzatmega328", "PROJECT", "${MAKE_PROJECT_NAME}")));
         optionsMap.put("change-all", new MutableDataSet().set(ArduinoCMakeListsTxtBuilderRenderer.VALUE_MAP, valueSet(
                 "CMAKE_MINIMUM_REQUIRED_VERSION", "Maj.Min.Rev.Twk",
                 "SET_CMAKE_TOOLCHAIN_FILE", "setCmakeToolchainFile",
                 "SET_CMAKE_CXX_STANDARD", "setCmakeCxxStandard",
                 "SET_PROJECT_NAME", "setProjectName",
+                "PROJECT", "${MAKE_PROJECT_NAME}",
                 "SET_BOARD", "setBoard",
                 "SET_CPU", "setCpu",
                 "SET_SKETCH", "setSketch",
@@ -76,7 +77,7 @@ public class CMakeBuilderSpecTest extends ComboSpecTestCase {
                 "", ""
         )));
         optionsMap.put("add-project", new MutableDataSet().set(ArduinoCMakeListsTxtBuilderRenderer.VALUE_MAP, valueSet(
-                "PROJECT", "${CMAKE_PROJECT_NAME}",
+                "PROJECT", "${A_PROJECT_NAME}",
                 "SET_PROGRAMMER", "setProgrammer",
                 "", ""
         )));
@@ -89,6 +90,8 @@ public class CMakeBuilderSpecTest extends ComboSpecTestCase {
                 .set(ArduinoCMakeListsTxtBuilderRenderer.SUPPRESS_COMMENTED, true)
         );
         optionsMap.put("dump-options", new MutableDataSet().set(ExtraRenderer.DUMP_OPTIONS, true));
+        optionsMap.put("dump-after", new MutableDataSet().set(ArduinoCMakeListsTxtBuilderRenderer.DUMP_ELEMENTS_AFTER, true));
+        optionsMap.put("dump-before", new MutableDataSet().set(ArduinoCMakeListsTxtBuilderRenderer.DUMP_ELEMENTS_BEFORE, true));
         optionsMap.put("set-or-add", new MutableDataSet().set(ArduinoCMakeListsTxtBuilderRenderer.SET_OR_ADD, true));
     }
 

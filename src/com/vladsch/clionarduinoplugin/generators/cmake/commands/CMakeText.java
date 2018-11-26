@@ -20,7 +20,7 @@ public class CMakeText implements CMakeElement {
     }
 
     @Override
-    public String getText(@Nullable Map<String, Object> valueSet, final boolean suppressCommented) {
+    public String getText(@Nullable Map<String, Object> valueSet, final @Nullable String projectNameMacro, final boolean suppressCommented) {
         return myText;
     }
 
@@ -37,7 +37,7 @@ public class CMakeText implements CMakeElement {
     }
 
     @Override
-    public void appendTo(StringBuilder out, @Nullable Map<String, Object> valueSet, final boolean suppressCommented) throws IOException {
+    public void appendTo(StringBuilder out, final @Nullable String projectNameMacro, @Nullable Map<String, Object> valueSet, final boolean suppressCommented) throws IOException {
         out.append(myText);
         if (myAddEOL) out.append("\n");
     }
@@ -45,8 +45,8 @@ public class CMakeText implements CMakeElement {
     @Override
     public String toString() {
         return "CMakeText{" +
-                ", " + myAddEOL +
-                "'" + myText + '\'' +
+                '"' + myText + '"' +
+                " " + myAddEOL +
                 '}';
     }
 }

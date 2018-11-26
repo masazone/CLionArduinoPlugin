@@ -32,6 +32,8 @@ public interface ArduinoProjectFileSettings {
     @NotNull String getPort();
     int getBaudRate();
     boolean isVerbose();
+    boolean isCommentUnusedSettings();
+    void setCommentUnusedSettings(boolean commentUnusedSettings);
     @NotNull String getLibraryCategory();
     String getAuthorName();
     @NotNull String getAuthorEMail();

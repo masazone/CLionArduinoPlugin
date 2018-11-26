@@ -58,7 +58,7 @@ in-line bracket comments
 .
 CMakeFile[0, 61]
   BracketComment[0, 30] open:[0, 3, "#[["] text:[3, 28, " comment # inner comment "] close:[28, 30, "]]"]
-  LineComment[31, 46] open:[31, 32, "#"] text:[32, 46, " line comment\n"]
+  LineComment[30, 46] spaces:[30, 31, " "] open:[30, 31, " "] text:[31, 46, "# line comment\n"]
   BlankLine[46, 47]
   LineComment[47, 61] open:[47, 48, "#"] text:[48, 61, " line comment"]
 ````````````````````````````````
@@ -936,7 +936,7 @@ one escaped semi
 # if(abc\;def)
 .
 CMakeFile[0, 14]
-  CommentedOutCommand[2, 14] comment:[0, 1, "#"] text:[2, 4, "if"] open:[4, 5, "("] arguments:[5, 13, "abc\;def"] close:[13, 14, ")"]
+  CommentedOutCommand[0, 14] comment:[0, 1, "#"] text:[2, 4, "if"] open:[4, 5, "("] arguments:[5, 13, "abc\;def"] close:[13, 14, ")"]
     Argument[5, 13] text:[5, 13, "abc\;def"]
 ````````````````````````````````
 

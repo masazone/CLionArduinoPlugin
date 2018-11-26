@@ -12,17 +12,59 @@ public class ArduinoApplicationSettingsProxy implements ArduinoProjectFileSettin
     private String mySketch = "";
     private String myProjectName = "";
 
-    public ArduinoApplicationSettingsProxy(final ArduinoApplicationSettings settings, final boolean isLibrary) {
+    private ArduinoApplicationSettingsProxy(final @NotNull ArduinoApplicationSettings settings, final boolean isLibrary) {
         myIsLibrary = isLibrary;
         mySettings = settings;
     }
 
-    public ArduinoApplicationSettingsProxy(final boolean isLibrary) {
+    private ArduinoApplicationSettingsProxy() {
+        this(new ArduinoApplicationSettings(), false);
+    }
+
+    private ArduinoApplicationSettingsProxy(final boolean isLibrary) {
         this(new ArduinoApplicationSettings(), isLibrary);
     }
 
-    public ArduinoApplicationSettingsProxy() {
-        this(new ArduinoApplicationSettings(), false);
+    public static ArduinoApplicationSettingsProxy of() {
+        return new ArduinoApplicationSettingsProxy();
+    }
+
+    public static ArduinoApplicationSettingsProxy of(boolean isLibrary) {
+        return new ArduinoApplicationSettingsProxy(isLibrary);
+    }
+
+    public static ArduinoApplicationSettingsProxy wrap(@NotNull ArduinoApplicationSettings settings, boolean isLibrary) {
+        return new ArduinoApplicationSettingsProxy(settings, isLibrary);
+    }
+
+    public static ArduinoApplicationSettingsProxy copyOf(@NotNull ArduinoProjectFileSettings settings) {
+        ArduinoApplicationSettingsProxy proxy = new ArduinoApplicationSettingsProxy();
+        proxy.copyFrom(settings);
+        return proxy;
+    }
+
+    public void copyFrom(ArduinoProjectFileSettings other) {
+        myIsLibrary = other.isLibrary();
+        setLanguageVersionId(other.getLanguageVersionId());
+        setLibraryType(other.getLibraryType());
+        setLibraryDisplayName(other.getLibraryDisplayName());
+        setLibraryDirectories(other.getLibraryDirectories());
+        setNestedLibraries(other.getNestedLibraries());
+        setAddLibraryDirectory(other.isAddLibraryDirectory());
+        setBoardId(other.getBoardId());
+        setCpuId(other.getCpuId());
+        setProgrammerId(other.getProgrammerId());
+        setPort(other.getPort());
+        setBaudRate(other.getBaudRate());
+        setVerbose(other.isVerbose());
+        setLibraryCategory(other.getLibraryCategory());
+        setAuthorName(other.getAuthorName());
+        setAuthorEMail(other.getAuthorEMail());
+        myHeaders = other.getHeaders();
+        mySources = other.getSources();
+        mySketch = other.getSketch();
+        myProjectName = other.getProjectName();
+        setCommentUnusedSettings(other.isCommentUnusedSettings());
     }
 
     public boolean isLibrary() {
@@ -31,6 +73,14 @@ public class ArduinoApplicationSettingsProxy implements ArduinoProjectFileSettin
 
     public void setLibrary(final boolean library) {
         myIsLibrary = library;
+    }
+
+    public boolean isCommentUnusedSettings() {
+        return mySettings.isCommentUnusedSettings();
+    }
+
+    public void setCommentUnusedSettings(final boolean commentUnusedSettings) {
+        mySettings.setCommentUnusedSettings(commentUnusedSettings);
     }
 
     @NotNull
@@ -157,7 +207,7 @@ public class ArduinoApplicationSettingsProxy implements ArduinoProjectFileSettin
 
     @Override
     public void setLanguageVersionId(@NotNull final String languageVersionId) {
-        mySettings.setLanguageVersion(languageVersionId);
+        mySettings.setLanguageVersionId(languageVersionId);
     }
 
     @Override

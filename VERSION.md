@@ -4,7 +4,7 @@
 
 ### Version History
 - [TO DO](#to-do)
-- [1.3.17](#1317)
+- [1.4.0](#140)
 - [1.3.14](#1314)
 - [1.3.12](#1312)
 - [1.3.10](#1310)
@@ -29,8 +29,10 @@
 * [ ] Add: `Generate keywords.txt` action to generate keywords.txt based on contained project
       classes and functions.
 
-### 1.3.17
+### 1.4.0
 
+* Add: UI for changing Arduino build board, cpu, programmer, etc. Under Tools > Arduino Support
+  \> Change build settings
 * Add: default baud rate in new project wizard to allow using default
 * Add: baud rate if one was provided to cmake lists
 * Add: basic Arduino CMakeLists.txt builder from template, to have common code for new project
@@ -43,6 +45,10 @@
 * Fix: templates only accessible as files under debug environment.
 * Fix: rework builder to not depend on `set()` variable names and resolve values for command
   matching.
+* Fix: refactor builder to use cmake project name variable used in `project()` if it was not
+  changed through set/add command, otherwise use one given by mods.
+* Add: generic unknown command to handle commands which have no defined type
+* Add: generating CMakeLists from config options instead of real files
 
 ### 1.3.14
 

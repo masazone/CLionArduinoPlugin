@@ -14,11 +14,12 @@ public class CommentedOutCommand extends Command {
 
     @Override
     public BasedSequence[] getSegments() {
-        return new BasedSequence[] { commentMarker, command, openingMarker, arguments, closingMarker };
+        return new BasedSequence[] { leadingSpaces, commentMarker, command, openingMarker, arguments, closingMarker };
     }
 
     @Override
     public void getAstExtra(StringBuilder out) {
+        segmentSpanChars(out, leadingSpaces, "spaces");
         segmentSpanChars(out, commentMarker, "comment");
         segmentSpanChars(out, command, "text");
         segmentSpanChars(out, openingMarker, "open");
