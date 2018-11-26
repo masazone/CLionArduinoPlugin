@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 2.8.4)
 set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/ArduinoToolchain.cmake)
+set(CMAKE_CXX_STANDARD 98)
 set(CMAKE_PROJECT_NAME tft_life)
 
 set(${CMAKE_PROJECT_NAME}_BOARD pro)
