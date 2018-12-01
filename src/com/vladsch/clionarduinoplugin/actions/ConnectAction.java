@@ -5,8 +5,8 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.vladsch.clionarduinoplugin.Bundle;
-import com.vladsch.clionarduinoplugin.settings.ArduinoProjectSettings;
 import com.vladsch.clionarduinoplugin.serial.SerialProjectComponent;
+import com.vladsch.clionarduinoplugin.settings.ArduinoProjectSettings;
 import icons.PluginIcons;
 import org.jetbrains.annotations.NotNull;
 

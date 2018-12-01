@@ -3,12 +3,12 @@
   <grid id="27dc6" binding="myMainPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="654" height="400"/>
+      <xy x="20" y="20" width="720" height="400"/>
     </constraints>
     <properties/>
     <border type="none"/>
     <children>
-      <grid id="89ff8" layout-manager="GridLayoutManager" row-count="1" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+      <grid id="89ff8" layout-manager="GridLayoutManager" row-count="1" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="9" fill="0" indent="0" use-parent-layout="false"/>
@@ -30,7 +30,7 @@
             </constraints>
             <properties/>
           </component>
-          <component id="b2d13" class="com.intellij.ui.components.JBCheckBox" binding="myIsImmediateSend">
+          <component id="b2d13" class="com.intellij.ui.components.JBCheckBox" binding="myImmediateSend">
             <constraints>
               <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
@@ -47,6 +47,16 @@
             <properties>
               <text resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.log-sent-text.label"/>
               <toolTipText resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.log-sent-text.description"/>
+              <verticalAlignment value="0"/>
+            </properties>
+          </component>
+          <component id="8a834" class="com.intellij.ui.components.JBCheckBox" binding="myLogExceptions">
+            <constraints>
+              <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.log-exceptions.label"/>
+              <toolTipText resource-bundle="com/vladsch/clionarduinoplugin/localization/strings" key="settings.log-exceptions.description"/>
               <verticalAlignment value="0"/>
             </properties>
           </component>

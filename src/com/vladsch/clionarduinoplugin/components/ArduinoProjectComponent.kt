@@ -25,7 +25,7 @@ class ArduinoProjectComponent(val project: Project) : ProjectComponent, VirtualF
     //    private val alarm = Alarm()
     private lateinit var mySettings: ArduinoProjectSettings
     //    private val myRunnables = ListenersRunner<File>()
-    
+
     var isArduinoProject: Boolean? = null
 
     override fun getComponentName(): String {

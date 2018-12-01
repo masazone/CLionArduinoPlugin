@@ -1,5 +1,6 @@
 package com.vladsch.clionarduinoplugin.serial;
 
+import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
@@ -7,7 +8,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.WindowManager;
 import com.vladsch.clionarduinoplugin.settings.ArduinoProjectSettings;
-import com.vladsch.clionarduinoplugin.util.Utils;
 import jssc.SerialPort;
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
@@ -18,8 +18,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.vladsch.clionarduinoplugin.serial.SerialMonitorPanel.ALT_CONNECTION_STATUS;
+
 public class SerialProjectComponent implements ProjectComponent, BuildListener {
     private static final Logger LOG = Logger.getInstance("com.vladsch.clionarduinoplugin.serial");
+    public static final String NEED_CLION_2018_3_OR_LATER = "Build monitoring not available. Need CLion 2018.3 or later";
 
     final Project myProject;
     final StatusWidget myStatusWidget;
@@ -51,13 +54,23 @@ public class SerialProjectComponent implements ProjectComponent, BuildListener {
         //statusBar.addWidget(myStatusWidget, "before InfoAndProgress");
         //statusBar.addWidget(myStatusWidget, "after InfoAndProgress");
         statusBar.addWidget(myStatusWidget, "__AUTODETECT__");
+
         try {
             myBuildMonitor = new BuildMonitor(myProject, this);
             myBuildMonitor.projectOpened();
+            try {
+                if (ALT_CONNECTION_STATUS == null) {
+                    //noinspection AssignmentToStaticFieldFromInstanceMethod
+                    ALT_CONNECTION_STATUS = ConsoleViewContentType.LOG_VERBOSE_OUTPUT;
+                }
+            } catch (Throwable ignored) {
+
+            }
         } catch (NoClassDefFoundError e) {
-            LOG.debug("Build monitoring not available. Need CLion 2018.3 or later", e);
+            LOG.debug(NEED_CLION_2018_3_OR_LATER, e);
             myBuildMonitor = null;
         }
+
         myStatusWidget.setStatus(true, false, canConnectPort());
         mySerialMonitorToolWindow = new SerialMonitorToolWindow(myProject);
     }
@@ -207,7 +220,7 @@ public class SerialProjectComponent implements ProjectComponent, BuildListener {
     }
 
     public boolean canConnectPort() {
-        return !myIsBuilding && Utils.getSerialPorts(true).contains(myProjectSettings.getPort());
+        return !myIsBuilding && SerialPortManager.getInstance().getSerialPorts(true).contains(myProjectSettings.getPort());
     }
 
     public Project getProject() {
@@ -227,14 +240,40 @@ public class SerialProjectComponent implements ProjectComponent, BuildListener {
         int dataBits = SerialPort.DATABITS_8;
         int stopBits = SerialPort.STOPBITS_1;
         int parity = SerialPort.PARITY_NONE;
+        boolean rts = true;
+        boolean dtr = true;
 
         try {
             mySerialPort = new SerialPort(portName);
             mySerialPort.openPort();
-            if (!mySerialPort.setParams(baudRate, dataBits, stopBits, parity, true, true)) {
+
+            String[] stopBitNames = new String[] {
+                    "1",
+                    "2",
+                    "1.5",
+            };
+            String[] parityNames = new String[] {
+                    "none",
+                    "odd",
+                    "even",
+                    "mark",
+                    "space",
+            };
+
+            String message = "Failed to set port parameters { baud: " + baudRate +
+                    ", dataBits: " + dataBits +
+                    ", stopBits: " + stopBitNames[stopBits] +
+                    ", parity: " + parityNames[parity] +
+                    ", rts: " + (rts ? "yes" : "no") +
+                    ", dtr: " + (dtr ? "yes" : "no") +
+                    "";
+            //notifySerialError(true, message, null);
+
+            if (!mySerialPort.setParams(baudRate, dataBits, stopBits, parity, rts, dtr)) {
                 // TODO: signal error
                 // Failed to set parameters
                 mySerialPort = null;
+                notifySerialError(true, message, null);
             } else {
                 mySerialPort.addEventListener(new SerialPortEventListener() {
                     @Override
@@ -252,6 +291,7 @@ public class SerialProjectComponent implements ProjectComponent, BuildListener {
                                 }
                             } catch (SerialPortException e) {
                                 LOG.error(e);
+                                notifySerialError(true, "Serial port exception", e);
                             }
                         } else {
                             for (SerialPortListener listener : myListeners) {
@@ -267,7 +307,9 @@ public class SerialProjectComponent implements ProjectComponent, BuildListener {
             }
         } catch (SerialPortException e) {
             mySerialPort = null;
-            LOG.error("Error opening port", e);
+            String message = "Error opening port";
+            LOG.error(message, e);
+            notifySerialError(true, message, e);
         }
     }
 
@@ -280,15 +322,34 @@ public class SerialProjectComponent implements ProjectComponent, BuildListener {
                 }
                 return;
             } catch (SerialPortException e) {
-                LOG.error("Send serial port error", e);
+                String message = "Send serial port error";
+                LOG.error(message, e);
+                notifySerialError(true, message, e);
             }
         }
 
         throw new IllegalStateException("Serial Port is not connected");
     }
 
+    public void notifySerialError(final boolean isError, final String message, final SerialPortException e) {
+        for (SerialPortListener listener : myListeners) {
+            listener.onError(isError, message, e);
+        }
+    }
+
     public void addPortListener(@NotNull SerialPortListener listener) {
         myListeners.add(listener);
+
+        if (listener instanceof SerialMonitorPanel) {
+            ApplicationManager.getApplication().invokeLater(() -> {
+                if (myBuildMonitor == null) {
+                    notifySerialError(false, NEED_CLION_2018_3_OR_LATER, null);
+                }
+
+                //notifySerialError(false, "Initialized", null);
+                //notifySerialError(true, "Error Test", null);
+            });
+        }
     }
 
     public void removeListener(SerialPortListener listener) {

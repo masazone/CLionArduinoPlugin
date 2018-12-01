@@ -3,6 +3,7 @@ package com.vladsch.clionarduinoplugin.generators.cmake;
 import com.vladsch.clionarduinoplugin.generators.cmake.ast.*;
 import com.vladsch.flexmark.ast.Node;
 import com.vladsch.flexmark.util.Pair;
+import com.vladsch.flexmark.util.SemanticVersion;
 import com.vladsch.flexmark.util.options.DataHolder;
 import com.vladsch.flexmark.util.options.DataKey;
 import com.vladsch.flexmark.util.options.MutableDataSet;
@@ -263,8 +264,8 @@ public class CMakeParser {
                                             BasedSequence[] minMaxVersions = version.split("...", 2);
 
                                             // use max version if given
-                                            Version minVersion = new Version(minMaxVersions[0]);
-                                            Version maxVersion = new Version(minMaxVersions.length > 1 ? minMaxVersions[1] : minMaxVersions[0]);
+                                            SemanticVersion minVersion = new SemanticVersion(minMaxVersions[0]);
+                                            SemanticVersion maxVersion = new SemanticVersion(minMaxVersions.length > 1 ? minMaxVersions[1] : minMaxVersions[0]);
                                             if (minVersion.compareTo(maxVersion) < 0) minVersion = maxVersion;
 
                                             if (minVersion.compareTo("3.0.0") >= 0) {

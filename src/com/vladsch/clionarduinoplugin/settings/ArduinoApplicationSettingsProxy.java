@@ -279,5 +279,4 @@ public class ArduinoApplicationSettingsProxy implements ArduinoProjectFileSettin
     public void setAuthorEMail(@NotNull final String authorEMail) {
         mySettings.setAuthorEMail(authorEMail);
     }
-
 }

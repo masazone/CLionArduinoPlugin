@@ -17,11 +17,11 @@ import com.intellij.util.Alarm;
 import com.intellij.util.Consumer;
 import com.intellij.util.ui.UIUtil;
 import com.vladsch.clionarduinoplugin.Bundle;
-import com.vladsch.clionarduinoplugin.actions.SerialMonitorBaudRateActionBase;
-import com.vladsch.clionarduinoplugin.actions.SerialMonitorPortActionBase;
+import com.vladsch.clionarduinoplugin.actions.SerialMonitorBaudRateAction;
+import com.vladsch.clionarduinoplugin.actions.SerialMonitorPortAction;
 import com.vladsch.clionarduinoplugin.settings.ArduinoProjectSettings;
 import com.vladsch.clionarduinoplugin.util.ProjectSettingsListener;
-import com.vladsch.clionarduinoplugin.util.Utils;
+import com.vladsch.plugin.util.edit.Helpers;
 import icons.PluginIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -120,13 +120,13 @@ public class StatusWidget implements CustomStatusBarWidget, StatusBarWidget.Icon
             @Override
             public AnAction[] getChildren(@Nullable final AnActionEvent e) {
                 return new AnAction[] {
-                        SerialMonitorPortActionBase.Companion.createSerialPortsActionGroup(),
-                        SerialMonitorBaudRateActionBase.Companion.createBaudRateActionGroup(),
+                        SerialMonitorPortAction.Companion.createSerialPortsActionGroup(),
+                        SerialMonitorBaudRateAction.Companion.createBaudRateActionGroup(),
                 };
             }
         };
 
-        DataContext context = Utils.simpleDataContext(mySerialProjectComponent.getProject());
+        DataContext context = Helpers.simpleDataContext(mySerialProjectComponent.getProject());
 
         return JBPopupFactory.getInstance().createActionGroupPopup(
                 "Serial Monitor",

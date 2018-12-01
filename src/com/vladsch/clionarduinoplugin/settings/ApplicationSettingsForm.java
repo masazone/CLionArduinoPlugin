@@ -38,8 +38,8 @@ import com.vladsch.clionarduinoplugin.resources.ArduinoConfig;
 import com.vladsch.clionarduinoplugin.resources.ResourceUtils;
 import com.vladsch.clionarduinoplugin.resources.TemplateResolver;
 import com.vladsch.clionarduinoplugin.util.ApplicationSettingsListener;
-import com.vladsch.clionarduinoplugin.util.ui.Settable;
-import com.vladsch.clionarduinoplugin.util.ui.SettingsComponents;
+import com.vladsch.plugin.util.ui.Settable;
+import com.vladsch.plugin.util.ui.SettingsComponents;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -92,7 +92,8 @@ public class ApplicationSettingsForm implements Disposable, ApplicationSettingsL
         final String boardsTxt = ArduinoConfig.Companion.getBoardsTxtString();
         final String programmersTxt = ArduinoConfig.Companion.getProgrammersTxtString();
         myArduinoConfig = new ArduinoConfig(boardsTxt, programmersTxt);
-        components = new SettingsComponents<ArduinoApplicationSettings>() {
+        //noinspection unchecked
+        components = new SettingsComponents<ArduinoApplicationSettings>(mySettings) {
             @Override
             protected Settable[] createComponents(ArduinoApplicationSettings i) {
                 return new Settable[] {

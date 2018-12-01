@@ -28,7 +28,6 @@ public class ShowSendOptionsAction extends ToggleAction implements DumbAware {
     @Override
     public void setSelected(@NotNull final AnActionEvent e, final boolean state) {
         Project project = e.getProject();
-        boolean selected = false;
         if (project != null) {
             ArduinoProjectSettings projectSettings = ArduinoProjectSettings.getInstance(project);
             projectSettings.groupChanges(() -> {

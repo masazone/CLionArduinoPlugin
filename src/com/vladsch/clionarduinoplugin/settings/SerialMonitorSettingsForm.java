@@ -21,17 +21,15 @@ import com.intellij.ui.TextFieldWithHistory;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBTextField;
 import com.vladsch.clionarduinoplugin.serial.SerialProjectComponent;
-import com.vladsch.clionarduinoplugin.util.ui.EnumLike;
-import com.vladsch.clionarduinoplugin.util.ui.FormParams;
-import com.vladsch.clionarduinoplugin.util.ui.Settable;
-import com.vladsch.clionarduinoplugin.util.ui.SettingsComponents;
+import com.vladsch.plugin.util.ui.FormParams;
+import com.vladsch.plugin.util.ui.Settable;
+import com.vladsch.plugin.util.ui.SettingsComponents;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 
 public class SerialMonitorSettingsForm extends FormParams<Boolean> implements Disposable, RegExSettingsHolder {
     private static final Logger logger = Logger.getInstance("com.vladsch.clionarduinoplugin.settings");
@@ -53,7 +51,6 @@ public class SerialMonitorSettingsForm extends FormParams<Boolean> implements Di
     JBCheckBox myReloadOnFileChange;
 
     private @NotNull String myRegexSampleText;
-    EnumLike<SerialPortNames> mySerialPortNames;
 
     public JComponent getComponent() {
         return myMainPanel;
@@ -64,13 +61,13 @@ public class SerialMonitorSettingsForm extends FormParams<Boolean> implements Di
     public SerialMonitorSettingsForm(ArduinoProjectSettings settings, boolean allowPortEdit) {
         super(allowPortEdit);
 
-        components = new SettingsComponents<ArduinoProjectSettings>() {
+        components = new SettingsComponents<ArduinoProjectSettings>(settings) {
             @Override
             protected Settable[] createComponents(ArduinoProjectSettings i) {
                 return new Settable[] {
-                        componentString(mySerialPortNames.ADAPTER, myPort, i::getPort, i::setPort),
+                        componentString(SerialPortNames.ADAPTER, myPort, i::getPort, i::setPort),
                         component(SerialBaudRates.ADAPTER, myBaudRate, i::getBaudRate, i::setBaudRate),
-                        component(myReloadOnFileChange, i::isReloadOnFileChange, i::setReloadOnFileChange),
+                        //component(myReloadOnFileChange, i::isReloadOnFileChange, i::setReloadOnFileChange),
                         component(myLogConnectDisconnect, i::isLogConnectDisconnect, i::setLogConnectDisconnect),
                         component(myReconnectAfterBuild, i::isReconnectAfterBuild, i::setReconnectAfterBuild),
                         component(myActivateOnConnect, i::isActivateOnConnect, i::setActivateOnConnect),
@@ -151,13 +148,13 @@ public class SerialMonitorSettingsForm extends FormParams<Boolean> implements Di
             public void actionPerformed(final ActionEvent e) {updateOptions(false);}
         };
 
-        mySerialPortNames = SerialPortNames.createEnum(true);
+        SerialPortNames.updateValues(true, null);
 
         if (mySettings) {
             // allow edit
             myPort = new TextFieldWithHistory();
         } else {
-            myPort = mySerialPortNames.ADAPTER.createComboBox();
+            myPort = SerialPortNames.ADAPTER.createComboBox();
         }
 
         myBaudRate = SerialBaudRates.ADAPTER.createComboBox(SerialBaudRates.DEFAULT);
@@ -182,10 +179,9 @@ public class SerialMonitorSettingsForm extends FormParams<Boolean> implements Di
         components.reset(settings);
 
         if (myPort instanceof TextFieldWithHistory) {
-            ArrayList<String> ports = mySerialPortNames.getDisplayNames();
-            ((TextFieldWithHistory)myPort).setHistorySize(-1);
-            ((TextFieldWithHistory)myPort).setHistory(ports);
-            ((TextFieldWithHistory)myPort).setText(ArduinoApplicationSettings.getInstance().getPort());
+            ((TextFieldWithHistory) myPort).setHistorySize(-1);
+            ((TextFieldWithHistory) myPort).setHistory(SerialPortNames.getDisplayNames());
+            ((TextFieldWithHistory) myPort).setText(settings.getPort().isEmpty() ? ArduinoApplicationSettings.getInstance().getPort():settings.getPort());
         }
 
         mySendSettings.reset(settings);

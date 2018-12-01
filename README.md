@@ -5,37 +5,35 @@ A JetBrains CLion plugin to integrate
 
 [JetBrains Plugin Page](https://plugins.jetbrains.com/plugin/11301-arduino-support)
 
-Install and create an Arduino CMake projects in one click with new project wizard types and view
+Install and create Arduino CMake projects in one click with new project wizard types and view
 communications with the integrated serial monitor tool window.
 
 * `Arduino Sketch` and `Arduino Library` project types to new project wizard, with Options to
-  select board type, cpu, programmer and port
+  select board type, cpu, programmer and port.
 
-* `Arduino Sketch` new file action
+* `Arduino Sketch` new file action.
 
 * Serial port monitor tool window with options to disconnect on build start and reconnect on
   build complete.
 
   :warning: Build events are only available in CLion 2018.3 (or later) so these options are
   disabled if you are running an earlier version of CLion.
-  
-* Change current build parameters with the `Tools` > `Arduino Support` > `Change build
-  settings`. Preview changes to `CMakeLists.txt` before committing to them with the `Show
-  Difference` button or use it to copy the desired changes to apply them manually.
 
-* Customize template files used for creating new projects
+* Change current build parameters `Tools` > `Arduino Support` > `Change build settings`.
+
+* Customize template files used for creating new projects.
 
 * Use bundled `boards.txt` and `programmers.txt` or your own versions.
 
-![Screenshot_NewProject.png](assets/images/Screenshot_NewProject.png)
+![Screenshot_NewProject.png](https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_NewProject.png)
 
-![Screenshot_ProjectSettings](assets/images/Screenshot_ProjectSettings.png)
+![Screenshot_ProjectSettings](https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_ProjectSettings.png)
 
-![Screenshot_SerialMonitor](assets/images/Screenshot_SerialMonitor.png)
+![Screenshot_SerialMonitor](https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_SerialMonitor.png)
 
-![Screenshot_ChangeBuildSettings](assets/images/Screenshot_ChangeBuildSettings.png)
+![Screenshot_ChangeBuildSettings](https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_ChangeBuildSettings.png)
 
-![Screenshot_ChangeBuildDiff](assets/images/Screenshot_ChangeBuildDiff.png)
+![Screenshot_ChangeBuildDiff](https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_ChangeBuildDiff.png)
 
 #### :warning: `Serial Port Monitor` plugin cannot be used with `Arduino Support`
 
@@ -50,7 +48,7 @@ convenience.
 Additionally, you can point the plugin to your own versions of `boards.txt` and
 `programmers.txt`.
 
-![Screenshot_AppSettings](assets/images/Screenshot_AppSettings.png)
+![Screenshot_AppSettings](https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_AppSettings.png)
 
 The `Show Difference` button is only displayed when a valid file is selected to let you quickly
 see if there are differences from the bundled version.
@@ -58,8 +56,8 @@ see if there are differences from the bundled version.
 The `Create From Bundled` button is only displayed when a non-existent directory is given and it
 can be created. Pressing it will create the directory and populate it with the bundled
 templates. For layout and caveats of this directory please refer to the
-[README.md](resources/com/vladsch/clionarduinoplugin/templates/README.md) file in that
-directory.
+[README.md](https://github.com/vsch/CLionArduinoPlugin/blob/master/resources/com/vladsch/clionarduinoplugin/templates/README.md)
+file in that directory.
 
 ## Status
 

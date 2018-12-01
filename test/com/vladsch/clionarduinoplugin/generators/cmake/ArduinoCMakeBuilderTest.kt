@@ -6,9 +6,9 @@ import com.vladsch.clionarduinoplugin.resources.Strings
 import com.vladsch.clionarduinoplugin.resources.TemplateResolver
 import com.vladsch.clionarduinoplugin.settings.ArduinoApplicationSettingsProxy
 import com.vladsch.clionarduinoplugin.settings.ArduinoProjectFileSettings
-import com.vladsch.clionarduinoplugin.util.StudiedWord
-import com.vladsch.clionarduinoplugin.util.helpers.getFileContent
-import com.vladsch.clionarduinoplugin.util.helpers.plus
+import com.vladsch.flexmark.util.StudiedWord
+import com.vladsch.plugin.util.getFileContent
+import com.vladsch.plugin.util.plus
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.io.File

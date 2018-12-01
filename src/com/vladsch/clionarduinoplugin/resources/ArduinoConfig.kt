@@ -30,11 +30,11 @@ class ArduinoConfig(boardTxt: String?, programmersTxt: String?) {
         map
     }
 
-    fun getBoardById(id:String?):Board {
+    fun getBoardById(id: String?): Board {
         return boardIdMap[id] ?: Board.NULL
     }
 
-    fun getProgrammerById(id:String?):Programmer {
+    fun getProgrammerById(id: String?): Programmer {
         return programmerIdMap[id] ?: Programmer.NULL
     }
 
@@ -46,19 +46,19 @@ class ArduinoConfig(boardTxt: String?, programmersTxt: String?) {
         return programmerNameMap[name] ?: Programmer.NULL
     }
 
-    fun getBoardCpuId(boardId:String?, cpuId:String?):String {
+    fun getBoardCpuId(boardId: String?, cpuId: String?): String {
         return (boardIdMap[boardId] ?: Board.NULL).cpuIdById(cpuId)
     }
 
-    fun getBoardCpuIdByName(boardId:String?, cpuName:String?):String {
+    fun getBoardCpuIdByName(boardId: String?, cpuName: String?): String {
         return (boardIdMap[boardId] ?: Board.NULL).cpuIdByName(cpuName)
     }
 
-    fun getBoardCpuNameById(boardId:String?, cpuId:String?):String {
+    fun getBoardCpuNameById(boardId: String?, cpuId: String?): String {
         return (boardIdMap[boardId] ?: Board.NULL).cpuNameById(cpuId)
     }
 
-    fun getBoardCpuNameByName(boardId:String?, cpuName:String?):String {
+    fun getBoardCpuNameByName(boardId: String?, cpuName: String?): String {
         return (boardIdMap[boardId] ?: Board.NULL).cpuNameByName(cpuName)
     }
 
@@ -128,7 +128,6 @@ class ArduinoConfig(boardTxt: String?, programmersTxt: String?) {
                         }
                     }
                 }
-
             }
             return Pair(boards, cpuMenu)
         }

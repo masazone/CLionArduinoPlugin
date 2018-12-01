@@ -42,8 +42,8 @@ import com.vladsch.clionarduinoplugin.settings.ArduinoApplicationSettings
 import com.vladsch.clionarduinoplugin.settings.ArduinoApplicationSettingsProxy
 import com.vladsch.clionarduinoplugin.settings.NewProjectSettingsForm
 import com.vladsch.clionarduinoplugin.util.ApplicationSettingsListener
-import com.vladsch.clionarduinoplugin.util.StudiedWord
-import com.vladsch.clionarduinoplugin.util.helpers.plus
+import com.vladsch.flexmark.util.StudiedWord
+import com.vladsch.plugin.util.plus
 import icons.PluginIcons
 import org.jetbrains.annotations.Nls
 import java.awt.BorderLayout
@@ -118,7 +118,7 @@ abstract class ArduinoProjectGenerator(isLibrary: Boolean) : CMakeProjectGenerat
                 "PROJECT_NAME" to snakeName.toUpperCase(),
                 "project_name" to snakeName.toLowerCase(),
                 "ProjectName" to pascalName,
-//                "COMMENT_UNUSED" to if (mySettings.applicationSettings.isCommentUnusedSettings) "true" else "false",
+                //                "COMMENT_UNUSED" to if (mySettings.applicationSettings.isCommentUnusedSettings) "true" else "false",
                 "projectName" to camelName
         )
 
@@ -208,7 +208,7 @@ abstract class ArduinoProjectGenerator(isLibrary: Boolean) : CMakeProjectGenerat
         return super.validate(baseDirPath)
         //return ValidationResult.OK;
     }
-    
+
     private fun filterFailure(result: ValidationResult): ValidationResult {
         val canFail = fireValidationFailed()
         return if (canFail) result else ValidationResult.OK
@@ -366,18 +366,18 @@ abstract class ArduinoProjectGenerator(isLibrary: Boolean) : CMakeProjectGenerat
         }
     }
 
-    protected class CreatedFilesHolder constructor(val cMakeFile: VirtualFile, val sourceFiles: Array<VirtualFile>, val nonSourceFiles:Array<VirtualFile>, val extraFiles: Array<VirtualFile>)
+    protected class CreatedFilesHolder constructor(val cMakeFile: VirtualFile, val sourceFiles: Array<VirtualFile>, val nonSourceFiles: Array<VirtualFile>, val extraFiles: Array<VirtualFile>)
 
     companion object {
-        fun  validateOptions(settings: ArduinoApplicationSettings):ValidationResult? {
-            val result = validateOptionsInfo(settings,null)
+        fun validateOptions(settings: ArduinoApplicationSettings): ValidationResult? {
+            val result = validateOptionsInfo(settings, null)
             if (result != null) {
                 return ValidationResult(result.message)
             }
             return null
         }
-        
-        fun  validateOptionsInfo(settings: ArduinoApplicationSettings, form:NewProjectSettingsForm?):ValidationInfo? {
+
+        fun validateOptionsInfo(settings: ArduinoApplicationSettings, form: NewProjectSettingsForm?): ValidationInfo? {
             if (settings.boardId.isEmpty()) {
                 return ValidationInfo(Bundle.message("new-project.no-board"), form?.getErrorComponent(NewProjectSettingsForm.ErrorComp.BOARD))
             }
@@ -395,7 +395,7 @@ abstract class ArduinoProjectGenerator(isLibrary: Boolean) : CMakeProjectGenerat
             }
             return null
         }
-        
+
         fun reloadCMakeLists(project: Project) {
             val workspace = CMakeWorkspace.getInstance(project)
             ApplicationManager.getApplication().invokeLater {

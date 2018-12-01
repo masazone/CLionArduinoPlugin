@@ -55,9 +55,19 @@
             <a href="https://github.com/francoiscampbell/CLionArduinoPlugin">Original CLionArduinoPlugin</a> written by Francois Campbell.</p>
         ]]></description>
 
-    <version>1.4.0</version>
+    <version>1.4.2</version>
 
     <change-notes><![CDATA[
+        <h3>1.4.2</h3>
+        <ul>
+            <li>Fix: serial monitor &ldquo;edit settings&rdquo; would always show port name from new project wizard
+                instead of project settings while connect/disconnect would use the right port name.</li>
+            <li>Fix: exception in displaying serial monitor settings form</li>
+            <li>Add: option to log serial port related exceptions to the console</li>
+            <li>Fix: change project build settings on error would disable the <code>Change Build</code> button and not
+                re-enable it when build settings were changed.</li>
+            <li>Fix: clean up and refactor code.</li>
+        </ul>
         <h3>1.4.0</h3>
         <ul>
             <li>Add: UI for changing Arduino build board, cpu, programmer, etc. Under Tools &gt; Arduino Support

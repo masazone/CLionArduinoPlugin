@@ -1,27 +1,40 @@
 package com.vladsch.clionarduinoplugin.settings;
 
-import com.vladsch.clionarduinoplugin.util.Utils;
-import com.vladsch.clionarduinoplugin.util.ui.ComboBoxAdaptable;
-import com.vladsch.clionarduinoplugin.util.ui.ComboBoxAdapter;
-import com.vladsch.clionarduinoplugin.util.ui.EnumLike;
+import com.vladsch.clionarduinoplugin.serial.SerialPortManager;
+import com.vladsch.plugin.util.ui.ComboBoxAdapter;
+import com.vladsch.plugin.util.ui.ComboBoxAdapterImpl;
+import com.vladsch.plugin.util.ui.DynamicListAdaptable;
+import jssc.SerialPortList;
 import org.jetbrains.annotations.NotNull;
 
-public class SerialPortNames implements ComboBoxAdaptable<SerialPortNames> {
-    public final EnumLike parent;
-    public final int intValue;
-    public final @NotNull String displayName;
+import javax.swing.JComboBox;
+import java.util.List;
 
-    public static EnumLike<SerialPortNames> createEnum(boolean filtered) {
-        return new EnumLike<>(Utils.getSerialPorts(filtered), SerialPortNames::new, true);
+public class SerialPortNames extends DynamicListAdaptable<SerialPortNames> {
+    public SerialPortNames(final int intValue, @NotNull final String displayName) {
+        super(intValue, displayName);
     }
 
-    public SerialPortNames(final EnumLike parent, final int intValue, @NotNull final String displayName) {
-        this.parent = parent;
-        this.intValue = intValue;
-        this.displayName = displayName;
+    final public static SerialPortNames EMPTY = new SerialPortNames(0, "");
+    public static DynamicListAdaptable[] values = new DynamicListAdaptable[0];
+    final public static Static<DynamicListAdaptable<SerialPortNames>> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(EMPTY));
+
+    public static void updateValues(final boolean filtered, JComboBox comboBox, SerialPortNames... exclude) {
+        values = DynamicListAdaptable.updateValues(EMPTY, SerialPortManager.getInstance().getSerialPorts(filtered), true, SerialPortNames::new);
+        //noinspection unchecked
+        ADAPTER.setDefaultValue(values[0]);
+
+        if (comboBox != null) {
+            ADAPTER.fillComboBox(comboBox, exclude);
+        }
+    }
+
+    public static List<String> getDisplayNames() {
+        return getDisplayNames(values);
     }
 
     @Override
+    @NotNull
     public String getDisplayName() {
         return displayName;
     }
@@ -37,12 +50,13 @@ public class SerialPortNames implements ComboBoxAdaptable<SerialPortNames> {
     }
 
     @Override
-    public ComboBoxAdapter<SerialPortNames> getAdapter() {
-        return parent.ADAPTER;
+    public ComboBoxAdapter<DynamicListAdaptable<SerialPortNames>> getAdapter() {
+        return ADAPTER;
     }
 
     @Override
-    public SerialPortNames[] getValues() {
-        return (SerialPortNames[]) parent.values;
+    public DynamicListAdaptable<SerialPortNames>[] getValues() {
+        //noinspection unchecked
+        return values;
     }
 }

@@ -32,10 +32,10 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.util.ui.*;
 import com.vladsch.clionarduinoplugin.Bundle;
-import com.vladsch.clionarduinoplugin.util.Utils;
-import com.vladsch.clionarduinoplugin.util.ui.BackgroundColor;
-import com.vladsch.clionarduinoplugin.util.ui.HtmlBuilder;
+import com.vladsch.flexmark.util.html.BackgroundColor;
+import com.vladsch.flexmark.util.html.HtmlBuilder;
 import com.vladsch.flexmark.util.options.DelimitedBuilder;
+import com.vladsch.plugin.util.ui.Helpers;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -102,11 +102,11 @@ public class RegExTestDialog extends DialogWrapper {
     private final RegExSettingsHolder mySettingsHolder;
 
     private BackgroundColor getInvalidTextFieldBackground() {
-        return BackgroundColor.of(Utils.errorColor(UIUtil.getTextFieldBackground()));
+        return BackgroundColor.of(Helpers.errorColor(UIUtil.getTextFieldBackground()));
     }
 
     private BackgroundColor getWarningTextFieldBackground() {
-        return BackgroundColor.of(Utils.warningColor(UIUtil.getTextFieldBackground()));
+        return BackgroundColor.of(Helpers.warningColor(UIUtil.getTextFieldBackground()));
     }
 
     private BackgroundColor getValidTextFieldBackground() {
@@ -118,7 +118,7 @@ public class RegExTestDialog extends DialogWrapper {
     }
 
     private BackgroundColor getInvalidTableBackground(boolean isSelected) {
-        return BackgroundColor.of(Utils.errorColor(UIUtil.getTableBackground(isSelected)));
+        return BackgroundColor.of(Helpers.errorColor(UIUtil.getTableBackground(isSelected)));
     }
 
     BackgroundColor getTableBackground(boolean isSelected) {
@@ -328,7 +328,7 @@ public class RegExTestDialog extends DialogWrapper {
             sampleSet.toolTipText = error.isEmpty() ? null : error;
         } else {
             myViewPanel.setVisible(false);
-            Utils.setRegExError(error, myTextPane, mySampleText.getFont(), getValidTextFieldBackground(), getWarningTextFieldBackground());
+            HtmlBuilder.setRegExError(error, myTextPane, mySampleText.getFont(), getValidTextFieldBackground(), getWarningTextFieldBackground());
         }
         return error;
     }

@@ -7,8 +7,8 @@ import com.vladsch.clionarduinoplugin.generators.cmake.commands.CMakeCommandType
 import com.vladsch.clionarduinoplugin.resources.Strings
 import com.vladsch.clionarduinoplugin.settings.ArduinoApplicationSettingsProxy
 import com.vladsch.clionarduinoplugin.settings.ArduinoProjectFileSettings
-import com.vladsch.clionarduinoplugin.util.helpers.getFileContent
-import com.vladsch.clionarduinoplugin.util.helpers.plus
+import com.vladsch.plugin.util.getFileContent
+import com.vladsch.plugin.util.plus
 import com.vladsch.flexmark.util.options.DataHolder
 import java.io.File
 import java.util.*
@@ -163,10 +163,10 @@ class ArduinoCMakeListsTxtBuilder : CMakeListsTxtBuilder {
             settings.sketch = sketchFile ?: ""
             return getCMakeFileContent(template, projectName, settings, unmodifiedOriginalText)
         }
-        
+
         @Suppress("MemberVisibilityCanBePrivate")
         fun getCMakeFileContent(template: String, projectName: String, settings: ArduinoApplicationSettingsProxy, unmodifiedOriginalText: Boolean): String {
-            @Suppress("CanBeVal") 
+            @Suppress("CanBeVal")
             var command: CMakeCommand?
             val builder = ArduinoCMakeListsTxtBuilder(template, null) // use default options
             val isStaticLib = settings.isLibrary && settings.isStaticLibraryType
@@ -199,7 +199,7 @@ class ArduinoCMakeListsTxtBuilder : CMakeListsTxtBuilder {
             val staticLibs = arrayOf<String>();
             builder.setOrAddCommand(SET_LIBS, *staticLibs).setSuppressible(staticLibs.isEmpty())
 
-            builder.setOrAddCommand(SET_SKETCH, sketchFile.ifEmpty(projectName+Strings.DOT_INO_EXT)).setSuppressible(sketchFile.isEmpty())
+            builder.setOrAddCommand(SET_SKETCH, sketchFile.ifEmpty(projectName + Strings.DOT_INO_EXT)).setSuppressible(sketchFile.isEmpty())
 
             command = builder.getCommand(ADD_SUBDIRECTORY)
             if (command == null || command.argCount == 0) {

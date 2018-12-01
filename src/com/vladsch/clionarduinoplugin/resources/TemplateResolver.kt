@@ -1,9 +1,10 @@
 package com.vladsch.clionarduinoplugin.resources
 
 import com.intellij.openapi.diagnostic.Logger
-import com.vladsch.clionarduinoplugin.util.helpers.*
+import com.vladsch.flexmark.util.Template
 import com.vladsch.flexmark.util.sequence.BasedSequence
 import com.vladsch.flexmark.util.sequence.BasedSequenceImpl
+import com.vladsch.plugin.util.*
 import java.io.File
 import java.io.IOException
 import java.net.URL
@@ -13,6 +14,7 @@ import java.util.regex.Pattern
 
 @Suppress("MemberVisibilityCanBePrivate")
 object TemplateResolver {
+
     private val LOG = Logger.getInstance("com.vladsch.clionarduinoplugin")
 
     private const val BUNDLED_TEMPLATES = "/com/vladsch/clionarduinoplugin/templates"
@@ -95,13 +97,13 @@ object TemplateResolver {
 
             val entries = jar.entries() //gives ALL entries in jar
             val prefix = baseDir.path.substring(1) + File.separator
-//            System.out.println(prefix)
+            //            System.out.println(prefix)
 
             while (entries.hasMoreElements()) {
                 val jarEntry = entries.nextElement()
                 if (!jarEntry.isDirectory) {
                     val name = jarEntry.name
-//                System.out.println(name)
+                    //                System.out.println(name)
                     if (name.startsWith(prefix)) { //filter according to the path
                         val entry = name.substring(prefix.length)
                         if (!entry.isEmpty()) {
@@ -112,7 +114,7 @@ object TemplateResolver {
                             templateFiles[entryFile] = sb.toString()
                         }
                     } else {
-//                        System.out.println("Excluding $name")
+                        //                        System.out.println("Excluding $name")
                     }
                 }
             }
@@ -214,9 +216,8 @@ object TemplateResolver {
         return if (file.exists()) getFileContent(file) else getResourceAsString(this.javaClass, file.path)
     }
 
-    val COMMAND_REF:Pattern = Pattern.compile("<@([a-zA-Z_$][a-zA-Z_0-9$]+)(?:\\[([^]]*)])?@>")
+    val COMMAND_REF: Pattern = Pattern.compile("<@([a-zA-Z_$][a-zA-Z_0-9$]+)(?:\\[([^]]*)])?@>")
     val FILE_NAME_REF: Pattern = Pattern.compile("@([a-zA-Z_$][a-zA-Z_0-9$]+)(?:\\[([^]]*)])?@")
-    val VARIABLE_REF: Pattern = Pattern.compile("\\$\\{([a-zA-Z_$][a-zA-Z_0-9$]+)}")
 
     fun resolveTemplates(templates: Map<String, String>, values: Map<String, String>): Map<String, String> {
         val result = HashMap<String, String>();
@@ -247,5 +248,21 @@ object TemplateResolver {
             }
         }
         return result
+    }
+}
+
+fun CharSequence?.resolveRefs(pattern: Pattern, resolver: (name: String, index: String?) -> String?): String {
+    return Template.resolveRefs(this, pattern) { groups ->
+        val name = groups[1]
+        val index:String? = if (groups.size > 2) groups[2] else null
+
+        resolver.invoke(name, index)
+    }
+}
+
+fun simpleRefResolver(values: Map<String, String>): (String, String?) -> String? {
+    return { name1, index1 ->
+        if (index1 != null) null
+        else values[name1]
     }
 }

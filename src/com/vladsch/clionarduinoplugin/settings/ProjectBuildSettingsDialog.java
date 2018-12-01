@@ -18,7 +18,6 @@ import com.intellij.diff.DiffContentFactoryEx;
 import com.intellij.diff.DiffManager;
 import com.intellij.diff.contents.DiffContent;
 import com.intellij.diff.requests.SimpleDiffRequest;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.editor.Document;
@@ -29,7 +28,6 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.Alarm;
 import com.jetbrains.cidr.cpp.cmake.workspace.CMakeWorkspace;
 import com.vladsch.clionarduinoplugin.Bundle;
 import com.vladsch.clionarduinoplugin.generators.ArduinoProjectGenerator;
@@ -75,7 +73,7 @@ public class ProjectBuildSettingsDialog extends DialogWrapper {
         myNewProjectSettingsForm.setRunnable(this::updateOptions);
         myNewProjectSettingsForm.reset(myResetSettings.getApplicationSettings());
         updateOptions();
-        
+
         //descriptionEditorPane.setText("" +
         //        "<html>\n" +
         //        "  <head>\n" +
@@ -111,9 +109,9 @@ public class ProjectBuildSettingsDialog extends DialogWrapper {
     //    myAlarm.cancelAllRequests();
     //    myAlarm.addRequest(this::updateOptionsRaw, 500);
     //}
-    
+
     void updateOptions() {
-        ApplicationManager.getApplication().invokeLater(()->{
+        ApplicationManager.getApplication().invokeLater(() -> {
             boolean enabled = myNewProjectSettingsForm.isModified(mySettings.getApplicationSettings());
             if (myResetAction != null) {
                 myResetAction.setEnabled(enabled);
@@ -186,7 +184,7 @@ public class ProjectBuildSettingsDialog extends DialogWrapper {
 
         CMakeWorkspace workspace = CMakeWorkspace.getInstance(myProject);
         File projectDir = workspace.getProjectDir();
-        
+
         String modifiedContent = ArduinoCMakeListsTxtBuilder.Companion.getCMakeFileContent(content, projectDir.getName(), mySettings, true);
         mySettings.copyFrom(saved);
         return modifiedContent;
@@ -231,7 +229,7 @@ public class ProjectBuildSettingsDialog extends DialogWrapper {
                 myShowDiffAction,
         };
     }
-    
+
     MyOkAction myOkAction = null;
 
     @NotNull
@@ -272,14 +270,14 @@ public class ProjectBuildSettingsDialog extends DialogWrapper {
     }
 
     protected ValidationInfo doValidate(boolean loadLicense) {
-        ArduinoApplicationSettings settings = mySettings.getApplicationSettings();
+        ArduinoApplicationSettings settings = new ArduinoApplicationSettings();
         myNewProjectSettingsForm.apply(settings);
 
         ValidationInfo result = ArduinoProjectGenerator.Companion.validateOptionsInfo(settings, myNewProjectSettingsForm);
         if (result != null) {
             return result;
         }
-
+        
         return super.doValidate();
     }
 

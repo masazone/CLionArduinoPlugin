@@ -10,13 +10,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.vfs.VirtualFile
 import com.vladsch.clionarduinoplugin.Bundle
-import com.vladsch.clionarduinoplugin.settings.ArduinoApplicationSettings
 import com.vladsch.clionarduinoplugin.generators.ArduinoProjectGenerator
-import com.vladsch.clionarduinoplugin.util.FileCreator
 import com.vladsch.clionarduinoplugin.resources.TemplateResolver
-import com.vladsch.clionarduinoplugin.util.StudiedWord
+import com.vladsch.clionarduinoplugin.settings.ArduinoApplicationSettings
+import com.vladsch.clionarduinoplugin.util.FileCreator
+import com.vladsch.flexmark.util.StudiedWord
 import icons.PluginIcons
-
 import java.io.IOException
 
 class NewSketchFile : AnAction() {
@@ -34,8 +33,8 @@ class NewSketchFile : AnAction() {
 
                 if (filename!!.isEmpty()) { //no name entered
                     return
-//                    showEmptyFilenameError(project)
-//                    continue
+                    //                    showEmptyFilenameError(project)
+                    //                    continue
                 }
 
                 val projectName = project.name

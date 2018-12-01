@@ -9,7 +9,7 @@ import com.vladsch.clionarduinoplugin.Bundle
 import com.vladsch.clionarduinoplugin.generators.cmake.ArduinoCMakeListsTxtBuilder
 import com.vladsch.clionarduinoplugin.resources.Strings
 import com.vladsch.clionarduinoplugin.settings.ProjectBuildSettingsDialog
-import com.vladsch.clionarduinoplugin.util.helpers.plus
+import com.vladsch.plugin.util.plus
 
 class ChangeBuildSettingsAction : DumbAwareAction(Bundle.message("action.change-build-settings.label"), Bundle.message("actions.change-build-settings.description"), null) {
 

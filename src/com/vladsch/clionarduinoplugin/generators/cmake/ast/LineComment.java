@@ -12,7 +12,7 @@ public class LineComment extends Node {
         super(chars);
         BasedSequence leading = chars.trimmedStart();
         BasedSequence trimmed = chars.trimStart();
-        
+
         if (!leading.isEmpty()) leadingSpaces = leading;
 
         openingMarker = chars.subSequence(0, 1);

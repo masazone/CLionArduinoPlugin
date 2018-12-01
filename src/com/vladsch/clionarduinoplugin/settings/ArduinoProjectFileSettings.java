@@ -60,10 +60,10 @@ public interface ArduinoProjectFileSettings {
     void setAuthorName(String authorName);
     void setAuthorEMail(@NotNull String authorEMail);
 
-    void  setHeaders(@NotNull String[] headers);
-    void  setSources(@NotNull String[] sources);
-    void  setSketch(@NotNull String sketch);
-    void  setProjectName(@NotNull String projectName);
+    void setHeaders(@NotNull String[] headers);
+    void setSources(@NotNull String[] sources);
+    void setSketch(@NotNull String sketch);
+    void setProjectName(@NotNull String projectName);
 
     default String asString() {
         return asString(null);

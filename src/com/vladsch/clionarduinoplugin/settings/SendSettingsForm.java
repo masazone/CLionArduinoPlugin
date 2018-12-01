@@ -2,8 +2,8 @@ package com.vladsch.clionarduinoplugin.settings;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.ui.components.JBCheckBox;
-import com.vladsch.clionarduinoplugin.util.ui.Settable;
-import com.vladsch.clionarduinoplugin.util.ui.SettingsComponents;
+import com.vladsch.plugin.util.ui.Settable;
+import com.vladsch.plugin.util.ui.SettingsComponents;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComboBox;
@@ -17,7 +17,8 @@ public class SendSettingsForm implements Disposable {
     private JPanel myMainPanel;
     JComboBox mySerialEndOfLineTypes;
     JBCheckBox myLogSentText;
-    JBCheckBox myIsImmediateSend;
+    JBCheckBox myImmediateSend;
+    JBCheckBox myLogExceptions;
     Runnable myChangeMonitor = null;
     boolean myInChangeUpdate = false;
 
@@ -28,6 +29,7 @@ public class SendSettingsForm implements Disposable {
     private final SettingsComponents<ArduinoProjectSettings> components;
 
     public SendSettingsForm() {
+        //noinspection unchecked
         components = new SettingsComponents<ArduinoProjectSettings>() {
             @Override
             protected Settable[] createComponents(ArduinoProjectSettings i) {
@@ -35,7 +37,8 @@ public class SendSettingsForm implements Disposable {
                         //componentString(mySerialPortNames.ADAPTER, myPort, i::getPort, i::setPort),
                         component(SerialEndOfLineTypes.ADAPTER, mySerialEndOfLineTypes, i::getSerialEndOfLine, i::setSerialEndOfLine),
                         component(myLogSentText, i::isLogSentText, i::setLogSentText),
-                        component(myIsImmediateSend, i::isImmediateSend, i::setImmediateSend),
+                        component(myImmediateSend, i::isImmediateSend, i::setImmediateSend),
+                        component(myLogExceptions, i::isLogExceptions, i::setLogExceptions),
                 };
             }
         };
@@ -53,7 +56,8 @@ public class SendSettingsForm implements Disposable {
 
         mySerialEndOfLineTypes.addActionListener(listener);
         myLogSentText.addActionListener(listener);
-        myIsImmediateSend.addActionListener(listener);
+        myImmediateSend.addActionListener(listener);
+        myLogExceptions.addActionListener(listener);
     }
 
     public void setChangeMonitor(Runnable changeMonitor) {

@@ -80,6 +80,11 @@ public class CMakeFormatter implements IRender {
     }
 
     @Override
+    public DataHolder getOptions() {
+        return new DataSet(options);
+    }
+
+    @Override
     public void render(final Node node, final Appendable output) {
         CMakeFormatterContext renderer = new CMakeFormatterContext(options, new MarkdownWriter(output, formatterOptions.formatFlags), (CMakeFile) node.getDocument());
         renderer.render(node);

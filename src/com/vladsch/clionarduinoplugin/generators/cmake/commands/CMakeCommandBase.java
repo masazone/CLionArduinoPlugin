@@ -211,7 +211,6 @@ public abstract class CMakeCommandBase implements CMakeElement {
                 if (j < defaultArgs.length) {
                     extendArgs(i);
                     myArgs.set(i, defaultArgs[j]);
-
                 }
             }
             j++;

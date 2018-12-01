@@ -31,16 +31,23 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SerialMonitorPanel implements Disposable, SerialPortListener, ProjectSettingsListener {
+    final static public ConsoleViewContentType LOG_ERROR_OUTPUT = new ConsoleViewContentType("LOG_ERROR_OUTPUT", ConsoleViewContentType.LOG_ERROR_OUTPUT_KEY);
+    final static public ConsoleViewContentType CONNECTION_STATUS = ConsoleViewContentType.SYSTEM_OUTPUT;
+    static public ConsoleViewContentType ALT_CONNECTION_STATUS = null;
+    
     private JPanel myPanel;
     private JButton mySendButton;
     private JPanel myConsoleHolder;
     private JPanel myToolbarPanel;
     JBTextField mySendText;
-    SendSettingsForm mySendSettings;
+    SendSettingsForm mySendSettingsForm;
     private ConsoleView myConsoleView;
 
     @NotNull final Project myProject;
@@ -78,12 +85,12 @@ public class SerialMonitorPanel implements Disposable, SerialPortListener, Proje
 
         project.getMessageBus().connect(this).subscribe(ProjectSettingsListener.TOPIC, this);
 
-        mySendSettings.getComponent().setVisible(myProjectSettings.isShowSendOptions());
-        mySendSettings.setChangeMonitor(() -> {
-            mySendSettings.apply(myProjectSettings);
+        mySendSettingsForm.getComponent().setVisible(myProjectSettings.isShowSendOptions());
+        mySendSettingsForm.setChangeMonitor(() -> {
+            mySendSettingsForm.apply(myProjectSettings);
         });
 
-        mySendSettings.reset(myProjectSettings);
+        mySendSettingsForm.reset(myProjectSettings);
     }
 
     void handleEnter() {
@@ -102,8 +109,8 @@ public class SerialMonitorPanel implements Disposable, SerialPortListener, Proje
 
     @Override
     public void onSettingsChanged() {
-        mySendSettings.reset(myProjectSettings);
-        mySendSettings.getComponent().setVisible(myProjectSettings.isShowSendOptions());
+        mySendSettingsForm.reset(myProjectSettings);
+        mySendSettingsForm.getComponent().setVisible(myProjectSettings.isShowSendOptions());
 
         //mySendButton.setEnabled(settings.isImmediateSend());
     }
@@ -149,7 +156,7 @@ public class SerialMonitorPanel implements Disposable, SerialPortListener, Proje
         mySendButton.setEnabled(true);
 
         if (myProjectSettings.isLogConnectDisconnect()) {
-            myConsoleView.print("--------------- Connected " + portName + " @ " + baudRate + " ----------------\n", ConsoleViewContentType.SYSTEM_OUTPUT);
+            myConsoleView.print("--------------- Connected " + portName + " @ " + baudRate + " ----------------\n", ALT_CONNECTION_STATUS == null ? CONNECTION_STATUS:ALT_CONNECTION_STATUS);
         }
     }
 
@@ -159,13 +166,32 @@ public class SerialMonitorPanel implements Disposable, SerialPortListener, Proje
         mySendButton.setEnabled(false);
 
         if (myProjectSettings.isLogConnectDisconnect()) {
-            myConsoleView.print("-------------- Disconnected " + portName + " @ " + baudRate + " --------------\n", ConsoleViewContentType.SYSTEM_OUTPUT);
+            myConsoleView.print("-------------- Disconnected " + portName + " @ " + baudRate + " --------------\n", ALT_CONNECTION_STATUS == null ? CONNECTION_STATUS:ALT_CONNECTION_STATUS);
         }
     }
 
     @Override
     public void onEvent(final SerialPortEvent event) {
 
+    }
+
+    @Override
+    public void onError(final boolean isError, final String message, final Throwable e) {
+        if (myProjectSettings.isLogExceptions()) {
+            ConsoleViewContentType viewContentType = isError ? LOG_ERROR_OUTPUT : ConsoleViewContentType.LOG_WARNING_OUTPUT;
+            myConsoleView.print(message, viewContentType);
+            myConsoleView.print("\n", viewContentType);
+            if (e != null) {
+                StringWriter out = new StringWriter();
+                PrintWriter s = new PrintWriter(out);
+                e.printStackTrace(s);
+                s.close();
+                out.flush();
+                try { out.close();} catch (IOException ignored) {}
+                myConsoleView.print(out.toString(), viewContentType);
+                myConsoleView.print("\n", viewContentType);
+            }
+        }
     }
 
     private List<AnAction> filterActions(AnAction[] actions) {

@@ -16,8 +16,8 @@ class Board(val id: String, val name: String, val cpuNameMap: LinkedHashMap<Stri
         return nameCpuMap[cpuName] ?: ""
     }
 
-    val cpuIds:List<String> = cpuNameMap.keys.toList()
-    val cpuNames:List<String> = cpuNameMap.values.toList()
+    val cpuIds: List<String> = cpuNameMap.keys.toList()
+    val cpuNames: List<String> = cpuNameMap.values.toList()
 
     fun cpuIdById(cpuId: String?): String {
         return if (cpuId != null && cpuNameMap.containsKey(cpuId)) cpuId else ""

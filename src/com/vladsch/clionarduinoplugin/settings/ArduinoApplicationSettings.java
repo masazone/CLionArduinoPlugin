@@ -16,7 +16,7 @@ import com.jetbrains.cidr.cpp.cmake.projectWizard.generators.settings.CMakeProje
 import com.vladsch.clionarduinoplugin.generators.CppLanguageVersions;
 import com.vladsch.clionarduinoplugin.resources.*;
 import com.vladsch.clionarduinoplugin.util.ApplicationSettingsListener;
-import com.vladsch.clionarduinoplugin.util.Utils;
+import com.vladsch.flexmark.util.Utils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -129,6 +129,7 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
     public boolean isArduinoLibraryType() {
         return ArduinoProjectFileSettings.ARDUINO_LIB_TYPE.equals(getLibraryType());
     }
+
     @NotNull
     public String getLibraryDisplayName() {
         return libraryDisplayName;
@@ -613,5 +614,4 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
     public void loadState(@NotNull ArduinoApplicationSettings state) {
         XmlSerializerUtil.copyBean(state, this);
     }
-
 }

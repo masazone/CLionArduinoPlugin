@@ -7,7 +7,7 @@ import com.intellij.openapi.actionSystem.Toggleable
 import com.vladsch.clionarduinoplugin.settings.ArduinoProjectSettings
 import jssc.SerialPort
 
-class SerialMonitorBaudRateActionBase(internal val myBaudRate: Int) : AnAction(Integer.toString(myBaudRate)), Toggleable {
+class SerialMonitorBaudRateAction(internal val myBaudRate: Int) : AnAction(Integer.toString(myBaudRate)), Toggleable {
     override fun actionPerformed(e: AnActionEvent) {
         val project = e.project
         if (project != null) {
@@ -37,19 +37,19 @@ class SerialMonitorBaudRateActionBase(internal val myBaudRate: Int) : AnAction(I
             val group = object : ActionGroup("Baud rate", true) {
                 override fun getChildren(e: AnActionEvent?): Array<AnAction> {
                     return arrayOf(
-                            SerialMonitorBaudRateActionBase(SerialPort.BAUDRATE_110),
-                            SerialMonitorBaudRateActionBase(SerialPort.BAUDRATE_300),
-                            SerialMonitorBaudRateActionBase(SerialPort.BAUDRATE_600),
-                            SerialMonitorBaudRateActionBase(SerialPort.BAUDRATE_1200),
-                            SerialMonitorBaudRateActionBase(SerialPort.BAUDRATE_4800),
-                            SerialMonitorBaudRateActionBase(SerialPort.BAUDRATE_9600),
-                            SerialMonitorBaudRateActionBase(SerialPort.BAUDRATE_14400),
-                            SerialMonitorBaudRateActionBase(SerialPort.BAUDRATE_19200),
-                            SerialMonitorBaudRateActionBase(SerialPort.BAUDRATE_38400),
-                            SerialMonitorBaudRateActionBase(SerialPort.BAUDRATE_57600),
-                            SerialMonitorBaudRateActionBase(SerialPort.BAUDRATE_115200),
-                            SerialMonitorBaudRateActionBase(SerialPort.BAUDRATE_128000),
-                            SerialMonitorBaudRateActionBase(SerialPort.BAUDRATE_256000)
+                            SerialMonitorBaudRateAction(SerialPort.BAUDRATE_110),
+                            SerialMonitorBaudRateAction(SerialPort.BAUDRATE_300),
+                            SerialMonitorBaudRateAction(SerialPort.BAUDRATE_600),
+                            SerialMonitorBaudRateAction(SerialPort.BAUDRATE_1200),
+                            SerialMonitorBaudRateAction(SerialPort.BAUDRATE_4800),
+                            SerialMonitorBaudRateAction(SerialPort.BAUDRATE_9600),
+                            SerialMonitorBaudRateAction(SerialPort.BAUDRATE_14400),
+                            SerialMonitorBaudRateAction(SerialPort.BAUDRATE_19200),
+                            SerialMonitorBaudRateAction(SerialPort.BAUDRATE_38400),
+                            SerialMonitorBaudRateAction(SerialPort.BAUDRATE_57600),
+                            SerialMonitorBaudRateAction(SerialPort.BAUDRATE_115200),
+                            SerialMonitorBaudRateAction(SerialPort.BAUDRATE_128000),
+                            SerialMonitorBaudRateAction(SerialPort.BAUDRATE_256000)
                     )
                 }
             }

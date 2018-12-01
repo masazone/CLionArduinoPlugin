@@ -36,7 +36,7 @@ public class ArduinoProjectSettings implements PersistentStateComponent<ArduinoP
     private int mySerialEndOfLine = SerialEndOfLineTypes.LF.intValue;
     private boolean myLogSentText = true;
     private boolean myIsImmediateSend = true;
-    private boolean myReloadOnFileChange = false;
+    private boolean myLogExceptions = true;
 
     // cached values
     private @Nullable Pattern myBuildConfigurationNamesPattern = null;
@@ -49,14 +49,6 @@ public class ArduinoProjectSettings implements PersistentStateComponent<ArduinoP
 
     public SerialEndOfLineTypes getSerialEndOfLineType() {
         return SerialEndOfLineTypes.ADAPTER.get(mySerialEndOfLine);
-    }
-
-    public boolean isReloadOnFileChange() {
-        return myReloadOnFileChange;
-    }
-
-    public void setReloadOnFileChange(final boolean reloadOnFileChange) {
-        myReloadOnFileChange = reloadOnFileChange;
     }
 
     public int getSerialEndOfLine() {
@@ -81,6 +73,14 @@ public class ArduinoProjectSettings implements PersistentStateComponent<ArduinoP
 
     public void setImmediateSend(final boolean immediateSend) {
         myIsImmediateSend = immediateSend;
+    }
+
+    public boolean isLogExceptions() {
+        return myLogExceptions;
+    }
+
+    public void setLogExceptions(final boolean logExceptions) {
+        myLogExceptions = logExceptions;
     }
 
     public boolean isShowSendOptions() {

@@ -4,6 +4,7 @@
 
 ### Version History
 - [TO DO](#to-do)
+- [1.4.2](#142)
 - [1.4.0](#140)
 - [1.3.14](#1314)
 - [1.3.12](#1312)
@@ -28,6 +29,20 @@
 
 * [ ] Add: `Generate keywords.txt` action to generate keywords.txt based on contained project
       classes and functions.
+* [ ] Merge improvements from other forks of [arduino-cmake]:
+  * [ ] [Allow setting ARDUINO_SDK_PATH as environment variable]
+  * [ ] [Support for ESP32 using Arduino libs]
+  * [ ] [Include directories when setting up the library. Added Servo_RECURSE.]
+
+### 1.4.2
+
+* Fix: serial monitor "edit settings" would always show port name from new project wizard
+  instead of project settings while connect/disconnect would use the right port name. 
+* Fix: exception in displaying serial monitor settings form
+* Add: option to log serial port related exceptions to the console
+* Fix: change project build settings on error would disable the `Change Build` button and not
+  re-enable it when build settings were changed.
+* Fix: clean up and refactor code.
 
 ### 1.4.0
 
@@ -184,3 +199,9 @@
   automatically
 * Adds import for Arduino.h to all newly created sketch files to enable code completion
 * Compiled with Java 6 for compatibility with OS X out of the box
+
+[Allow setting ARDUINO_SDK_PATH as environment variable]: https://github.com/Pro/arduino-cmake/commit/2f069184b029dbe5f91dd55e24b854ee79641510
+[arduino-cmake]: https://github.com/queezythegreat/arduino-cmake
+[Include directories when setting up the library. Added Servo_RECURSE.]: https://github.com/francoiscampbell/arduino-cmake/commit/dbd4fe372b9a0120325b429b3ed23c311ab3dc66
+[Support for ESP32 using Arduino libs]: https://github.com/altexdim/arduino-cmake/commit/f21fd1ae0c48583c2b498a24cfa2e65814fff483
+

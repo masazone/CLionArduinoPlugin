@@ -1,9 +1,9 @@
 package com.vladsch.clionarduinoplugin.settings;
 
 import com.vladsch.clionarduinoplugin.Bundle;
-import com.vladsch.clionarduinoplugin.util.ui.ComboBoxAdaptable;
-import com.vladsch.clionarduinoplugin.util.ui.ComboBoxAdapter;
-import com.vladsch.clionarduinoplugin.util.ui.ComboBoxAdapterImpl;
+import com.vladsch.plugin.util.ui.ComboBoxAdaptable;
+import com.vladsch.plugin.util.ui.ComboBoxAdapter;
+import com.vladsch.plugin.util.ui.ComboBoxAdapterImpl;
 import org.jetbrains.annotations.NotNull;
 
 public enum SerialEndOfLineTypes implements ComboBoxAdaptable<SerialEndOfLineTypes> {

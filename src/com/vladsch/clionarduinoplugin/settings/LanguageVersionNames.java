@@ -1,23 +1,34 @@
 package com.vladsch.clionarduinoplugin.settings;
 
-import com.vladsch.clionarduinoplugin.util.ui.ComboBoxAdaptable;
-import com.vladsch.clionarduinoplugin.util.ui.ComboBoxAdapter;
-import com.vladsch.clionarduinoplugin.util.ui.EnumLike;
+import com.vladsch.plugin.util.ui.ComboBoxAdapter;
+import com.vladsch.plugin.util.ui.ComboBoxAdapterImpl;
+import com.vladsch.plugin.util.ui.DynamicListAdaptable;
 import org.jetbrains.annotations.NotNull;
 
-public class LanguageVersionNames implements ComboBoxAdaptable<LanguageVersionNames> {
-    public final EnumLike parent;
-    public final int intValue;
-    public final @NotNull String displayName;
+import javax.swing.JComboBox;
+import java.util.List;
 
-    public static EnumLike<LanguageVersionNames> createEnum() {
-        return new EnumLike<>(ArduinoApplicationSettings.LANGUAGE_VERSIONS, LanguageVersionNames::new, false);
+public class LanguageVersionNames extends DynamicListAdaptable<LanguageVersionNames> {
+    public LanguageVersionNames(final int intValue, @NotNull final String displayName) {
+        super(intValue, displayName);
     }
 
-    public LanguageVersionNames(final EnumLike parent, final int intValue, @NotNull final String displayName) {
-        this.parent = parent;
-        this.intValue = intValue;
-        this.displayName = displayName;
+    final public static LanguageVersionNames EMPTY = new LanguageVersionNames(0, "");
+    public static DynamicListAdaptable[] values = new DynamicListAdaptable[0];
+    final public static Static<DynamicListAdaptable<LanguageVersionNames>> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(EMPTY));
+
+    public static void updateValues(JComboBox comboBox, LanguageVersionNames... exclude) {
+        values = DynamicListAdaptable.updateValues(EMPTY, asList(ArduinoApplicationSettings.LANGUAGE_VERSIONS), false, LanguageVersionNames::new);
+        //noinspection unchecked
+        ADAPTER.setDefaultValue(values[0]);
+
+        if (comboBox != null) {
+            ADAPTER.fillComboBox(comboBox, exclude);
+        }
+    }
+
+    public static List<String> getDisplayNames() {
+        return getDisplayNames(values);
     }
 
     @Override
@@ -37,13 +48,13 @@ public class LanguageVersionNames implements ComboBoxAdaptable<LanguageVersionNa
     }
 
     @Override
-    public ComboBoxAdapter<LanguageVersionNames> getAdapter() {
-        //noinspection unchecked
-        return parent.ADAPTER;
+    public ComboBoxAdapter<DynamicListAdaptable<LanguageVersionNames>> getAdapter() {
+        return ADAPTER;
     }
 
     @Override
-    public LanguageVersionNames[] getValues() {
-        return (LanguageVersionNames[]) parent.values;
+    public DynamicListAdaptable<LanguageVersionNames>[] getValues() {
+        //noinspection unchecked
+        return values;
     }
 }

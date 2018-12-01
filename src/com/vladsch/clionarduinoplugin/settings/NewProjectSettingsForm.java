@@ -8,8 +8,8 @@ import com.intellij.ui.TextFieldWithHistory;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.util.Alarm;
 import com.vladsch.clionarduinoplugin.util.ApplicationSettingsListener;
-import com.vladsch.clionarduinoplugin.util.RecursionGuard;
-import com.vladsch.clionarduinoplugin.util.ui.*;
+import com.vladsch.plugin.util.RecursionGuard;
+import com.vladsch.plugin.util.ui.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,10 +21,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 
 public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSettings> implements Disposable, ApplicationSettingsListener, SettableForm<ArduinoApplicationSettings> {
     private JPanel myMainPanel;
@@ -50,14 +47,6 @@ public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSetting
     private JLabel myAuthorEMailLabel;
     JComboBox myBaudRate;
     private JLabel myLibraryDisplayNameLabel;
-
-    EnumLike<SerialPortNames> mySerialPortNames;
-    EnumLike<LanguageVersionNames> myLanguageVersionNames;
-    EnumLike<LibraryTypeNames> myLibraryTypeNames;
-    EnumLike<LibraryCategoryNames> myLibraryCategoryNames;
-    EnumLike<BoardNames> myBoardNames;
-    EnumLike<CpuNames> myCpuNames;
-    EnumLike<ProgrammerNames> myProgrammerNames;
 
     final Set<Object> myPendingUpdates;
 
@@ -106,41 +95,42 @@ public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSetting
         myUpdate = new Alarm(this);
         myPendingUpdates = new LinkedHashSet<>();
 
-        components = new SettingsComponents<ArduinoApplicationSettings>() {
+        //noinspection unchecked
+        components = new SettingsComponents<ArduinoApplicationSettings>(mySettings) {
             @Override
             protected Settable[] createComponents(ArduinoApplicationSettings i) {
                 if (myIsLibrary) {
                     return new Settable[] {
-                            componentString(mySerialPortNames.ADAPTER, myPort, i::getPort, i::setPort),
+                            componentString(SerialPortNames.ADAPTER, myPort, i::getPort, i::setPort),
                             component(SerialBaudRates.ADAPTER, myBaudRate, i::getBaudRate, i::setBaudRate),
-                            componentString(myBoardNames.ADAPTER, myBoards, i::getBoardName, i::setBoardName),
-                            componentString(myCpuNames.ADAPTER, myCpus, i::getCpuName, i::setCpuName),
-                            componentString(myProgrammerNames.ADAPTER, myProgrammers, i::getProgrammerName, i::setProgrammerName),
+                            componentString(BoardNames.ADAPTER, myBoards, i::getBoardName, i::setBoardName),
+                            componentString(CpuNames.ADAPTER, myCpus, i::getCpuName, i::setCpuName),
+                            componentString(ProgrammerNames.ADAPTER, myProgrammers, i::getProgrammerName, i::setProgrammerName),
                             component(myAddLibraryDirectory, i::isAddLibraryDirectory, i::setAddLibraryDirectory),
                             component(myLibraryDirectory, i::getLibraryDirectory, i::setLibraryDirectory),
                             component(myVerbose, i::isVerbose, i::setVerbose),
                             component(myCommentOutUnusedSettings, i::isCommentUnusedSettings, i::setCommentUnusedSettings),
-                            componentString(myLanguageVersionNames.ADAPTER, myLanguageVersion, i::getLanguageVersionName, i::setLanguageVersionName),
+                            componentString(LanguageVersionNames.ADAPTER, myLanguageVersion, i::getLanguageVersionName, i::setLanguageVersionName),
 
                             // library only
                             component(myLibraryDisplayName, i::getLibraryDisplayName, i::setLibraryDisplayName),
-                            componentString(myLibraryTypeNames.ADAPTER, myLibraryType, i::getLibraryType, i::setLibraryType),
-                            componentString(myLibraryCategoryNames.ADAPTER, myLibraryCategory, i::getLibraryCategory, i::setLibraryCategory),
+                            componentString(LibraryTypeNames.ADAPTER, myLibraryType, i::getLibraryType, i::setLibraryType),
+                            componentString(LibraryCategoryNames.ADAPTER, myLibraryCategory, i::getLibraryCategory, i::setLibraryCategory),
                             component(myAuthorName, i::getAuthorName, i::setAuthorName),
                             component(myAuthorEMail, i::getAuthorEMail, i::setAuthorEMail),
                     };
                 } else {
                     return new Settable[] {
-                            componentString(mySerialPortNames.ADAPTER, myPort, i::getPort, i::setPort),
+                            componentString(SerialPortNames.ADAPTER, myPort, i::getPort, i::setPort),
                             component(SerialBaudRates.ADAPTER, myBaudRate, i::getBaudRate, i::setBaudRate),
-                            componentString(myBoardNames.ADAPTER, myBoards, i::getBoardName, i::setBoardName),
-                            componentString(myCpuNames.ADAPTER, myCpus, i::getCpuName, i::setCpuName),
-                            componentString(myProgrammerNames.ADAPTER, myProgrammers, i::getProgrammerName, i::setProgrammerName),
+                            componentString(BoardNames.ADAPTER, myBoards, i::getBoardName, i::setBoardName),
+                            componentString(CpuNames.ADAPTER, myCpus, i::getCpuName, i::setCpuName),
+                            componentString(ProgrammerNames.ADAPTER, myProgrammers, i::getProgrammerName, i::setProgrammerName),
                             component(myAddLibraryDirectory, i::isAddLibraryDirectory, i::setAddLibraryDirectory),
                             component(myLibraryDirectory, i::getLibraryDirectory, i::setLibraryDirectory),
                             component(myVerbose, i::isVerbose, i::setVerbose),
                             component(myCommentOutUnusedSettings, i::isCommentUnusedSettings, i::setCommentUnusedSettings),
-                            componentString(myLanguageVersionNames.ADAPTER, myLanguageVersion, i::getLanguageVersionName, i::setLanguageVersionName),
+                            componentString(LanguageVersionNames.ADAPTER, myLanguageVersion, i::getLanguageVersionName, i::setLanguageVersionName),
                     };
                 }
             }
@@ -242,9 +232,8 @@ public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSetting
     }
 
     public void updatePort(final @NotNull ArduinoApplicationSettings settings) {
-        ArrayList<String> ports = mySerialPortNames.getDisplayNames();
         myPort.setHistorySize(-1);
-        myPort.setHistory(ports);
+        myPort.setHistory(SerialPortNames.getDisplayNames());
         myPort.setText(settings.getPort());
     }
 
@@ -277,42 +266,44 @@ public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSetting
     void updateCpus() {
         updateCpuEnum();
 
-        myCpuNames.ADAPTER.fillComboBox(myCpus, ComboBoxAdaptable.EMPTY);
+        //CpuNames.ADAPTER.fillComboBox(myCpus, ComboBoxAdaptable.EMPTY);
         myCpus.setSelectedItem(mySettings.getCpuName());
 
-        myCpuLabel.setEnabled(myCpuNames.values.length > 1);
-        myCpus.setEnabled(myCpuNames.values.length > 1);
+        myCpuLabel.setEnabled(CpuNames.values.length > 1);
+        myCpus.setEnabled(CpuNames.values.length > 1);
     }
 
     void updateEnums() {
-        mySerialPortNames = SerialPortNames.createEnum(true);
-        myBoardNames = BoardNames.createEnum(mySettings.getBoardNames());
-        myProgrammerNames = ProgrammerNames.createEnum(mySettings.getProgrammerNames());
+        SerialPortNames.updateValues(true, null);
+        BoardNames.updateValues(mySettings.getBoardNames(), false, myBoards);
+        ProgrammerNames.updateValues(mySettings.getProgrammerNames(), true, myProgrammers);
     }
 
     void updateCpuEnum() {
-        myCpuNames = CpuNames.createEnum(mySettings.getBoardCpuNames((String) myBoards.getSelectedItem()));
+        if (myBoards != null && myBoards.getSelectedItem() != null) {
+            CpuNames.updateValues(mySettings.getBoardCpuNames((String) myBoards.getSelectedItem()), true, myCpus);
+        }
     }
 
     private void createUIComponents() {
         updateEnums();
 
-        myLanguageVersionNames = LanguageVersionNames.createEnum();
-        myLibraryTypeNames = LibraryTypeNames.createEnum();
+        LibraryTypeNames.updateValues(myLibraryType);
+        LanguageVersionNames.updateValues(myLanguageVersion);
+        LibraryCategoryNames.updateValues(myLibraryCategory);
 
-        myLanguageVersion = myLanguageVersionNames.ADAPTER.createComboBox();
-        myLibraryType = myLibraryTypeNames.ADAPTER.createComboBox();
+        myLanguageVersion = LanguageVersionNames.ADAPTER.createComboBox();
+        myLibraryType = LibraryTypeNames.ADAPTER.createComboBox();
 
-        myBoards = myBoardNames.ADAPTER.createComboBox();
+        myBoards = BoardNames.ADAPTER.createComboBox();
         myBaudRate = SerialBaudRates.ADAPTER.createComboBox();
 
         updateCpuEnum();
-        myCpus = myCpuNames.ADAPTER.createComboBox();
+        myCpus = CpuNames.ADAPTER.createComboBox();
 
-        myProgrammers = myProgrammerNames.ADAPTER.createComboBox();
-        
-        myLibraryCategoryNames = LibraryCategoryNames.createEnum();
-        myLibraryCategory = myLibraryCategoryNames.ADAPTER.createComboBox();
+        myProgrammers = ProgrammerNames.ADAPTER.createComboBox();
+
+        myLibraryCategory = LibraryCategoryNames.ADAPTER.createComboBox();
     }
 
     @Override
@@ -359,15 +350,15 @@ public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSetting
 
         myCpuLabel.setText(mySettings.getCpuLabel());
 
-        myBoardNames.ADAPTER.fillComboBox(myBoards, ComboBoxAdaptable.EMPTY);
+        //BoardNames.ADAPTER.fillComboBox(myBoards, ComboBoxAdaptable.EMPTY);
         myBoards.setSelectedItem(settings.getBoardName());
 
         updateCpus();
 
-        myProgrammerNames.ADAPTER.fillComboBox(myProgrammers, ComboBoxAdaptable.EMPTY);
+        //ProgrammerNames.ADAPTER.fillComboBox(myProgrammers, ComboBoxAdaptable.EMPTY);
         myProgrammers.setSelectedItem(settings.getProgrammerName());
 
-        myLibraryCategoryNames.ADAPTER.fillComboBox(myLibraryCategory, ComboBoxAdaptable.EMPTY);
+        //LibraryCategoryNames.ADAPTER.fillComboBox(myLibraryCategory, ComboBoxAdaptable.EMPTY);
         myLibraryCategory.setSelectedItem(settings.getLibraryCategory());
 
         updatePort(settings);

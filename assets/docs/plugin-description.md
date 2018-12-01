@@ -1,7 +1,7 @@
 ![pluginIcon.png](https://github.com/vsch/CLionArduinoPlugin/raw/master/resources/META-INF/pluginIcon.png){width="50" align="middle"}
 Integrates [Arduino CMake] into the CLion IDE.
 
-Install and create an Arduino CMake projects in one click with new project wizard types and view
+Install and create Arduino CMake projects in one click with new project wizard types and view
 communications with the integrated serial monitor tool window.
 
 * `Arduino Sketch` and `Arduino Library` project types to new project wizard, with Options to
@@ -15,7 +15,7 @@ communications with the integrated serial monitor tool window.
   **NOTE:** Build events are only available in CLion 2018.3 (or later) so these options are
   disabled if you are running an earlier version of CLion.
 
-* Change current build parameters with the `Tools` > `Arduino Support` > `Change build
+* Change current build parameters with `Tools` > `Arduino Support` > `Change build
   settings`. Preview changes to `CMakeLists.txt` before committing to them with the `Show
   Difference` button or use it to copy the desired changes to apply them manually.
 

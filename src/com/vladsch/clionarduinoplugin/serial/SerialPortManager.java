@@ -2,10 +2,13 @@ package com.vladsch.clionarduinoplugin.serial;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.BaseComponent;
+import com.vladsch.clionarduinoplugin.generators.SerialPortList;
+import jssc.SerialNativeInterface;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,6 +17,22 @@ public class SerialPortManager implements BaseComponent {
 
     public SerialPortManager() {
         myConnectedSerialPorts = new HashMap<>();
+    }
+
+    public ArrayList<String> getSerialPorts(Boolean filtered) {
+        ArrayList<String> ports = new ArrayList<>();
+
+        if (filtered && SerialNativeInterface.getOsType() == SerialNativeInterface.OS_MAC_OS_X) {
+            for (String port : SerialPortList.getPortNames()) {
+                if (!port.matches("/dev/(:?tty)\\..*")) {
+                    ports.add(port);
+                }
+            }
+        } else {
+            Collections.addAll(ports, SerialPortList.getPortNames());
+        }
+
+        return ports;
     }
 
     public void removeProjectComponent(SerialProjectComponent projectComponent) {

@@ -1,23 +1,34 @@
 package com.vladsch.clionarduinoplugin.settings;
 
-import com.vladsch.clionarduinoplugin.util.ui.ComboBoxAdaptable;
-import com.vladsch.clionarduinoplugin.util.ui.ComboBoxAdapter;
-import com.vladsch.clionarduinoplugin.util.ui.EnumLike;
+import com.vladsch.plugin.util.ui.ComboBoxAdapter;
+import com.vladsch.plugin.util.ui.ComboBoxAdapterImpl;
+import com.vladsch.plugin.util.ui.DynamicListAdaptable;
 import org.jetbrains.annotations.NotNull;
 
-public class LibraryCategoryNames implements ComboBoxAdaptable<LibraryCategoryNames> {
-    public final EnumLike parent;
-    public final int intValue;
-    public final @NotNull String displayName;
+import javax.swing.JComboBox;
+import java.util.List;
 
-    public static EnumLike<LibraryCategoryNames> createEnum() {
-        return new EnumLike<>(ArduinoProjectFileSettings.LIBRARY_CATEGORIES, LibraryCategoryNames::new, true);
+public class LibraryCategoryNames extends DynamicListAdaptable<LibraryCategoryNames> {
+    public LibraryCategoryNames(final int intValue, @NotNull final String displayName) {
+        super(intValue, displayName);
     }
 
-    public LibraryCategoryNames(final EnumLike parent, final int intValue, @NotNull final String displayName) {
-        this.parent = parent;
-        this.intValue = intValue;
-        this.displayName = displayName;
+    final public static LibraryCategoryNames EMPTY = new LibraryCategoryNames(0, "");
+    public static DynamicListAdaptable[] values = new DynamicListAdaptable[0];
+    final public static Static<DynamicListAdaptable<LibraryCategoryNames>> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(EMPTY));
+
+    public static void updateValues(JComboBox comboBox, LibraryCategoryNames... exclude) {
+        values = DynamicListAdaptable.updateValues(EMPTY, asList(ArduinoProjectFileSettings.LIBRARY_CATEGORIES), false, LibraryCategoryNames::new);
+        //noinspection unchecked
+        ADAPTER.setDefaultValue(values[0]);
+
+        if (comboBox != null) {
+            ADAPTER.fillComboBox(comboBox, exclude);
+        }
+    }
+
+    public static List<String> getDisplayNames() {
+        return getDisplayNames(values);
     }
 
     @Override
@@ -37,13 +48,13 @@ public class LibraryCategoryNames implements ComboBoxAdaptable<LibraryCategoryNa
     }
 
     @Override
-    public ComboBoxAdapter<LibraryCategoryNames> getAdapter() {
-        //noinspection unchecked
-        return parent.ADAPTER;
+    public ComboBoxAdapter<DynamicListAdaptable<LibraryCategoryNames>> getAdapter() {
+        return ADAPTER;
     }
 
     @Override
-    public LibraryCategoryNames[] getValues() {
-        return (LibraryCategoryNames[]) parent.values;
+    public DynamicListAdaptable<LibraryCategoryNames>[] getValues() {
+        //noinspection unchecked
+        return values;
     }
 }

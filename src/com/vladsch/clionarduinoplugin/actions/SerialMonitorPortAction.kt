@@ -4,10 +4,10 @@ import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.Toggleable
+import com.vladsch.clionarduinoplugin.serial.SerialPortManager
 import com.vladsch.clionarduinoplugin.settings.ArduinoProjectSettings
-import com.vladsch.clionarduinoplugin.util.Utils
 
-class SerialMonitorPortActionBase(internal val myPort: String) : AnAction(myPort), Toggleable {
+class SerialMonitorPortAction(internal val myPort: String) : AnAction(myPort), Toggleable {
 
     override fun actionPerformed(e: AnActionEvent) {
         val project = e.project
@@ -34,8 +34,8 @@ class SerialMonitorPortActionBase(internal val myPort: String) : AnAction(myPort
 
     companion object {
         fun createSerialPortsActionGroup(): ActionGroup {
-            val serialPorts = Utils.getSerialPorts(true)
-            val portActions = serialPorts.map { SerialMonitorPortActionBase(it) }
+            val serialPorts = SerialPortManager.getInstance().getSerialPorts(true)
+            val portActions = serialPorts.map { SerialMonitorPortAction(it) }
 
             val group = object : ActionGroup("Port", true) {
                 override fun getChildren(e: AnActionEvent?): Array<AnAction> {

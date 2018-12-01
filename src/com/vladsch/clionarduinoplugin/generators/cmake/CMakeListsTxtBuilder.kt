@@ -7,9 +7,9 @@ import com.vladsch.clionarduinoplugin.generators.cmake.ast.Command
 import com.vladsch.clionarduinoplugin.generators.cmake.ast.CommentedOutCommand
 import com.vladsch.clionarduinoplugin.generators.cmake.commands.*
 import com.vladsch.clionarduinoplugin.resources.TemplateResolver
-import com.vladsch.clionarduinoplugin.util.VariableExpander
-import com.vladsch.clionarduinoplugin.util.helpers.ifElse
-import com.vladsch.clionarduinoplugin.util.helpers.resolveRefs
+import com.vladsch.plugin.util.VariableExpander
+import com.vladsch.plugin.util.ifElse
+import com.vladsch.clionarduinoplugin.resources.resolveRefs
 import com.vladsch.flexmark.ast.Node
 import com.vladsch.flexmark.util.options.DataHolder
 import com.vladsch.flexmark.util.options.MutableDataSet
@@ -632,7 +632,7 @@ abstract class CMakeListsTxtBuilder(commands: Array<CMakeCommandType>, anchors: 
             // no after anchor, goes before
             addElement(range.beforeIndex, command)
         } else {
-//            if (!afterHasPriority && range.beforeIndex < range.afterIndex) throw IllegalStateException("Invalid anchor definitions: BeforeAnchor(" + range.beforeIndex + ") < AfterAnchor(" + range.afterIndex + ") for " + command.commandType.name)
+            //            if (!afterHasPriority && range.beforeIndex < range.afterIndex) throw IllegalStateException("Invalid anchor definitions: BeforeAnchor(" + range.beforeIndex + ") < AfterAnchor(" + range.afterIndex + ") for " + command.commandType.name)
             // insert before
             addElement(if (afterHasPriority) range.afterIndex else range.beforeIndex, command)
         }
@@ -789,8 +789,7 @@ abstract class CMakeListsTxtBuilder(commands: Array<CMakeCommandType>, anchors: 
 
                 if (node != null) {
                     sb.append(node.chars)
-                }
-                else {
+                } else {
                     element.appendTo(sb, outputCMakeProjectNameMacro, valueSet, suppressCommentedCommands)
                 }
 
@@ -803,7 +802,7 @@ abstract class CMakeListsTxtBuilder(commands: Array<CMakeCommandType>, anchors: 
             }
         }
 
-        var result:String = sb.toString();
+        var result: String = sb.toString();
         if (result.isNotEmpty()) result = result.trimEnd() + "\n"
         return result
     }
