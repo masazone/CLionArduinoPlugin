@@ -92,7 +92,7 @@ public interface ArduinoProjectFileSettings {
                 "  " + thizz + "sources = " + arrayText(getSources()) + "\n" +
                 "  " + thizz + "sketch = \"" + getSketch() + "\"\n" +
                 "  " + thizz + "isLibrary = " + isLibrary() + "\n" +
-                "  " + thizz + "languageVersion = \"" + getLanguageVersionId() + "\"\n" +
+                "  " + thizz + "languageVersionId = \"" + getLanguageVersionId() + "\"\n" +
                 "  " + thizz + "libraryType = \"" + getLibraryType() + "\"\n" +
                 "  " + thizz + "isAddLibraryDirectory = " + isAddLibraryDirectory() + "\n" +
                 "  " + thizz + "libraryDirectories = " + arrayText(getLibraryDirectories()) + "\n" +

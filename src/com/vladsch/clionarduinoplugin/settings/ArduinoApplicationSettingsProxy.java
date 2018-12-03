@@ -2,15 +2,20 @@ package com.vladsch.clionarduinoplugin.settings;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+
 public class ArduinoApplicationSettingsProxy implements ArduinoProjectFileSettings {
-    public final static String[] EMPTY = new String[0];
+    public static final String[] EMPTY_STRINGS = new String[0];
 
     private final ArduinoApplicationSettings mySettings;
     private boolean myIsLibrary;
-    private String[] myHeaders = EMPTY;
-    private String[] mySources = EMPTY;
+    private String[] myHeaders = EMPTY_STRINGS;
+    private String[] mySources = EMPTY_STRINGS;
     private String mySketch = "";
     private String myProjectName = "";
+    private String[] myNotifications = EMPTY_STRINGS;
 
     private ArduinoApplicationSettingsProxy(final @NotNull ArduinoApplicationSettings settings, final boolean isLibrary) {
         myIsLibrary = isLibrary;
@@ -40,6 +45,9 @@ public class ArduinoApplicationSettingsProxy implements ArduinoProjectFileSettin
     public static ArduinoApplicationSettingsProxy copyOf(@NotNull ArduinoProjectFileSettings settings) {
         ArduinoApplicationSettingsProxy proxy = new ArduinoApplicationSettingsProxy();
         proxy.copyFrom(settings);
+        if (settings instanceof ArduinoApplicationSettingsProxy) {
+            proxy.myNotifications = ((ArduinoApplicationSettingsProxy) settings).myNotifications;
+        }
         return proxy;
     }
 
@@ -64,7 +72,20 @@ public class ArduinoApplicationSettingsProxy implements ArduinoProjectFileSettin
         mySources = other.getSources();
         mySketch = other.getSketch();
         myProjectName = other.getProjectName();
+        myNotifications = EMPTY_STRINGS;
         setCommentUnusedSettings(other.isCommentUnusedSettings());
+    }
+
+    public String[] getNotifications() {
+        return myNotifications;
+    }
+
+    public void setNotifications(final String[] notifications) {
+        myNotifications = notifications;
+    }
+
+    public void setNotifications(final Collection<String> notifications) {
+        myNotifications = notifications.toArray(EMPTY_STRINGS);
     }
 
     public boolean isLibrary() {

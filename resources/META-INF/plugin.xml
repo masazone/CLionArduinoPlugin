@@ -60,6 +60,16 @@
     <change-notes><![CDATA[
         <h3>1.4.2</h3>
         <ul>
+            <li>Fix: cmake builder to handle dynamic content in command fixed and default arguments.</li>
+            <li>Fix: cmake builder to find set project name command in generic set command set.</li>
+            <li>Fix: cmake builder to handle any variable to set project name used for project command</li>
+            <li>Add: detection when <code>set(PROJECT_NAME project_name)</code> is erroneously given as
+                <code>set($\{PROJECT_NAME} project_name)</code>.</li>
+            <li>Fix: <code>Change build settings</code> enables show difference and change build buttons when
+                generated content differs from current, not just when settings are changed.</li>
+            <li>Fix: change build config dialog would use un-sanitized project dir name for project name. If
+                the two differed then wrong config would be generated</li>
+            <li>Fix: use project name extracted from <code>CMakeLists.txt</code> over the directory name of the project</li>
             <li>Fix: serial monitor &ldquo;edit settings&rdquo; would always show port name from new project wizard
                 instead of project settings while connect/disconnect would use the right port name.</li>
             <li>Fix: exception in displaying serial monitor settings form</li>

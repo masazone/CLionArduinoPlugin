@@ -7,11 +7,10 @@ import com.vladsch.clionarduinoplugin.generators.cmake.commands.CMakeCommandType
 import com.vladsch.clionarduinoplugin.resources.Strings
 import com.vladsch.clionarduinoplugin.settings.ArduinoApplicationSettingsProxy
 import com.vladsch.clionarduinoplugin.settings.ArduinoProjectFileSettings
+import com.vladsch.flexmark.util.options.DataHolder
 import com.vladsch.plugin.util.getFileContent
 import com.vladsch.plugin.util.plus
-import com.vladsch.flexmark.util.options.DataHolder
 import java.io.File
-import java.util.*
 
 /**
  * Class for creating, reading and modifying CMakeLists.txt
@@ -177,6 +176,7 @@ class ArduinoCMakeListsTxtBuilder : CMakeListsTxtBuilder {
             builder.setOrAddCommand(CMAKE_MINIMUM_REQUIRED_VERSION, "2.8.4")
             builder.setOrAddCommand(SET_CMAKE_TOOLCHAIN_FILE, "\${CMAKE_SOURCE_DIR}/cmake/ArduinoToolchain.cmake")
             builder.setOrAddCommand(SET_CMAKE_CXX_STANDARD, appSettings.languageVersionLineForCMake).setSuppressible(appSettings.languageVersionName.isEmpty())
+
             builder.setOrAddCommand(SET_PROJECT_NAME, projectName)
 
             val boardId = appSettings.boardId.ifEmpty("uno")
@@ -247,23 +247,26 @@ class ArduinoCMakeListsTxtBuilder : CMakeListsTxtBuilder {
 
             // Can add our own values to resolve variables
             // TODO: figure out how to make comments unused false make sense with comments above  
-            return builder.getCMakeContents(null, !appSettings.isCommentUnusedSettings, unmodifiedOriginalText)
+            return builder.getCMakeContents(null, !appSettings.isCommentUnusedSettings, unmodifiedOriginalText && builder.canUseUnmodifiedOriginal)
         }
 
         /**
          * returns application settings determined from the current project files
          * NOTE: these settings are not an instance of "Official" application settings but a non-persisted copy
          */
-        fun loadProjectConfiguration(projectDir: File): ArduinoApplicationSettingsProxy? {
-
+        
+        @JvmOverloads
+        fun loadProjectConfiguration(projectDir: File, altCMakeListsContent: String? = null): ArduinoApplicationSettingsProxy? {
             val cMakeLists = projectDir + Strings.CMAKE_LISTS_FILENAME
             val libraryProperties: File = projectDir + Strings.LIBRARY_PROPERTIES_FILENAME
 
-            if (!cMakeLists.exists() || !cMakeLists.isFile || !cMakeLists.canRead()) {
+            if (altCMakeListsContent == null && (!cMakeLists.exists() || !cMakeLists.isFile || !cMakeLists.canRead())) {
                 return null
             }
 
-            val cMakeListsText = getFileContent(cMakeLists)
+            val notifications = ArrayList<String>()
+
+            val cMakeListsText = altCMakeListsContent ?: getFileContent(cMakeLists)
             val builder = ArduinoCMakeListsTxtBuilder(cMakeListsText)
             builder.isWantCommented = false   // commented commands don't count
 
@@ -282,6 +285,10 @@ class ArduinoCMakeListsTxtBuilder : CMakeListsTxtBuilder {
             settings.sketch = cMakeVariableValues["${cMakeProjectName}_SKETCH"].firstOrNull() ?: ""
             settings.boardId = cMakeVariableValues["${cMakeProjectName}_BOARD"].firstOrNull() ?: ""
             settings.cpuId = cMakeVariableValues["ARDUINO_CPU"].firstOrNull() ?: ""
+
+            if (!builder.canUseUnmodifiedOriginal) {
+                notifications.add("project-build-config.invalid-set-project.1\r${builder.cMakeProjectNameMacro}\r${builder.cMakeProjectNameMacro.removeSurrounding("\${", "}")}\r ${settings.projectName}")
+            }
 
             when (arduinoCommand.commandType) {
                 ArduinoCMakeListsTxtBuilder.GENERATE_ARDUINO_LIBRARY -> {
@@ -330,6 +337,9 @@ class ArduinoCMakeListsTxtBuilder : CMakeListsTxtBuilder {
                 // libraryCategory: String
             }
 
+            if (notifications.isNotEmpty()) {
+                (settings as ArduinoApplicationSettingsProxy).setNotifications(notifications)
+            }
             return settings as ArduinoApplicationSettingsProxy
         }
     }

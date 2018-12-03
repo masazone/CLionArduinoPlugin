@@ -30,8 +30,11 @@ class ArduinoCMakeListsTxtBuilderRenderer extends IRenderBase {
     final static public DataKey<Set<String>> SUPPRESS_COMMENTED_SET = new DynamicDefaultKey<>("SUPPRESS_COMMENTED_SET", (options) -> new HashSet<>());
     final static public DataKey<Boolean> DUMP_ELEMENTS_BEFORE = new DataKey<>("DUMP_ELEMENTS_BEFORE", false);
     final static public DataKey<Boolean> DUMP_ELEMENTS_AFTER = new DataKey<>("DUMP_ELEMENTS_AFTER", false);
+    final static public DataKey<Boolean> DUMP_VARIABLE_MAP = new DataKey<>("DUMP_VARIABLE_MAP", false);
     final static public DataKey<Boolean> SET_OR_ADD = new DataKey<>("SET_OR_ADD", false);
     final static public DataKey<Boolean> SUPPRESS_COMMENTED = new DataKey<>("SUPPRESS_COMMENTED", false);
+    final static public DataKey<Boolean> USE_UNMODIFIED_ORIGINAL = new DataKey<>("USE_UNMODIFIED_ORIGINAL", false);
+    final static public DataKey<Boolean> RESET_PROJECT_TO_DEFAULTS = new DataKey<>("RESET_PROJECT_TO_DEFAULTS", false);
 
     @Override
     public void render(Node node, Appendable output) {
@@ -45,6 +48,14 @@ class ArduinoCMakeListsTxtBuilderRenderer extends IRenderBase {
         boolean suppressCommented = SUPPRESS_COMMENTED.getFrom(node.getDocument());
 
         try {
+            if (DUMP_VARIABLE_MAP.getFrom(cMakeFile)) {
+                // dump the variables tree
+                output.append("# cMakeProjectNameMacro = ").append(builder.getCMakeProjectNameMacro()).append("\n");
+                output.append("# outputCMakeProjectNameMacro = ").append(builder.getOutputCMakeProjectNameMacro()).append("\n");
+                output.append("# cMakeProjectName = ").append(builder.getCMakeProjectName()).append("\n");
+                output.append("# ").append(builder.getCMakeVariableValues().toString().replace("\n", "\n# ")).append("\n");
+            }
+
             if (DUMP_ELEMENTS_BEFORE.getFrom(cMakeFile)) {
                 // dump the element tree
                 for (CMakeElement element : builder.getElements()) {
@@ -129,7 +140,11 @@ class ArduinoCMakeListsTxtBuilderRenderer extends IRenderBase {
                 }
             }
 
-            String contents = builder.getCMakeContents(valueSet, suppressCommented, false);
+            if (RESET_PROJECT_TO_DEFAULTS.getFrom(getOptions())) {
+                builder.setOrAddCommand(CMakeListsTxtBuilder.Companion.getPROJECT()).clearToDefaults();
+            }
+            
+            String contents = builder.getCMakeContents(valueSet, suppressCommented, USE_UNMODIFIED_ORIGINAL.getFrom(cMakeFile));
             output.append(contents);
 
             if (ExtraRenderer.DUMP_OPTIONS.getFrom(cMakeFile)) {

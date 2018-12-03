@@ -7,13 +7,15 @@ import com.vladsch.clionarduinoplugin.generators.cmake.ast.Command
 import com.vladsch.clionarduinoplugin.generators.cmake.ast.CommentedOutCommand
 import com.vladsch.clionarduinoplugin.generators.cmake.commands.*
 import com.vladsch.clionarduinoplugin.resources.TemplateResolver
-import com.vladsch.plugin.util.VariableExpander
-import com.vladsch.plugin.util.ifElse
 import com.vladsch.clionarduinoplugin.resources.resolveRefs
 import com.vladsch.flexmark.ast.Node
 import com.vladsch.flexmark.util.options.DataHolder
 import com.vladsch.flexmark.util.options.MutableDataSet
 import com.vladsch.flexmark.util.sequence.BasedSequenceImpl
+import com.vladsch.plugin.util.VariableExpander
+import com.vladsch.plugin.util.ifElse
+import com.vladsch.plugin.util.prefixWith
+import com.vladsch.plugin.util.suffixWith
 import java.io.IOException
 import java.util.*
 import java.util.regex.Pattern
@@ -43,6 +45,9 @@ abstract class CMakeListsTxtBuilder(commands: Array<CMakeCommandType>, anchors: 
     private val myAfterAnchorsMap: HashMap<CMakeCommandType, ArrayList<CMakeCommandType>>
     private var myCMakeFile: CMakeFile? = null
 
+    var canUseUnmodifiedOriginal = true
+        private set
+
     // values set from cmake file not modified commands
     val cMakeVariableValues = VariableExpander()
     var cMakeProjectName = ""
@@ -58,7 +63,7 @@ abstract class CMakeListsTxtBuilder(commands: Array<CMakeCommandType>, anchors: 
 
     val elements: List<CMakeElement>
         get() = myElements
-
+    
     init {
         myCMakeCommands = HashMap()
         myCommands = HashMap()
@@ -147,7 +152,14 @@ abstract class CMakeListsTxtBuilder(commands: Array<CMakeCommandType>, anchors: 
     private fun loadCMakeFile(values: Map<String, Any>?) {
         val valueSet = HashMap<String, Any>()
         if (values != null) valueSet.putAll(values)
+        var erroneousSetProjectNameMacro = ""
+        var erroneousSetProjectName = ""
 
+        // if cmake project var name not given, set it to the 
+        if (!valueSet.containsValue(PROJECT_VAR_NAME)) {
+            valueSet[PROJECT_VAR_NAME] = projectNameMacro.removeSurrounding("\${", "}")
+        }
+        
         // first get the variable values
         for (node in myCMakeFile!!.children) {
             if (node is Command && node !is CommentedOutCommand) {
@@ -161,8 +173,17 @@ abstract class CMakeListsTxtBuilder(commands: Array<CMakeCommandType>, anchors: 
                     }
 
                     val args = rawArgs.map { cMakeVariableValues.resolve(it) }
-                    if (args.size > 1) cMakeVariableValues[args[0]] = args.slice(1..args.size - 1)
-                    else if (!args.isEmpty()) cMakeVariableValues[args[0]] = null
+                    var useVarName: String? = null
+
+                    if (rawArgs.isNotEmpty() && args.size > 1 && (rawArgs[0] == "\${CMAKE_PROJECT_NAME}" && args[0].isEmpty() || rawArgs[0] == "\${PROJECT_NAME}") && args[0].isEmpty()) {
+                        // probably a mistake of including ${} around variable name
+                        erroneousSetProjectName = args[1]
+                        erroneousSetProjectNameMacro = rawArgs[0]
+                        useVarName = rawArgs[0].removePrefix("\${").removeSuffix("}")
+                    }
+
+                    if (args.size > 1) cMakeVariableValues[useVarName ?: args[0]] = args.slice(1..args.size - 1)
+                    else if (!args.isEmpty()) cMakeVariableValues[useVarName ?: args[0]] = null
                 } else if (node.command.equals("project")) {
                     // get the project name
                     val nameNode = node.getFirstChildAny(Argument::class.java) as Argument?
@@ -171,9 +192,17 @@ abstract class CMakeListsTxtBuilder(commands: Array<CMakeCommandType>, anchors: 
                         if (cMakeVariableValues.hasVariableRef(value)) {
                             cMakeProjectNameMacro = value
                             cMakeProjectName = cMakeVariableValues.resolve(value)
+                            if (cMakeProjectNameMacro == erroneousSetProjectNameMacro) {
+                                cMakeProjectName = erroneousSetProjectName
+                                // TODO: need to have ability to log errors and warnings for processed files.
+                                canUseUnmodifiedOriginal = false
+                            }
                         } else {
                             cMakeProjectName = value
                         }
+
+                        // this is set by the command!!!
+                        cMakeVariableValues["PROJECT_NAME"] = cMakeProjectName
                     }
                 }
             }
@@ -212,7 +241,15 @@ abstract class CMakeListsTxtBuilder(commands: Array<CMakeCommandType>, anchors: 
                 // see if we have a matching set command
                 val arg = rawArgs.firstOrNull()
                 if (arg != null) {
-                    val setCommand = arg
+                    val setCommand: String?
+
+                    if (!canUseUnmodifiedOriginal && rawArgs.isNotEmpty() && rawArgs.size > 1 && (rawArgs[0] == "\${CMAKE_PROJECT_NAME}" || rawArgs[0] == "\${PROJECT_NAME}")) {
+                        // erroneous set, we convert it to proper set project name
+                        setCommand = cMakeProjectNameMacro.removeSurrounding("\${", "}")
+                    } else {
+                        setCommand = arg
+                    }
+
                     // normalize it to PROJECT_NAME as commands expect
                     val resolvedSetCommand = cMakeVariableValues.resolve(setCommand)
                     rawArgs[0] = resolvedSetCommand
@@ -408,6 +445,15 @@ abstract class CMakeListsTxtBuilder(commands: Array<CMakeCommandType>, anchors: 
                             }
                         } else {
                             return i
+                        }
+                    } else {
+                        // TODO: make it work for other sub-commands
+                        if (commandType == SET_PROJECT_NAME && commandType.isOfType(element.commandType)) {
+                            // specialization, compare first argument to see if a match, for now just set project name
+                            val setCommandMacro = if (outputCMakeProjectNameMacro.isNotEmpty()) outputCMakeProjectNameMacro else cMakeProjectNameMacro
+                            if (element.argCount > 1 && element.arg(0).prefixWith("\${").suffixWith("}") == setCommandMacro) {
+                                return i
+                            }
                         }
                     }
                 }
@@ -739,10 +785,19 @@ abstract class CMakeListsTxtBuilder(commands: Array<CMakeCommandType>, anchors: 
 
                     if (myElementNodeMap[command] != null) {
                         // original command, replace it with new
-                        newCommand = CMakeCommand(command)
-                        newCommand.commentOut(false)
-                        newCommand.setArgsWithDefaults(argList)
-                        replaceElement(command, newCommand)
+                        if (command.isOfType(commandType)) {
+                            newCommand = CMakeCommand(command)
+                            newCommand.commentOut(false)
+                            newCommand.setArgsWithDefaults(argList)
+                            replaceElement(command, newCommand)
+                        } else {
+                            // is a matched sub-type, need to replace completely
+                            newCommand = CMakeCommand(commandType, argList, false)
+                            newCommand.commentOut(false)
+                            newCommand.setArgsWithDefaults(argList)
+                            
+                            replaceElement(command, newCommand)
+                        }
                     } else {
                         newCommand!!.setArgsWithDefaults(argList)
                     }
@@ -759,10 +814,15 @@ abstract class CMakeListsTxtBuilder(commands: Array<CMakeCommandType>, anchors: 
 
         if (outputCMakeProjectNameMacro.isEmpty()) {
             if (cMakeProjectNameMacro.isEmpty()) {
-                outputCMakeProjectNameMacro = ""
+                outputCMakeProjectNameMacro = projectNameMacro
             } else {
                 outputCMakeProjectNameMacro = cMakeProjectNameMacro
             }
+        }
+
+        // if cmake project var name not given, set it to the 
+        if (!valueSet.containsValue(PROJECT_VAR_NAME)) {
+            valueSet[PROJECT_VAR_NAME] = outputCMakeProjectNameMacro.removeSurrounding("\${", "}")
         }
 
         for (element in myElements) {
@@ -802,7 +862,7 @@ abstract class CMakeListsTxtBuilder(commands: Array<CMakeCommandType>, anchors: 
             }
         }
 
-        var result: String = sb.toString();
+        var result: String = sb.toString()
         if (result.isNotEmpty()) result = result.trimEnd() + "\n"
         return result
     }
@@ -820,8 +880,8 @@ abstract class CMakeListsTxtBuilder(commands: Array<CMakeCommandType>, anchors: 
         val CMAKE_MINIMUM_REQUIRED_VERSION = CMakeCommandSubType("CMAKE_MINIMUM_REQUIRED_VERSION", CMAKE_MINIMUM_REQUIRED, arrayOf("VERSION"), 2, 2, true, false, true)
         val LINK_DIRECTORIES = CMakeCommandType("LINK_DIRECTORIES", "link_directories", arrayOf(), 1, CMakeCommandType.INF_MAX_ARGS, true, false, true)
         val ADD_SUBDIRECTORY = CMakeCommandType("ADD_SUBDIRECTORY", "add_subdirectory", arrayOf(), 1, 3, true, true, false)
-        val PROJECT = CMakeCommandType("PROJECT", "project", arrayOf(), 1, 1, true, false, false, arrayOf(PROJECT_NAME))
-        val SET = CMakeCommandType("SET", "set", arrayOf(), 1, CMakeCommandType.INF_MAX_ARGS)
+        val PROJECT = CMakeCommandType("PROJECT", "project", arrayOf(), 1, 1, true, false, false, arrayOf("\${<@$PROJECT_VAR_NAME@>}"))
+        val SET = CMakeCommandType("SET", "set", arrayOf(), 1, CMakeCommandType.INF_MAX_ARGS, true,true,true)
 
         // Generic commands added but not verified
         val ADD_COMPILE_OPTIONS = CMakeCommandType("ADD_COMPILE_OPTIONS", "add_compile_options", arrayOf(), 0, CMakeCommandType.INF_MAX_ARGS, false, true, false)
@@ -907,7 +967,7 @@ abstract class CMakeListsTxtBuilder(commands: Array<CMakeCommandType>, anchors: 
         // specialized set commands
         val SET_CMAKE_TOOLCHAIN_FILE = CMakeCommandSubType("SET_CMAKE_TOOLCHAIN_FILE", SET, arrayOf("CMAKE_TOOLCHAIN_FILE"), 1, 1, true, false, true, arrayOf("\${CMAKE_SOURCE_DIR}/cmake/ArduinoToolchain.cmake"))
         val SET_CMAKE_CXX_STANDARD = CMakeCommandSubType("SET_CMAKE_CXX_STANDARD", SET, arrayOf("CMAKE_CXX_STANDARD"), 1, 1, false, false, true)
-        val SET_PROJECT_NAME = CMakeCommandSubType("SET_PROJECT_NAME", SET, arrayOf("PROJECT_NAME"), 1, 1, false, false, true)
+        val SET_PROJECT_NAME = CMakeCommandSubType("SET_PROJECT_NAME", SET, arrayOf("<@$PROJECT_VAR_NAME@>"), 1, 1, false, false, true)
 
         val ourCommands = arrayOf(
                 CMAKE_MINIMUM_REQUIRED,

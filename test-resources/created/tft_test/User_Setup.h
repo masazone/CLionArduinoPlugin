@@ -1,0 +1,4 @@
+#ifdef _TFT_TEST_USER_SETUP_H_
+#define _TFT_TEST_USER_SETUP_H_
+
+#endif //_TFT_TEST_USER_SETUP_H_

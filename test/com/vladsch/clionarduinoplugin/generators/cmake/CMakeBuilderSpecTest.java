@@ -93,6 +93,9 @@ public class CMakeBuilderSpecTest extends ComboSpecTestCase {
         optionsMap.put("dump-after", new MutableDataSet().set(ArduinoCMakeListsTxtBuilderRenderer.DUMP_ELEMENTS_AFTER, true));
         optionsMap.put("dump-before", new MutableDataSet().set(ArduinoCMakeListsTxtBuilderRenderer.DUMP_ELEMENTS_BEFORE, true));
         optionsMap.put("set-or-add", new MutableDataSet().set(ArduinoCMakeListsTxtBuilderRenderer.SET_OR_ADD, true));
+        optionsMap.put("unmodified-original", new MutableDataSet().set(ArduinoCMakeListsTxtBuilderRenderer.USE_UNMODIFIED_ORIGINAL, true));
+        optionsMap.put("dump-variables", new MutableDataSet().set(ArduinoCMakeListsTxtBuilderRenderer.DUMP_VARIABLE_MAP, true));
+        optionsMap.put("reset-project", new MutableDataSet().set(ArduinoCMakeListsTxtBuilderRenderer.RESET_PROJECT_TO_DEFAULTS, true));
     }
 
     private static final IParseBase PARSER = new CMakeIParser(OPTIONS);

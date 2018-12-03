@@ -6,7 +6,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
 public abstract class CMakeCommandBase implements CMakeElement {
     final protected @NotNull CMakeCommandType myCommandType;
@@ -106,13 +112,21 @@ public abstract class CMakeCommandBase implements CMakeElement {
                 if (pos == -1) break;
                 if (wildcardArg >= myArgs.size()) break;
 
-                String replacement = myArgs.get(wildcardArg++);
+                String replacement = myArgs.get(wildcardArg);
+                if (wildcardArg < myCommandType.myDefaultArgs.length && myCommandType.myDefaultArgs[wildcardArg].equals(replacement)) {
+                    // its a default, we replace values in it
+                    replacement = CMakeListsTxtBuilder.Companion.replacedCommandParams(replacement, valueSet);
+                }
+                
+                wildcardArg++;
                 arg = arg.substring(0, pos) + replacement + arg.substring(pos + CMakeCommandType.WILDCARD_ARG_MARKER.length());
                 pos += replacement.length();
             }
 
             if (arg.isEmpty()) continue;
 
+            arg = CMakeListsTxtBuilder.Companion.replacedCommandParams(arg, valueSet);
+            
             if (projectNameMacro != null && !projectNameMacro.isEmpty()) {
                 // replace project name macro with one provided
                 arg = arg.replace(CMakeListsTxtBuilder.PROJECT_NAME, projectNameMacro);
@@ -133,6 +147,11 @@ public abstract class CMakeCommandBase implements CMakeElement {
             String arg = myArgs.get(i);
 
             if (arg.isEmpty()) continue;
+
+            if (i < myCommandType.myDefaultArgs.length && myCommandType.myDefaultArgs[i].equals(arg)) {
+                // its a default, we replace values in it
+                arg = CMakeListsTxtBuilder.Companion.replacedCommandParams(arg, valueSet);
+            }
 
             if (!myCommandType.isNoDupeArgs() || !argValues.contains(arg)) {
                 argValues.add(arg);

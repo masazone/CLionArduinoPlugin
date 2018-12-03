@@ -27,7 +27,7 @@
     </orderEntry>
     <orderEntry type="library" name="flexmark-test-util" level="project" />
     <orderEntry type="library" name="flexmark-formatter" level="project" />
-    <orderEntry type="module" module-name="plugin-utils" />
+    <orderEntry type="module" module-name="plugin-utils" exported="" />
     <orderEntry type="library" name="commons-io-2.4" level="project" />
   </component>
 </module>

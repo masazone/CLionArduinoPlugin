@@ -27,19 +27,27 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.ValidationInfo;
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.jetbrains.cidr.cpp.cmake.workspace.CMakeWorkspace;
 import com.vladsch.clionarduinoplugin.Bundle;
 import com.vladsch.clionarduinoplugin.generators.ArduinoProjectGenerator;
 import com.vladsch.clionarduinoplugin.generators.cmake.ArduinoCMakeListsTxtBuilder;
+import com.vladsch.flexmark.util.ui.BackgroundColor;
+import com.vladsch.flexmark.util.ui.HtmlBuilder;
+import com.vladsch.plugin.util.ui.Helpers;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
@@ -47,9 +55,11 @@ import java.io.IOException;
 public class ProjectBuildSettingsDialog extends DialogWrapper {
     //private static final Logger logger = com.intellij.openapi.diagnostic.Logger.getInstance("com.vladsch.idea.multimarkdown.settings.license.fetch-dialog");
 
-    private JPanel contentPane;
-    private JEditorPane descriptionEditorPane;
+    private JPanel myMainPanel;
     private JPanel myFormPanel;
+    private JEditorPane myNotificationEditorPane;
+    private JLabel myNotificationIcon;
+    private JPanel myNotificationsPanel;
     NewProjectSettingsForm myNewProjectSettingsForm;
 
     final Project myProject;
@@ -73,6 +83,49 @@ public class ProjectBuildSettingsDialog extends DialogWrapper {
         myNewProjectSettingsForm.setRunnable(this::updateOptions);
         myNewProjectSettingsForm.reset(myResetSettings.getApplicationSettings());
         updateOptions();
+
+        String[] notifications = settings.getNotifications();
+        if (notifications.length > 0) {
+            HtmlBuilder builder = new HtmlBuilder();
+
+            JTextField label = new JTextField();
+            Font font = label.getFont();
+            Color textColor = label.getForeground();
+            Color textBackColor = BackgroundColor.of(myMainPanel.getBackground());
+            Color errorColor = Helpers.errorColor(textColor);
+            Color highlightColor = label.getSelectedTextColor();
+            Color highlightBackColor = BackgroundColor.of(label.getSelectionColor());
+
+            builder.tag("html").attr(font).tag("body");
+            
+            // add warning icon from GitHub
+
+            for (String notification : notifications) {
+                String[] parts = notification.split("\r");
+                String text = Bundle.message(parts[0]);
+                if (parts.length > 1) {
+                    String[] convertedParts = new String[parts.length - 1];
+
+                    for (int i = 1; i < parts.length; i++) {
+                        HtmlBuilder snippet = new HtmlBuilder();
+                        snippet.attr(i == 1 ? errorColor : i == 2 ? highlightColor : textColor).attr(i > 2 ? textBackColor : highlightBackColor).span(parts[i]);
+                        convertedParts[i - 1] = snippet.toFinalizedString();
+                    }
+
+                    builder.raw(Bundle.message(parts[0], (Object[]) convertedParts));
+                } else {
+                    builder.attr(errorColor).tag("p").span().raw(text);
+                }
+            }
+
+            String html = builder.toFinalizedString();
+            myNotificationEditorPane.setText(html);
+            myNotificationEditorPane.setVisible(true);
+            myNotificationsPanel.setVisible(true);
+            //myNotificationEditorPane.setOpaque(true);
+        } else {
+            myNotificationsPanel.setVisible(false);
+        }
 
         //descriptionEditorPane.setText("" +
         //        "<html>\n" +
@@ -113,15 +166,16 @@ public class ProjectBuildSettingsDialog extends DialogWrapper {
     void updateOptions() {
         ApplicationManager.getApplication().invokeLater(() -> {
             boolean enabled = myNewProjectSettingsForm.isModified(mySettings.getApplicationSettings());
-            if (myResetAction != null) {
+
+            if (myShowDiffAction != null && myResetSettings != null && myOkAction != null) {
                 myResetAction.setEnabled(enabled);
-            }
-
-            if (myOkAction != null) {
+                
+                if (!enabled) {
+                    String content = getCMakeFileContent();
+                    enabled = !content.equals(getModifiedContent(content));
+                }
+                
                 myOkAction.setEnabled(enabled);
-            }
-
-            if (myShowDiffAction != null) {
                 myShowDiffAction.setEnabled(enabled);
             }
         }, ModalityState.any());
@@ -132,7 +186,7 @@ public class ProjectBuildSettingsDialog extends DialogWrapper {
     protected JComponent createCenterPanel() {
         myNewProjectSettingsForm = new NewProjectSettingsForm(mySettings, false, true);
         myFormPanel.add(myNewProjectSettingsForm.getComponent(), BorderLayout.CENTER);
-        return contentPane;
+        return myMainPanel;
     }
 
     protected class MyOkAction extends OkAction {
@@ -184,8 +238,9 @@ public class ProjectBuildSettingsDialog extends DialogWrapper {
 
         CMakeWorkspace workspace = CMakeWorkspace.getInstance(myProject);
         File projectDir = workspace.getProjectDir();
+        String name = FileUtil.sanitizeFileName(projectDir.getName());
 
-        String modifiedContent = ArduinoCMakeListsTxtBuilder.Companion.getCMakeFileContent(content, projectDir.getName(), mySettings, true);
+        String modifiedContent = ArduinoCMakeListsTxtBuilder.Companion.getCMakeFileContent(content, name, mySettings, true);
         mySettings.copyFrom(saved);
         return modifiedContent;
     }
@@ -277,7 +332,7 @@ public class ProjectBuildSettingsDialog extends DialogWrapper {
         if (result != null) {
             return result;
         }
-        
+
         return super.doValidate();
     }
 

@@ -30,16 +30,28 @@ import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.table.TableView;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import com.intellij.util.ui.*;
+import com.intellij.util.ui.ColumnInfo;
+import com.intellij.util.ui.ElementProducer;
+import com.intellij.util.ui.JBUI;
+import com.intellij.util.ui.ListTableModel;
+import com.intellij.util.ui.UIUtil;
 import com.vladsch.clionarduinoplugin.Bundle;
-import com.vladsch.flexmark.util.html.BackgroundColor;
-import com.vladsch.flexmark.util.html.HtmlBuilder;
 import com.vladsch.flexmark.util.options.DelimitedBuilder;
+import com.vladsch.flexmark.util.ui.BackgroundColor;
+import com.vladsch.flexmark.util.ui.HtmlBuilder;
+import com.vladsch.flexmark.util.ui.HtmlHelpers;
 import com.vladsch.plugin.util.ui.Helpers;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Action;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.DocumentEvent;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -328,7 +340,7 @@ public class RegExTestDialog extends DialogWrapper {
             sampleSet.toolTipText = error.isEmpty() ? null : error;
         } else {
             myViewPanel.setVisible(false);
-            HtmlBuilder.setRegExError(error, myTextPane, mySampleText.getFont(), getValidTextFieldBackground(), getWarningTextFieldBackground());
+            HtmlHelpers.setRegExError(error, myTextPane, mySampleText.getFont(), getValidTextFieldBackground(), getWarningTextFieldBackground());
         }
         return error;
     }

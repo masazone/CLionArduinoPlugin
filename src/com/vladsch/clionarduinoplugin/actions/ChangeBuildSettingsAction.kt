@@ -1,6 +1,7 @@
 package com.vladsch.clionarduinoplugin.actions
 
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.vfs.VirtualFileManager
@@ -39,8 +40,9 @@ class ChangeBuildSettingsAction : DumbAwareAction(Bundle.message("action.change-
 
             val cMakeListsTxt = projectDir + Strings.CMAKE_LISTS_FILENAME
             val virtualFile = VirtualFileManager.getInstance().findFileByUrl("file://" + cMakeListsTxt.absolutePath)
-            workspace.effectiveContentRoot
-            val settings = if (virtualFile == null) null else ArduinoCMakeListsTxtBuilder.loadProjectConfiguration(projectDir)
+            val document = if (virtualFile == null) null else FileDocumentManager.getInstance().getDocument(virtualFile)
+            
+            val settings = if (virtualFile == null) null else ArduinoCMakeListsTxtBuilder.loadProjectConfiguration(projectDir, document?.text) 
 
             if (settings == null || virtualFile == null) {
                 Messages.showErrorDialog(project, Bundle.message("action.change-build-settings.not-arduino-project.message"), Bundle.message("action.change-build-settings.not-arduino-project.title"))

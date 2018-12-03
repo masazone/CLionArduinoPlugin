@@ -136,14 +136,17 @@ set(lib4_RECURSE false)
         ), commands)
     }
 
-    fun compareFiles(expected: Map<File, String>, actual: Map<File, String>) {
+    fun compareFiles(rootDir: File, expected: Map<File, String>, actual: Map<File, String>) {
         val sortedKeys = expected.keys.sortedBy { it.path }
         assertEquals(sortedKeys, actual.keys.sortedBy { it.path })
 
         for (key in sortedKeys) {
-            assertEquals(expected[key], actual[key])
+            assertEquals(getFileUriFromProjectResource(key, rootDir), expected[key], actual[key])
         }
     }
+
+    private fun getFileUriFromProjectResource(file: File, rootDir: File) =
+            "File: file:///Users/vlad/src/projects/CLionArduinoPlugin/test-resources/created/${file.relativeTo(rootDir.parentFile).path}"
 
     fun compareFiles(rootDir: File, files: Map<File, String>) {
         val expected = HashMap<File, String>()
@@ -155,7 +158,7 @@ set(lib4_RECURSE false)
             }
         }
 
-        compareFiles(expected, files)
+        compareFiles(rootDir, expected, files)
     }
 
     @Test
@@ -191,7 +194,34 @@ set(lib4_RECURSE false)
         val modified = ArduinoCMakeListsTxtBuilder.getCMakeFileContent(cmakelists, expected.projectName, expected as ArduinoApplicationSettingsProxy, true)
         val expectedContent = getFileContent(rootDir + Strings.CMAKE_LISTS_FILENAME)
 
-        assertEquals(expectedContent, modified);
+        assertEquals("Expected ${getFileUriFromProjectResource(rootDir + Strings.CMAKE_LISTS_FILENAME, rootDir)}", expectedContent, modified);
+    }
+
+    @Test
+    fun test_tft_life2() {
+        val projectDir = testProjects + "tft_life2"
+        val settings = ArduinoCMakeListsTxtBuilder.loadProjectConfiguration(projectDir)
+        val expected = ArduinoApplicationSettingsProxy.of() as ArduinoProjectFileSettings
+
+        expected.projectName = projectDir.name
+        expected.headers = arrayOf()
+        expected.sources = arrayOf("tft_life2.cpp")
+        expected.boardId = "pro"
+        expected.cpuId = "8MHzatmega328"
+        expected.programmerId = "avrispmkii"
+        expected.port = "/dev/cu.usbserial-00000000"
+        expected.isAddLibraryDirectory = true
+        expected.libraryDirectories = arrayOf("..")
+        expected.isVerbose = true
+
+        assertEquals(expected.asString("expected"), settings?.asString("expected"))
+
+        val rootDir = createdProjects + expected.projectName
+        val cmakelists = getFileContent(projectDir + Strings.CMAKE_LISTS_FILENAME)
+        val modified = ArduinoCMakeListsTxtBuilder.getCMakeFileContent(cmakelists, expected.projectName, expected as ArduinoApplicationSettingsProxy, true)
+        val expectedContent = getFileContent(rootDir + Strings.CMAKE_LISTS_FILENAME)
+
+        assertEquals("Expected ${getFileUriFromProjectResource(rootDir + Strings.CMAKE_LISTS_FILENAME, rootDir)}", expectedContent, modified);
     }
 
     @Test
@@ -232,6 +262,31 @@ set(lib4_RECURSE false)
         expected.isAddLibraryDirectory = true
         expected.libraryDirectories = arrayOf("libs")
         expected.isVerbose = false
+
+        assertEquals(expected.asString("expected"), settings?.asString("expected"))
+
+        val rootDir = createdProjects + expected.projectName
+        val files = createFiles(expected.projectName, rootDir, expected as ArduinoApplicationSettingsProxy, "project/sketch")
+        compareFiles(rootDir, files);
+    }
+
+    @Test
+    fun test_tft_test() {
+        val projectDir = testProjects + "tft_test"
+        val settings = ArduinoCMakeListsTxtBuilder.loadProjectConfiguration(projectDir)
+        val expected = ArduinoApplicationSettingsProxy.of() as ArduinoProjectFileSettings
+
+        expected.projectName = projectDir.name
+        expected.headers = arrayOf()
+        expected.sketch = "tft_test.ino"
+        expected.languageVersionId = ""
+        expected.boardId = "pro"
+        expected.cpuId = "8MHzatmega328"
+        expected.programmerId = "avrispmkii"
+        expected.port = "/dev/cu.usbserial-00000000"
+        expected.isAddLibraryDirectory = true
+        expected.libraryDirectories = arrayOf("libs")
+        expected.isVerbose = true
 
         assertEquals(expected.asString("expected"), settings?.asString("expected"))
 
