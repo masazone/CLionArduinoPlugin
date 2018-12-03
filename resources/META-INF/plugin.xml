@@ -14,7 +14,7 @@
     <description><![CDATA[
         <p><img src="https://github.com/vsch/CLionArduinoPlugin/raw/master/resources/META-INF/pluginIcon.png" alt="pluginIcon.png" width="50" align="middle" />
             Integrates <a href="https://github.com/francoiscampbell/arduino-cmake">Arduino CMake</a> into the CLion IDE.</p>
-        <p>Install and create an Arduino CMake projects in one click with new project wizard types and view
+        <p>Install and create Arduino CMake projects in one click with new project wizard types and view
             communications with the integrated serial monitor tool window.</p>
         <ul>
             <li>
@@ -31,7 +31,7 @@
                     disabled if you are running an earlier version of CLion.</p>
             </li>
             <li>
-                <p>Change current build parameters with the <code>Tools</code> &gt; <code>Arduino Support</code> &gt; <code>Change build settings</code>. Preview changes to <code>CMakeLists.txt</code> before committing to them with the <code>Show Difference</code> button or use it to copy the desired changes to apply them manually.</p>
+                <p>Change current build parameters with <code>Tools</code> &gt; <code>Arduino Support</code> &gt; <code>Change build settings</code>. Preview changes to <code>CMakeLists.txt</code> before committing to them with the <code>Show Difference</code> button or use it to copy the desired changes to apply them manually.</p>
             </li>
             <li>
                 <p>Customize template files used for creating new projects.</p>
@@ -51,8 +51,7 @@
         <p><img src="https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_ChangeBuildSettings.png" alt="Screenshot_ChangeBuildSettings" width="400px" /><br></p>
         <!--![Screenshot_ChangeBuildDiff](https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_ChangeBuildDiff.png){width=400px}-->
         <p><br></p>
-        <p><strong>*</strong> This plugin is a fork of <a href="https://github.com/rjuang/CLionArduinoPlugin">rjuang/CLionArduinoPlugin</a> which in turn is a fork of
-            <a href="https://github.com/francoiscampbell/CLionArduinoPlugin">Original CLionArduinoPlugin</a> written by Francois Campbell.</p>
+        <p><strong>*</strong> This plugin is a fork of <a href="https://github.com/francoiscampbell/CLionArduinoPlugin">Original CLionArduinoPlugin</a> written by Francois Campbell.</p>
         ]]></description>
 
     <version>1.4.2</version>

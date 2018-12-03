@@ -44,8 +44,7 @@ Please uninstall or disable `Serial Port Monitor` plugin before installing `Ardu
 
 <br>
 
-**\*** This plugin is a fork of [rjuang/CLionArduinoPlugin] which in turn is a fork of
-[Original CLionArduinoPlugin] written by Francois Campbell.
+**\*** This plugin is a fork of [Original CLionArduinoPlugin] written by Francois Campbell.
 
 [Arduino CMake]: https://github.com/francoiscampbell/arduino-cmake
 [Issues]: https://github.com/vsch/CLionArduinoPlugin/issues
