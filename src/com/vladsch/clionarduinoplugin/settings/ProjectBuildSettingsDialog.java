@@ -33,8 +33,8 @@ import com.jetbrains.cidr.cpp.cmake.workspace.CMakeWorkspace;
 import com.vladsch.clionarduinoplugin.Bundle;
 import com.vladsch.clionarduinoplugin.generators.ArduinoProjectGenerator;
 import com.vladsch.clionarduinoplugin.generators.cmake.ArduinoCMakeListsTxtBuilder;
-import com.vladsch.flexmark.util.ui.BackgroundColor;
-import com.vladsch.flexmark.util.ui.HtmlBuilder;
+import com.vladsch.flexmark.util.html.ui.BackgroundColor;
+import com.vladsch.flexmark.util.html.ui.HtmlBuilder;
 import com.vladsch.plugin.util.ui.Helpers;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -97,7 +97,7 @@ public class ProjectBuildSettingsDialog extends DialogWrapper {
             Color highlightBackColor = BackgroundColor.of(label.getSelectionColor());
 
             builder.tag("html").attr(font).tag("body");
-            
+
             // add warning icon from GitHub
 
             for (String notification : notifications) {
@@ -153,12 +153,12 @@ public class ProjectBuildSettingsDialog extends DialogWrapper {
     }
 
     private void createUIComponents() {
-        // TODO: place custom component creation code here 
+        // TODO: place custom component creation code here
     }
 
     //void updateOptions() {
     //    if (myAlarm.isDisposed()) return;
-    //    
+    //
     //    myAlarm.cancelAllRequests();
     //    myAlarm.addRequest(this::updateOptionsRaw, 500);
     //}
@@ -169,12 +169,12 @@ public class ProjectBuildSettingsDialog extends DialogWrapper {
 
             if (myShowDiffAction != null && myResetSettings != null && myOkAction != null) {
                 myResetAction.setEnabled(enabled);
-                
+
                 if (!enabled) {
                     String content = getCMakeFileContent();
                     enabled = !content.equals(getModifiedContent(content));
                 }
-                
+
                 myOkAction.setEnabled(enabled);
                 myShowDiffAction.setEnabled(enabled);
             }

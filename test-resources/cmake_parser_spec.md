@@ -822,6 +822,10 @@ INCLUDED_DOCUMENT->
 LINE_CONTINUATION->true
 MAX_ERROR_LINE_RECOVERIES->5
 NO_FILE_EOL->true
+SOURCE_INDENT->
+SOURCE_PREFIX->
+SOURCE_SUFFIX->
+TIMED->false
 .
 CMakeFile[0, 111]
   Command[0, 33] text:[0, 22, "cmake_minimum_required"] open:[22, 23, "("] arguments:[23, 32, "VERSION 3"] close:[32, 33, ")"]

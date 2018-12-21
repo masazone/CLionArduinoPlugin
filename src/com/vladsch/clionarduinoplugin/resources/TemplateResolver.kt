@@ -1,7 +1,7 @@
 package com.vladsch.clionarduinoplugin.resources
 
 import com.intellij.openapi.diagnostic.Logger
-import com.vladsch.flexmark.util.Template
+import com.vladsch.flexmark.util.TemplateUtil
 import com.vladsch.flexmark.util.sequence.BasedSequence
 import com.vladsch.flexmark.util.sequence.BasedSequenceImpl
 import com.vladsch.plugin.util.*
@@ -252,9 +252,9 @@ object TemplateResolver {
 }
 
 fun CharSequence?.resolveRefs(pattern: Pattern, resolver: (name: String, index: String?) -> String?): String {
-    return Template.resolveRefs(this, pattern) { groups ->
+    return TemplateUtil.resolveRefs(this, pattern) { groups ->
         val name = groups[1]
-        val index:String? = if (groups.size > 2) groups[2] else null
+        val index: String? = if (groups.size > 2) groups[2] else null
 
         resolver.invoke(name, index)
     }

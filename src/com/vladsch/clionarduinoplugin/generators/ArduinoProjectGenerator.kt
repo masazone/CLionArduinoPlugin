@@ -42,7 +42,7 @@ import com.vladsch.clionarduinoplugin.settings.ArduinoApplicationSettings
 import com.vladsch.clionarduinoplugin.settings.ArduinoApplicationSettingsProxy
 import com.vladsch.clionarduinoplugin.settings.NewProjectSettingsForm
 import com.vladsch.clionarduinoplugin.util.ApplicationSettingsListener
-import com.vladsch.flexmark.util.StudiedWord
+import com.vladsch.plugin.util.StudiedWord
 import com.vladsch.plugin.util.plus
 import icons.PluginIcons
 import org.jetbrains.annotations.Nls

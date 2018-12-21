@@ -4,6 +4,7 @@
 
 ### Version History
 - [TO DO](#to-do)
+- [1.4.2.1](#1421)
 - [1.4.2](#142)
 - [1.4.0](#140)
 - [1.3.14](#1314)
@@ -34,6 +35,10 @@
   * [ ] [Support for ESP32 using Arduino libs]
   * [ ] [Include directories when setting up the library. Added Servo_RECURSE.]
 
+### 1.4.2.1
+
+* Change: refactoring to updated plugin-util
+
 ### 1.4.2
 
 * Fix: cmake builder to handle dynamic content in command fixed and default arguments.
@@ -47,7 +52,7 @@
   the two differed then wrong config would be generated
 * Fix: use project name extracted from `CMakeLists.txt` over the directory name of the project
 * Fix: serial monitor "edit settings" would always show port name from new project wizard
-  instead of project settings while connect/disconnect would use the right port name. 
+  instead of project settings while connect/disconnect would use the right port name.
 * Fix: exception in displaying serial monitor settings form
 * Add: option to log serial port related exceptions to the console
 * Fix: change project build settings on error would disable the `Change Build` button and not

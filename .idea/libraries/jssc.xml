@@ -6,11 +6,7 @@
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/lib/jssc.jar!/" />
     </CLASSES>
-    <JAVADOC>
-      <root url="jar://$PROJECT_DIR$/lib/jssc-2.8.0-javadoc.jar!/javadoc" />
-    </JAVADOC>
-    <SOURCES>
-      <root url="jar://$PROJECT_DIR$/lib/jssc-2.8.0-src.jar!/src" />
-    </SOURCES>
+    <JAVADOC />
+    <SOURCES />
   </library>
 </component>

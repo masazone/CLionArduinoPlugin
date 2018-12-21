@@ -3,7 +3,7 @@ package com.vladsch.clionarduinoplugin.generators.cmake;
 import com.vladsch.clionarduinoplugin.generators.cmake.ast.*;
 import com.vladsch.flexmark.ast.Node;
 import com.vladsch.flexmark.util.Pair;
-import com.vladsch.flexmark.util.SemanticVersion;
+import com.vladsch.plugin.util.SemanticVersion;
 import com.vladsch.flexmark.util.options.DataHolder;
 import com.vladsch.flexmark.util.options.DataKey;
 import com.vladsch.flexmark.util.options.MutableDataSet;

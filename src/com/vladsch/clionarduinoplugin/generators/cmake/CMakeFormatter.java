@@ -8,17 +8,35 @@ import com.vladsch.flexmark.formatter.RenderPurpose;
 import com.vladsch.flexmark.formatter.TranslatingSpanRender;
 import com.vladsch.flexmark.formatter.TranslationPlaceholderGenerator;
 import com.vladsch.flexmark.formatter.internal.Formatter;
-import com.vladsch.flexmark.formatter.internal.*;
+import com.vladsch.flexmark.formatter.internal.FormatterOptions;
+import com.vladsch.flexmark.formatter.internal.FormattingPhase;
+import com.vladsch.flexmark.formatter.internal.MarkdownWriter;
+import com.vladsch.flexmark.formatter.internal.NodeFormatter;
+import com.vladsch.flexmark.formatter.internal.NodeFormatterContext;
+import com.vladsch.flexmark.formatter.internal.NodeFormatterSubContext;
+import com.vladsch.flexmark.formatter.internal.NodeFormattingHandler;
+import com.vladsch.flexmark.formatter.internal.PhasedNodeFormatter;
 import com.vladsch.flexmark.util.collection.DynamicDefaultKey;
 import com.vladsch.flexmark.util.collection.NodeCollectingVisitor;
 import com.vladsch.flexmark.util.collection.SubClassingBag;
 import com.vladsch.flexmark.util.html.FormattingAppendable;
-import com.vladsch.flexmark.util.options.*;
+import com.vladsch.flexmark.util.options.DataHolder;
+import com.vladsch.flexmark.util.options.DataKey;
+import com.vladsch.flexmark.util.options.DataSet;
+import com.vladsch.flexmark.util.options.MutableDataHolder;
+import com.vladsch.flexmark.util.options.MutableDataSet;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.vladsch.flexmark.formatter.internal.Formatter.NULL_ITERABLE;
 
@@ -102,7 +120,7 @@ public class CMakeFormatter implements IRender {
         final private List<PhasedNodeFormatter> phasedFormatters;
         private FormattingPhase phase;
 
-        private Node lastRenderedNode;
+        private Node lastRenderedNode = null;
 
         CMakeFormatterContext(@Nullable DataHolder options, @NotNull MarkdownWriter out, final CMakeFile document) {
             super(out);
@@ -228,6 +246,7 @@ public class CMakeFormatter implements IRender {
 
                     nodeRenderer.render(node, subContext, subContext.getMarkdown());
                     lastRenderedNode = node;
+
                     subContext.setRenderingNode(oldNode);
                 } else {
                     // default behavior is controlled by generic Node.class that is implemented in CoreNodeFormatter
@@ -279,30 +298,48 @@ public class CMakeFormatter implements IRender {
             return getRenderingNode();
         }
 
-        public static void appendWhiteSpaceBetween(final MarkdownWriter markdown, Node prev, Node next, boolean preserve, boolean collapse, boolean collapseToEOL) {
+        public static void appendWhiteSpaceBetween(
+                final MarkdownWriter markdown,
+                Node prev,
+                Node next,
+                boolean preserve,
+                boolean collapse,
+                boolean collapseToEOL
+        ) {
             if (next != null && prev != null && (preserve || collapse)) {
                 appendWhiteSpaceBetween(markdown, prev.getChars(), next.getChars(), preserve, collapse, collapseToEOL);
             }
         }
 
-        public static void appendWhiteSpaceBetween(final MarkdownWriter markdown, BasedSequence prev, BasedSequence next, boolean preserve, boolean collapse, boolean collapseToEOL) {
+        public static void appendWhiteSpaceBetween(
+                final MarkdownWriter markdown,
+                BasedSequence prev,
+                BasedSequence next,
+                boolean preserve,
+                boolean collapse,
+                boolean collapseToEOL
+        ) {
             if (next != null && prev != null && (preserve || collapse)) {
-                BasedSequence sequence = prev.baseSubSequence(prev.getEndOffset(), next.getStartOffset());
-                if (!sequence.isEmpty() && sequence.isBlank()) {
-                    if (!preserve) {
-                        if (collapseToEOL && sequence.indexOfAny(BasedSequence.EOL_CHARS) != -1) {
-                            markdown.append('\n');
+                if (prev.getEndOffset() <= next.getStartOffset()) {
+                    BasedSequence sequence = prev.baseSubSequence(prev.getEndOffset(), next.getStartOffset());
+                    if (!sequence.isEmpty() && sequence.isBlank()) {
+                        if (!preserve) {
+                            if (collapseToEOL && sequence.indexOfAny(BasedSequence.EOL_CHARS) != -1) {
+                                markdown.append('\n');
+                            } else {
+                                markdown.append(' ');
+                            }
                         } else {
-                            markdown.append(' ');
+                            // need to set pre-formatted or spaces after eol are ignored assuming prefixes are used
+                            int saved = markdown.getOptions();
+                            markdown.setOptions(saved | FormattingAppendable.ALLOW_LEADING_WHITESPACE);
+                            markdown.append(sequence);
+                            markdown.setOptions(saved);
                         }
-                    } else {
-                        // need to set preformatted or spaces after eol are ignored assuming prefixes are used
-                        int saved = markdown.getOptions();
-                        markdown.setOptions(saved | FormattingAppendable.ALLOW_LEADING_WHITESPACE);
-                        markdown.append(sequence);
-                        markdown.setOptions(saved);
                     }
-                }
+                } else {
+                    // nodes reversed due to children being rendered before the parent
+                }    
             }
         }
 
@@ -344,12 +381,22 @@ public class CMakeFormatter implements IRender {
         }
 
         @Override
-        public CharSequence transformNonTranslating(final CharSequence prefix, final CharSequence nonTranslatingText, final CharSequence suffix, final CharSequence suffix2) {
+        public CharSequence transformNonTranslating(
+                final CharSequence prefix,
+                final CharSequence nonTranslatingText,
+                final CharSequence suffix,
+                final CharSequence suffix2
+        ) {
             return null;
         }
 
         @Override
-        public CharSequence transformTranslating(final CharSequence prefix, final CharSequence translatingText, final CharSequence suffix, final CharSequence suffix2) {
+        public CharSequence transformTranslating(
+                final CharSequence prefix,
+                final CharSequence translatingText,
+                final CharSequence suffix,
+                final CharSequence suffix2
+        ) {
             return null;
         }
 
@@ -374,7 +421,10 @@ public class CMakeFormatter implements IRender {
         }
 
         @Override
-        public void customPlaceholderFormat(final TranslationPlaceholderGenerator generator, final TranslatingSpanRender render) {
+        public void customPlaceholderFormat(
+                final TranslationPlaceholderGenerator generator,
+                final TranslatingSpanRender render
+        ) {
 
         }
     }

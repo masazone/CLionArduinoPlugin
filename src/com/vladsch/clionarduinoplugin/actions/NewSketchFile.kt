@@ -14,7 +14,7 @@ import com.vladsch.clionarduinoplugin.generators.ArduinoProjectGenerator
 import com.vladsch.clionarduinoplugin.resources.TemplateResolver
 import com.vladsch.clionarduinoplugin.settings.ArduinoApplicationSettings
 import com.vladsch.clionarduinoplugin.util.FileCreator
-import com.vladsch.flexmark.util.StudiedWord
+import com.vladsch.plugin.util.StudiedWord
 import icons.PluginIcons
 import java.io.IOException
 
