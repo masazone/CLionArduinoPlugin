@@ -4,7 +4,7 @@
 
 ### Version History
 - [TO DO](#to-do)
-- [1.4.2.1](#1421)
+- [1.4.4](#144)
 - [1.4.2](#142)
 - [1.4.0](#140)
 - [1.3.14](#1314)
@@ -35,9 +35,15 @@
   * [ ] [Support for ESP32 using Arduino libs]
   * [ ] [Include directories when setting up the library. Added Servo_RECURSE.]
 
-### 1.4.2.1
+### 1.4.4
 
 * Change: refactoring to updated plugin-util
+* Fix: `Disconnect on build` project setting was not saved, broken in 1.4.0 
+* Add: `On Disconnect Delay`, 50ms default. Introduces a short (0-100ms) delay before a build
+  when disconnecting a port to allow the port to become available. On projects with very short
+  build times, disconnecting a port does not allow enough time for the port to become available,
+  causing the upload to fail with "Resource busy" error. Adding a short delay after disconnect
+  solves the problem. On some project it is not needed on others 20ms was sufficient.
 
 ### 1.4.2
 
@@ -193,7 +199,7 @@
 
 ### 1.1.0
 
-* Compatiblity with Arduino SDK 1.6 on Mac OS X
+* Compatibility with Arduino SDK 1.6 on Mac OS X
 
 ### 1.0.2
 
@@ -207,7 +213,7 @@
 
 * Convert a project to Arduino CMake. This replaces CMakeLists.txt with a default one, deletes
   the default main.cpp file, copies in the Arduino CMake toolchain files, and deletes the build
-  direcory to start fresh
+  directory to start fresh
 * Associates .ino and .pde files as C++ source, so you get syntax highlighting and prediction,
   etc.
 * Create a new sketch file in any directory. If you omit the extension, it will add .ino

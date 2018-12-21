@@ -7,6 +7,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.WindowManager;
+import com.vladsch.clionarduinoplugin.settings.ArduinoApplicationSettings;
 import com.vladsch.clionarduinoplugin.settings.ArduinoProjectSettings;
 import jssc.SerialPort;
 import jssc.SerialPortEvent;
@@ -114,7 +115,16 @@ public class SerialProjectComponent implements ProjectComponent, BuildListener {
         if (myProjectSettings.isDisconnectOnBuild() && myProjectSettings.isBuildConfigurationMatched(targetName)) {
             boolean wasConnected = isPortConnected();
             myIsBuilding = true;
-            myPortManager.disconnectPort(myProjectSettings.getPort());
+            if (myPortManager.disconnectPort(myProjectSettings.getPort())) {
+                // need to pause for a very short delay to allow port to reset
+                int restTime = ArduinoApplicationSettings.getInstance().getDisconnectRestTime();
+                if (restTime > 0) {
+                    try {
+                        Thread.sleep(restTime);
+                    } catch (InterruptedException ignored) {
+                    }
+                }
+            }
             myWasConnected = wasConnected;
         } else {
             myWasConnected = false;

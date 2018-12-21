@@ -25,15 +25,15 @@ communications with the integrated serial monitor tool window.
 
 * Use bundled `boards.txt` and `programmers.txt` or your own versions.
 
-![Screenshot_NewProject.png](https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_NewProject.png)
+![Screenshot_NewProject.png](/assets/images/Screenshot_NewProject.png)
 
-![Screenshot_ProjectSettings](https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_ProjectSettings.png)
+![Screenshot_ProjectSettings](/assets/images/Screenshot_ProjectSettings.png)
 
-![Screenshot_SerialMonitor](https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_SerialMonitor.png)
+![Screenshot_SerialMonitor](/assets/images/Screenshot_SerialMonitor.png)
 
-![Screenshot_ChangeBuildSettings](https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_ChangeBuildSettings.png)
+![Screenshot_ChangeBuildSettings](/assets/images/Screenshot_ChangeBuildSettings.png)
 
-![Screenshot_ChangeBuildDiff](https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_ChangeBuildDiff.png)
+![Screenshot_ChangeBuildDiff](/assets/images/Screenshot_ChangeBuildDiff.png)
 
 #### :warning: `Serial Port Monitor` plugin cannot be used with `Arduino Support`
 
@@ -48,7 +48,7 @@ convenience.
 Additionally, you can point the plugin to your own versions of `boards.txt` and
 `programmers.txt`.
 
-![Screenshot_AppSettings](https://github.com/vsch/CLionArduinoPlugin/raw/master/assets/images/Screenshot_AppSettings.png)
+![Screenshot_AppSettings](/assets/images/Screenshot_AppSettings.png)
 
 The `Show Difference` button is only displayed when a valid file is selected to let you quickly
 see if there are differences from the bundled version.
@@ -56,8 +56,14 @@ see if there are differences from the bundled version.
 The `Create From Bundled` button is only displayed when a non-existent directory is given and it
 can be created. Pressing it will create the directory and populate it with the bundled
 templates. For layout and caveats of this directory please refer to the
-[README.md](https://github.com/vsch/CLionArduinoPlugin/blob/master/resources/com/vladsch/clionarduinoplugin/templates/README.md)
+[README.md](/resources/com/vladsch/clionarduinoplugin/templates/README.md)
 file in that directory.
+
+`On Disconnect Delay`, 50ms default. Introduces a short (0-100ms) delay before a build when
+disconnecting a port to allow the port to become available. On some projects with very short
+build times, disconnecting a port does not allow enough time for the port to become available,
+causing the upload to fail with "Resource busy" error. Adding a short delay after disconnect
+solves the problem. On some project it is not needed on others 20ms was sufficient.
 
 ## Status
 

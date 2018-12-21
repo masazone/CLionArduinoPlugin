@@ -59,6 +59,7 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
     private boolean bundledProgrammersTxt = true;
     private boolean bundledTemplates = true;
     private boolean commentUnusedSettings = true;
+    private int myDisconnectRestTime = 50;  // ms to delay after disconnecting on build 
 
     private ArduinoConfig myArduinoConfig = null;
 
@@ -111,6 +112,14 @@ public class ArduinoApplicationSettings extends CMakeProjectSettings implements 
 
     public boolean isBundledTemplates() {
         return bundledTemplates;
+    }
+
+    public int getDisconnectRestTime() {
+        return myDisconnectRestTime;
+    }
+
+    public void setDisconnectRestTime(final int disconnectRestTime) {
+        myDisconnectRestTime = disconnectRestTime;
     }
 
     public void setBundledTemplates(final boolean bundledTemplates) {

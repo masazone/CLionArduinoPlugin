@@ -26,7 +26,13 @@ import com.vladsch.plugin.util.ui.Settable;
 import com.vladsch.plugin.util.ui.SettingsComponents;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -69,6 +75,7 @@ public class SerialMonitorSettingsForm extends FormParams<Boolean> implements Di
                         component(SerialBaudRates.ADAPTER, myBaudRate, i::getBaudRate, i::setBaudRate),
                         //component(myReloadOnFileChange, i::isReloadOnFileChange, i::setReloadOnFileChange),
                         component(myLogConnectDisconnect, i::isLogConnectDisconnect, i::setLogConnectDisconnect),
+                        component(myDisconnectOnBuild, i::isDisconnectOnBuild, i::setDisconnectOnBuild),
                         component(myReconnectAfterBuild, i::isReconnectAfterBuild, i::setReconnectAfterBuild),
                         component(myActivateOnConnect, i::isActivateOnConnect, i::setActivateOnConnect),
                         component(myAfterSuccessfulBuild, i::isAfterSuccessfulBuild, i::setAfterSuccessfulBuild),
@@ -181,7 +188,7 @@ public class SerialMonitorSettingsForm extends FormParams<Boolean> implements Di
         if (myPort instanceof TextFieldWithHistory) {
             ((TextFieldWithHistory) myPort).setHistorySize(-1);
             ((TextFieldWithHistory) myPort).setHistory(SerialPortNames.getDisplayNames());
-            ((TextFieldWithHistory) myPort).setText(settings.getPort().isEmpty() ? ArduinoApplicationSettings.getInstance().getPort():settings.getPort());
+            ((TextFieldWithHistory) myPort).setText(/*settings.getPort().isEmpty() ? ArduinoApplicationSettings.getInstance().getPort() : */settings.getPort());
         }
 
         mySendSettings.reset(settings);

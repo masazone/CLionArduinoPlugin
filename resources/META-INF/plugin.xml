@@ -54,9 +54,19 @@
         <p><strong>*</strong> This plugin is a fork of <a href="https://github.com/francoiscampbell/CLionArduinoPlugin">Original CLionArduinoPlugin</a> written by Francois Campbell.</p>
         ]]></description>
 
-    <version>1.4.2.1</version>
+    <version>1.4.4</version>
 
     <change-notes><![CDATA[
+        <h3>1.4.4</h3>
+        <ul>
+            <li>Change: refactoring to updated plugin-util</li>
+            <li>Fix: <code>Disconnect on build</code> project setting was not saved, broken in 1.4.0</li>
+            <li>Add: <code>On Disconnect Delay</code>, 50ms default. Introduces a short (0-100ms) delay before a build
+                when disconnecting a port to allow the port to become available. On projects with very short
+                build times, disconnecting a port does not allow enough time for the port to become available,
+                causing the upload to fail with &ldquo;Resource busy&rdquo; error. Adding a short delay after disconnect
+                solves the problem. On some project it is not needed on others 20ms was sufficient.</li>
+        </ul>
         <h3>1.4.2</h3>
         <ul>
             <li>Fix: cmake builder to handle dynamic content in command fixed and default arguments.</li>

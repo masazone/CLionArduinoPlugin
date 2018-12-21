@@ -73,6 +73,7 @@ public class ApplicationSettingsForm implements Disposable, ApplicationSettingsL
     private JLabel myTemplatesLabel;
     private JButton myTemplatesDiff;
     private JButton myTemplatesCreate;
+    JSpinner myDisconnectRestTime;
 
     //NewProjectSettingsForm myNewSketchForm;
     //NewProjectSettingsForm myNewLibraryForm;
@@ -100,6 +101,7 @@ public class ApplicationSettingsForm implements Disposable, ApplicationSettingsL
                         component(myAuthorName, i::getAuthorName, i::setAuthorName),
                         component(myAuthorEMail, i::getAuthorEMail, i::setAuthorEMail),
                         component(myBundledBoardsTxt, i::isBundledBoardsTxt, i::setBundledBoardsTxt),
+                        component(myDisconnectRestTime, i::getDisconnectRestTime, i::setDisconnectRestTime),
                         component(myBundledProgrammersTxt, i::isBundledProgrammersTxt, i::setBundledProgrammersTxt),
                         component(myBundledTemplates, i::isBundledTemplates, i::setBundledTemplates),
                         component(myBoardsTxtPath.getTextField(), i::getBoardsTxtPath, i::setBoardsTxtPath),
@@ -494,5 +496,7 @@ public class ApplicationSettingsForm implements Disposable, ApplicationSettingsL
         // TODO: place custom component creation code here
         //myNewSketchForm = new NewProjectSettingsForm(false,true);
         //myNewLibraryForm = new NewProjectSettingsForm(true,true);
+        final SpinnerNumberModel model = new SpinnerNumberModel(20, 0, 100, 5);
+        myDisconnectRestTime = new JSpinner(model);
     }
 }

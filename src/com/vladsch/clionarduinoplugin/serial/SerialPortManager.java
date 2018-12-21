@@ -64,12 +64,14 @@ public class SerialPortManager implements BaseComponent {
         return myConnectedSerialPorts.get(port);
     }
 
-    public void disconnectPort(@NotNull final String port) {
+    public boolean disconnectPort(@NotNull final String port) {
         SerialProjectComponent portOwner = getPortOwner(port);
 
         if (portOwner != null) {
             portOwner.disconnectPort(port);
+            return true;
         }
+        return false;
     }
 
     @Override
