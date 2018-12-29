@@ -1,21 +1,18 @@
 package com.vladsch.clionarduinoplugin.generators.cmake;
 
 import com.vladsch.clionarduinoplugin.generators.cmake.ast.CMakeFile;
-import com.vladsch.flexmark.IRender;
-import com.vladsch.flexmark.ast.Document;
-import com.vladsch.flexmark.ast.Node;
-import com.vladsch.flexmark.formatter.RenderPurpose;
-import com.vladsch.flexmark.formatter.TranslatingSpanRender;
-import com.vladsch.flexmark.formatter.TranslationPlaceholderGenerator;
-import com.vladsch.flexmark.formatter.internal.Formatter;
+import com.vladsch.flexmark.formatter.*;
+import com.vladsch.flexmark.util.IRender;
+import com.vladsch.flexmark.util.ast.Document;
+import com.vladsch.flexmark.util.ast.Node;
+import com.vladsch.flexmark.formatter.Formatter;
 import com.vladsch.flexmark.formatter.internal.FormatterOptions;
-import com.vladsch.flexmark.formatter.internal.FormattingPhase;
-import com.vladsch.flexmark.formatter.internal.MarkdownWriter;
-import com.vladsch.flexmark.formatter.internal.NodeFormatter;
-import com.vladsch.flexmark.formatter.internal.NodeFormatterContext;
-import com.vladsch.flexmark.formatter.internal.NodeFormatterSubContext;
-import com.vladsch.flexmark.formatter.internal.NodeFormattingHandler;
-import com.vladsch.flexmark.formatter.internal.PhasedNodeFormatter;
+import com.vladsch.flexmark.formatter.FormattingPhase;
+import com.vladsch.flexmark.formatter.MarkdownWriter;
+import com.vladsch.flexmark.formatter.NodeFormatterContext;
+import com.vladsch.flexmark.formatter.NodeFormatterSubContext;
+import com.vladsch.flexmark.formatter.NodeFormattingHandler;
+import com.vladsch.flexmark.formatter.PhasedNodeFormatter;
 import com.vladsch.flexmark.util.collection.DynamicDefaultKey;
 import com.vladsch.flexmark.util.collection.NodeCollectingVisitor;
 import com.vladsch.flexmark.util.collection.SubClassingBag;
@@ -38,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.vladsch.flexmark.formatter.internal.Formatter.NULL_ITERABLE;
+import static com.vladsch.flexmark.formatter.Formatter.NULL_ITERABLE;
 
 public class CMakeFormatter implements IRender {
 

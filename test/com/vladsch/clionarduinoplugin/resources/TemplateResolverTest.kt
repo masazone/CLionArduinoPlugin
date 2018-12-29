@@ -56,7 +56,9 @@ class TemplateResolverTest {
                 LIBRARY_CPP_FILE to LIBRARY_CPP_CONTENT,
                 LIBRARY_H_FILE to LIBRARY_H_CONTENT,
                 LIBRARY_NAME_TEST_INO_FILE to LIBRARY_NAME_TEST_INO_CONTENT,
-                USER_SETUP_H_FILE to USER_SETUP_H_CONTENT,
+                //                USER_SETUP_H_FILE to USER_SETUP_H_CONTENT,
+                LIBRARY_README_FILE to LIBRARY_README_CONTENT,
+                LIBRARY_README_FILE to LIBRARY_README_CONTENT,
                 KEYWORDS_TXT_FILE to KEYWORDS_TXT_CONTENT,
                 LIBRARY_PROPERTIES_FILE to LIBRARY_PROPERTIES_CONTENT,
                 CMAKELISTS_TXT_FILE to CMAKELISTS_TXT_CONTENT
@@ -67,7 +69,7 @@ class TemplateResolverTest {
     fun test_project_sketch() {
         val files = TemplateResolver.getTemplates("project/sketch", null)
         compareFiles(mapOf(
-                USER_SETUP_H_FILE to USER_SETUP_H_CONTENT,
+//                USER_SETUP_H_FILE to USER_SETUP_H_CONTENT,
                 PROJECT_NAME_INO_FILE to PROJECT_NAME_INO_CONTENT,
                 CMAKELISTS_TXT_FILE to CMAKELISTS_TXT_CONTENT
         ), files)
@@ -79,7 +81,7 @@ class TemplateResolverTest {
         compareFiles(mapOf(
                 SUB_LIBRARY_CPP_FILE to LIBRARY_CPP_CONTENT,
                 SUB_LIBRARY_H_FILE to LIBRARY_H_CONTENT,
-                USER_SETUP_H_FILE to USER_SETUP_H_CONTENT,
+//                USER_SETUP_H_FILE to USER_SETUP_H_CONTENT,
                 PROJECT_NAME_INO_FILE to PROJECT_NAME_INO_CONTENT,
                 CMAKELISTS_TXT_FILE to CMAKELISTS_TXT_CONTENT
         ), files)
@@ -92,11 +94,11 @@ class TemplateResolverTest {
         val templates = TemplateResolver.resolveTemplates(files, values)
 
         compareFiles(mapOf(
-                "sub/lib_name.cpp" to LIBRARY_CPP_CONTENT.replace("<@library_name@>","lib_name").replace("<@LIBRARY_NAME@>","LIB_NAME").replace("<@LibraryName@>","LibName"),
-                "sub/lib_name.h" to LIBRARY_H_CONTENT.replace("<@library_name@>","lib_name").replace("<@LIBRARY_NAME@>","LIB_NAME").replace("<@LibraryName@>","LibName"),
-                USER_SETUP_H_FILE to USER_SETUP_H_CONTENT.replace("<@PROJECT_NAME@>",""),
-//                PROJECT_NAME_INO_FILE to PROJECT_NAME_INO_CONTENT,
-                CMAKELISTS_TXT_FILE to CMAKELISTS_TXT_CONTENT.replace("<@SET_BOARD@>","")
+                "sub/lib_name.cpp" to LIBRARY_CPP_CONTENT.replace("<@library_name@>", "lib_name").replace("<@LIBRARY_NAME@>", "LIB_NAME").replace("<@LibraryName@>", "LibName"),
+                "sub/lib_name.h" to LIBRARY_H_CONTENT.replace("<@library_name@>", "lib_name").replace("<@LIBRARY_NAME@>", "LIB_NAME").replace("<@LibraryName@>", "LibName"),
+//                USER_SETUP_H_FILE to USER_SETUP_H_CONTENT.replace("<@PROJECT_NAME@>", ""),
+                //                PROJECT_NAME_INO_FILE to PROJECT_NAME_INO_CONTENT,
+                CMAKELISTS_TXT_FILE to CMAKELISTS_TXT_CONTENT.replace("<@SET_BOARD@>", "")
         ), templates)
     }
 
@@ -109,24 +111,24 @@ class TemplateResolverTest {
         val templates = TemplateResolver.resolveTemplates(files, values)
 
         compareFiles(mapOf(
-                "lib_name.cpp" to LIBRARY_CPP_CONTENT.replace("<@library_name@>","lib_name").replace("<@LIBRARY_NAME@>","LIB_NAME").replace("<@LibraryName@>","LibName"),
-                "lib_name.h" to LIBRARY_H_CONTENT.replace("<@library_name@>","lib_name").replace("<@LIBRARY_NAME@>","LIB_NAME").replace("<@LibraryName@>","LibName"),
-                "lib_name_test.cpp" to LIBRARY_NAME_TEST_INO_CONTENT.replace("<@library_name@>","lib_name").replace("<@LIBRARY_NAME@>","LIB_NAME").replace("<@LibraryName@>","LibName")
-                        .replace("<@DELETE_IF_BLANK[lib_name]@>",""),
-                USER_SETUP_H_FILE to USER_SETUP_H_CONTENT,
-                KEYWORDS_TXT_FILE to KEYWORDS_TXT_CONTENT.replace("<@library_name@>","lib_name")
+                "lib_name.cpp" to LIBRARY_CPP_CONTENT.replace("<@library_name@>", "lib_name").replace("<@LIBRARY_NAME@>", "LIB_NAME").replace("<@LibraryName@>", "LibName"),
+                "lib_name.h" to LIBRARY_H_CONTENT.replace("<@library_name@>", "lib_name").replace("<@LIBRARY_NAME@>", "LIB_NAME").replace("<@LibraryName@>", "LibName"),
+                "lib_name_test.cpp" to LIBRARY_NAME_TEST_INO_CONTENT.replace("<@library_name@>", "lib_name").replace("<@LIBRARY_NAME@>", "LIB_NAME").replace("<@LibraryName@>", "LibName")
+                        .replace("<@DELETE_IF_BLANK[lib_name]@>", ""),
+                KEYWORDS_TXT_FILE to KEYWORDS_TXT_CONTENT.replace("<@library_name@>", "lib_name")
                         .replace("<@LIBRARY_DISPLAY_NAME@>", "Library Name")
-                        .replace("<@LIBRARY_NAME@>","LIB_NAME")
-                        .replace("<@LibraryName@>","LibName"),
+                        .replace("<@LIBRARY_NAME@>", "LIB_NAME")
+                        .replace("<@LibraryName@>", "LibName"),
                 LIBRARY_PROPERTIES_FILE to LIBRARY_PROPERTIES_CONTENT
                         .replace("<@LIBRARY_DISPLAY_NAME@>", "Library Name")
                         .replace("<@USER_NAME@>", "Author Name")
                         .replace("<@LIBRARY_CATEGORY@>", "Library Category")
                         .replace("<@E_MAIL@>", "email@email.com"),
                 CMAKELISTS_TXT_FILE to CMAKELISTS_TXT_CONTENT,
-                USER_SETUP_H_FILE to USER_SETUP_H_CONTENT.replace("<@PROJECT_NAME@>","LIB_NAME"),
-//                PROJECT_NAME_INO_FILE to PROJECT_NAME_INO_CONTENT,
-                CMAKELISTS_TXT_FILE to CMAKELISTS_TXT_CONTENT.replace("<@SET_BOARD@>","")
+                //                USER_SETUP_H_FILE to USER_SETUP_H_CONTENT.replace("<@PROJECT_NAME@>", "LIB_NAME"),
+                //                PROJECT_NAME_INO_FILE to PROJECT_NAME_INO_CONTENT,
+                LIBRARY_README_FILE to LIBRARY_README_CONTENT.replace("<@LIBRARY_DISPLAY_NAME@>", "Library Name"),
+                CMAKELISTS_TXT_FILE to CMAKELISTS_TXT_CONTENT.replace("<@SET_BOARD@>", "")
         ), templates)
     }
 
@@ -137,17 +139,16 @@ class TemplateResolverTest {
         val templates = TemplateResolver.resolveTemplates(files, values)
 
         compareFiles(mapOf(
-//                "sub/libName.cpp" to LIBRARY_CPP_CONTENT.replace("<@LIBRARY_NAME@>",""),
-//                "sub/libName.h" to LIBRARY_H_CONTENT.replace("<@LIBRARY_NAME@>",""),
-                USER_SETUP_H_FILE to USER_SETUP_H_CONTENT.replace("<@PROJECT_NAME@>","PROJECT_NAME"),
-                "project_name.ino" to PROJECT_NAME_INO_CONTENT.replace("#include \"<@library_name@>.h\"<@DELETE_IF_BLANK[<@library_name@>]@>\n",""),
-                CMAKELISTS_TXT_FILE to CMAKELISTS_TXT_CONTENT.replace("<@SET_BOARD@>","")
+                //                "sub/libName.cpp" to LIBRARY_CPP_CONTENT.replace("<@LIBRARY_NAME@>",""),
+                //                "sub/libName.h" to LIBRARY_H_CONTENT.replace("<@LIBRARY_NAME@>",""),
+//                USER_SETUP_H_FILE to USER_SETUP_H_CONTENT.replace("<@PROJECT_NAME@>", "PROJECT_NAME"),
+                "project_name.ino" to PROJECT_NAME_INO_CONTENT.replace("#include \"<@library_name@>.h\"<@DELETE_IF_BLANK[<@library_name@>]@>\n", ""),
+                CMAKELISTS_TXT_FILE to CMAKELISTS_TXT_CONTENT.replace("<@SET_BOARD@>", "")
         ), templates)
     }
 
     val SKETCH_FILE = "@sketch_name@.ino"
     val SKETCH_CONTENT = """#include <Arduino.h>
-#include "User_Setup.h"
 #include "<@library_name@>.h"<@DELETE_IF_BLANK[<@library_name@>]@>
 
 void setup() {
@@ -171,7 +172,7 @@ void loop() {
 
     val LIBRARY_H_FILE = "@library_name@.h"
     val SUB_LIBRARY_H_FILE = "sub/@library_name@.h"
-    val LIBRARY_H_CONTENT = """#ifdef _<@LIBRARY_NAME@>_H_
+    val LIBRARY_H_CONTENT = """#ifndef _<@LIBRARY_NAME@>_H_
 #define _<@LIBRARY_NAME@>_H_
 
 class <@LibraryName@> {
@@ -183,12 +184,19 @@ public:
 #endif //_<@LIBRARY_NAME@>_H_
 """
 
+    val LIBRARY_README_FILE = "README.md"
+    val LIBRARY_README_CONTENT = """# Arduino <@LIBRARY_DISPLAY_NAME@> library
+
+"""
+
+/*
     val USER_SETUP_H_FILE = "User_Setup.h"
-    val USER_SETUP_H_CONTENT = """#ifdef _<@PROJECT_NAME@>_USER_SETUP_H_
+    val USER_SETUP_H_CONTENT = """#ifndef _<@PROJECT_NAME@>_USER_SETUP_H_
 #define _<@PROJECT_NAME@>_USER_SETUP_H_
 
 #endif //_<@PROJECT_NAME@>_USER_SETUP_H_
 """
+*/
 
     val LIBRARY_PROPERTIES_FILE = Strings.LIBRARY_PROPERTIES_FILENAME
     val LIBRARY_PROPERTIES_CONTENT = """name=<@LIBRARY_DISPLAY_NAME@>

@@ -1,4 +1,4 @@
-#ifdef _STATIC_LIB1_H_
+#ifndef _STATIC_LIB1_H_
 #define _STATIC_LIB1_H_
 
 class StaticLib1 {

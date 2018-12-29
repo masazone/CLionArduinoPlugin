@@ -4,6 +4,7 @@
 
 ### Version History
 - [TO DO](#to-do)
+- [1.4.5](#145)
 - [1.4.4](#144)
 - [1.4.2](#142)
 - [1.4.0](#140)
@@ -34,6 +35,14 @@
   * [ ] [Allow setting ARDUINO_SDK_PATH as environment variable]
   * [ ] [Support for ESP32 using Arduino libs]
   * [ ] [Include directories when setting up the library. Added Servo_RECURSE.]
+
+### 1.4.5
+
+* Fix: update to latest libs
+* Fix: templates 
+  * `#ifdef` to `#ifndef`
+  * remove `User_Setup.h`
+  * add `README.md` to arduino library template
 
 ### 1.4.4
 

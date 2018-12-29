@@ -1,11 +1,9 @@
 package com.vladsch.clionarduinoplugin.generators.cmake;
 
-import com.vladsch.flexmark.IRender;
-import com.vladsch.flexmark.ast.Node;
+import com.vladsch.flexmark.util.IRender;
+import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.spec.IRenderBase;
 import com.vladsch.flexmark.util.options.DataHolder;
-
-import java.io.IOException;
 
 class NullRenderer extends IRenderBase {
     public NullRenderer() {

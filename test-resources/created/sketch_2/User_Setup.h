@@ -1,4 +1,0 @@
-#ifdef _SKETCH_2_USER_SETUP_H_
-#define _SKETCH_2_USER_SETUP_H_
-
-#endif //_SKETCH_2_USER_SETUP_H_

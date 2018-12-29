@@ -9,7 +9,7 @@ project(${PROJECT_NAME})
 
 # Define additional source and header files or default arduino sketch files
 set(${PROJECT_NAME}_SRCS arduino_lib1_test.cpp arduino_lib1.cpp)
-set(${PROJECT_NAME}_HDRS User_Setup.h arduino_lib1.h)
+set(${PROJECT_NAME}_HDRS arduino_lib1.h)
 
 ### Additional static libraries to include in the target.
 # set(${PROJECT_NAME}_LIBS)

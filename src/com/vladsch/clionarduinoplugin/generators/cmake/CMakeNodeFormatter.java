@@ -2,12 +2,12 @@ package com.vladsch.clionarduinoplugin.generators.cmake;
 
 import com.vladsch.clionarduinoplugin.generators.cmake.CMakeFormatter.CMakeFormatterContext;
 import com.vladsch.clionarduinoplugin.generators.cmake.ast.*;
-import com.vladsch.flexmark.ast.Node;
+import com.vladsch.flexmark.formatter.MarkdownWriter;
+import com.vladsch.flexmark.formatter.NodeFormatter;
+import com.vladsch.flexmark.formatter.NodeFormatterContext;
+import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.formatter.CustomNodeFormatter;
-import com.vladsch.flexmark.formatter.internal.MarkdownWriter;
-import com.vladsch.flexmark.formatter.internal.NodeFormatter;
-import com.vladsch.flexmark.formatter.internal.NodeFormatterContext;
-import com.vladsch.flexmark.formatter.internal.NodeFormattingHandler;
+import com.vladsch.flexmark.formatter.NodeFormattingHandler;
 import com.vladsch.flexmark.util.options.DataHolder;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.flexmark.util.sequence.RepeatedCharSequence;

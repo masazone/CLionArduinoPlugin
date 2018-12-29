@@ -1,4 +1,4 @@
-#ifdef _<@LIBRARY_NAME@>_H_
+#ifndef _<@LIBRARY_NAME@>_H_
 #define _<@LIBRARY_NAME@>_H_
 
 class <@LibraryName@> {

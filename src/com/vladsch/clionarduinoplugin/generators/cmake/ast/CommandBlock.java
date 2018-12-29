@@ -1,6 +1,6 @@
 package com.vladsch.clionarduinoplugin.generators.cmake.ast;
 
-import com.vladsch.flexmark.ast.Block;
+import com.vladsch.flexmark.util.ast.Block;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 
 // used by formatter to organize controlled commands into blocks for indenting

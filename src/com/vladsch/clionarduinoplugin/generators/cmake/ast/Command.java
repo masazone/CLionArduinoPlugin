@@ -1,6 +1,6 @@
 package com.vladsch.clionarduinoplugin.generators.cmake.ast;
 
-import com.vladsch.flexmark.ast.Node;
+import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.sequence.BasedSequence;
 
 public class Command extends Node {

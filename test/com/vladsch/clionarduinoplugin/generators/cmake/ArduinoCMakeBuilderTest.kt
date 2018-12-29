@@ -317,6 +317,9 @@ set(lib4_RECURSE false)
 
         assertEquals(expected.asString("expected"), settings?.asString("expected"))
 
+        // since we don't extract library display name
+        expected.libraryDisplayName = "Lib1"
+
         val rootDir = createdProjects + expected.projectName
         val files = createFiles(expected.projectName, rootDir, expected as ArduinoApplicationSettingsProxy, "project/library_arduino")
         compareFiles(rootDir, files);
@@ -343,6 +346,9 @@ set(lib4_RECURSE false)
         //expected.libraryDisplayName = "Arduino Lib2"
 
         assertEquals(expected.asString("expected"), settings?.asString("expected"))
+        
+        // since we don't extract library display name
+        expected.libraryDisplayName = "Lib2"
 
         val rootDir = createdProjects + expected.projectName
         val files = createFiles(expected.projectName, rootDir, expected as ArduinoApplicationSettingsProxy, "project/library_arduino")

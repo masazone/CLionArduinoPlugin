@@ -1,7 +1,7 @@
 package com.vladsch.clionarduinoplugin.generators.cmake;
 
-import com.vladsch.flexmark.IParse;
-import com.vladsch.flexmark.IRender;
+import com.vladsch.flexmark.util.IParse;
+import com.vladsch.flexmark.util.IRender;
 import com.vladsch.flexmark.spec.IParseBase;
 import com.vladsch.flexmark.spec.SpecExample;
 import com.vladsch.flexmark.spec.SpecReader;

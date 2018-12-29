@@ -1,4 +1,4 @@
-#ifdef _ARDUINO_LIB1_H_
+#ifndef _ARDUINO_LIB1_H_
 #define _ARDUINO_LIB1_H_
 
 class ArduinoLib1 {
