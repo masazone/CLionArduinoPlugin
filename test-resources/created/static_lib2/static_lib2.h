@@ -5,6 +5,6 @@ class StaticLib2 {
 
 public:
 
-}
+};
 
 #endif //_STATIC_LIB2_H_

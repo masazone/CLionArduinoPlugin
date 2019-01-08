@@ -40,7 +40,7 @@ public class StatusWidget implements CustomStatusBarWidget, StatusBarWidget.Icon
     private Alarm myUpdate;
     private final TextPanel.WithIconAndArrows myComponent;
     boolean myActionEnabled;
-    private boolean myDisposed;
+    private boolean myIsDisposed;
     private String myText;
     private String myTooltip;
     boolean myIsConnected;
@@ -167,22 +167,22 @@ public class StatusWidget implements CustomStatusBarWidget, StatusBarWidget.Icon
 
     @Override
     public void dispose() {
-        myDisposed = true;
+        myIsDisposed = true;
         myUpdate = null;
         myStatusBar = null;
         mySerialProjectComponent = null;
     }
 
     protected final boolean isDisposed() {
-        return myDisposed;
+        return myIsDisposed;
     }
 
     public void update(@Nullable Runnable finishUpdate) {
-        if (myUpdate.isDisposed()) return;
+        if (myIsDisposed || myUpdate.isDisposed()) return;
 
         myUpdate.cancelAllRequests();
         myUpdate.addRequest(() -> {
-            if (myDisposed) return;
+            if (myIsDisposed || myUpdate.isDisposed()) return;
 
             myComponent.setVisible(true);
             myActionEnabled = true;

@@ -5,6 +5,6 @@ class ArduinoLib2 {
 
 public:
 
-}
+};
 
 #endif //_ARDUINO_LIB2_H_

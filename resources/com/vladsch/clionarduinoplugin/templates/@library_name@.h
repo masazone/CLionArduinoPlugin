@@ -5,6 +5,6 @@ class <@LibraryName@> {
 
 public:
 
-}
+};
 
 #endif //_<@LIBRARY_NAME@>_H_

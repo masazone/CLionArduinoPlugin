@@ -43,6 +43,7 @@
   * `#ifdef` to `#ifndef`
   * remove `User_Setup.h`
   * add `README.md` to arduino library template
+  * add missing `;` after lib class declaration
 
 ### 1.4.4
 
