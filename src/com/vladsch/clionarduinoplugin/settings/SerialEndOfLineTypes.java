@@ -25,6 +25,7 @@ public enum SerialEndOfLineTypes implements ComboBoxAdaptable<SerialEndOfLineTyp
 
     public static Static<SerialEndOfLineTypes> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(LF));
 
+    @NotNull
     @Override
     public ComboBoxAdapter<SerialEndOfLineTypes> getAdapter() {
         return ADAPTER;

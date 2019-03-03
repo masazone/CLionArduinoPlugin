@@ -4,6 +4,7 @@ import com.vladsch.plugin.util.ui.ComboBoxAdapter;
 import com.vladsch.plugin.util.ui.ComboBoxAdapterImpl;
 import com.vladsch.plugin.util.ui.DynamicListAdaptable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComboBox;
 import java.util.List;
@@ -17,11 +18,11 @@ public class ProgrammerNames extends DynamicListAdaptable<ProgrammerNames> {
     public static DynamicListAdaptable[] values = new DynamicListAdaptable[0];
     final public static Static<DynamicListAdaptable<ProgrammerNames>> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(EMPTY));
 
-    public static void updateValues(String[] valueList, final boolean addEmpty, JComboBox comboBox, ProgrammerNames... exclude) {
+    public static void updateValues(@NotNull String[] valueList, final boolean addEmpty, @Nullable JComboBox<String> comboBox, ProgrammerNames... exclude) {
         updateValues(asList(valueList), addEmpty, comboBox, exclude);
     }
     
-    public static void updateValues(List<String> valueList, final boolean addEmpty, JComboBox comboBox, ProgrammerNames... exclude) {
+    public static void updateValues(List<String> valueList, final boolean addEmpty, @Nullable JComboBox<String> comboBox, ProgrammerNames... exclude) {
         values = DynamicListAdaptable.updateValues(EMPTY, valueList, addEmpty, ProgrammerNames::new);
         //noinspection unchecked
         ADAPTER.setDefaultValue(values[0]);
@@ -41,6 +42,7 @@ public class ProgrammerNames extends DynamicListAdaptable<ProgrammerNames> {
         return displayName;
     }
 
+    @NotNull
     @Override
     public String name() {
         return displayName;
@@ -51,11 +53,13 @@ public class ProgrammerNames extends DynamicListAdaptable<ProgrammerNames> {
         return intValue;
     }
 
+    @NotNull
     @Override
     public ComboBoxAdapter<DynamicListAdaptable<ProgrammerNames>> getAdapter() {
         return ADAPTER;
     }
 
+    @NotNull
     @Override
     public DynamicListAdaptable<ProgrammerNames>[] getValues() {
         //noinspection unchecked

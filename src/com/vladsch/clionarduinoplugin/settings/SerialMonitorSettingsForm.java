@@ -41,12 +41,12 @@ public class SerialMonitorSettingsForm extends FormParams<Boolean> implements Di
     private static final Logger logger = Logger.getInstance("com.vladsch.clionarduinoplugin.settings");
 
     JPanel myMainPanel;
-    JComboBox myPort;
-    JComboBox myBaudRate;
+    JComboBox<String> myPort;
+    JComboBox<String> myBaudRate;
     JBCheckBox myDisconnectOnBuild;
     JBCheckBox myReconnectAfterBuild;
     JBTextField myBuildConfigurationNames;
-    JComboBox myBuildConfigurationPattern;
+    JComboBox<String> myBuildConfigurationPattern;
     private JButton myEditRegExButton;
     JBCheckBox myAfterSuccessfulBuild;
     JBCheckBox myLogConnectDisconnect;

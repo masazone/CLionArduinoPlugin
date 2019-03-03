@@ -6,6 +6,7 @@ import com.vladsch.plugin.util.ui.ComboBoxAdapterImpl;
 import com.vladsch.plugin.util.ui.DynamicListAdaptable;
 import jssc.SerialPortList;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComboBox;
 import java.util.List;
@@ -19,7 +20,7 @@ public class SerialPortNames extends DynamicListAdaptable<SerialPortNames> {
     public static DynamicListAdaptable[] values = new DynamicListAdaptable[0];
     final public static Static<DynamicListAdaptable<SerialPortNames>> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(EMPTY));
 
-    public static void updateValues(final boolean filtered, JComboBox comboBox, SerialPortNames... exclude) {
+    public static void updateValues(final boolean filtered, @Nullable JComboBox<String> comboBox, SerialPortNames... exclude) {
         values = DynamicListAdaptable.updateValues(EMPTY, SerialPortManager.getInstance().getSerialPorts(filtered), true, SerialPortNames::new);
         //noinspection unchecked
         ADAPTER.setDefaultValue(values[0]);
@@ -39,6 +40,7 @@ public class SerialPortNames extends DynamicListAdaptable<SerialPortNames> {
         return displayName;
     }
 
+    @NotNull
     @Override
     public String name() {
         return displayName;
@@ -49,11 +51,13 @@ public class SerialPortNames extends DynamicListAdaptable<SerialPortNames> {
         return intValue;
     }
 
+    @NotNull
     @Override
     public ComboBoxAdapter<DynamicListAdaptable<SerialPortNames>> getAdapter() {
         return ADAPTER;
     }
 
+    @NotNull
     @Override
     public DynamicListAdaptable<SerialPortNames>[] getValues() {
         //noinspection unchecked

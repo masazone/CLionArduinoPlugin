@@ -93,6 +93,7 @@ public enum BuildConfigurationPatternType implements ComboBoxAdaptable<BuildConf
 
     public static Static<BuildConfigurationPatternType> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(SUFFIX));
 
+    @NotNull
     @Override
     public ComboBoxAdapter<BuildConfigurationPatternType> getAdapter() {
         return ADAPTER;

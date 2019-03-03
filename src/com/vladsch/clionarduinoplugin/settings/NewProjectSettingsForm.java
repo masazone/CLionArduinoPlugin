@@ -25,18 +25,18 @@ import java.util.*;
 
 public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSettings> implements Disposable, ApplicationSettingsListener, SettableForm<ArduinoApplicationSettings> {
     private JPanel myMainPanel;
-    JComboBox myLanguageVersion;
-    JComboBox myLibraryType;
-    JComboBox myBoards;
+    JComboBox<String> myLanguageVersion;
+    JComboBox<String> myLibraryType;
+    JComboBox<String> myBoards;
     private JLabel myCpuLabel;
-    JComboBox myCpus;
-    JComboBox myProgrammers;
+    JComboBox<String> myCpus;
+    JComboBox<String> myProgrammers;
     JBCheckBox myAddLibraryDirectory;
     JBCheckBox myVerbose;
     TextFieldWithHistory myPort;
     JBCheckBox myCommentOutUnusedSettings;
 
-    JComboBox myLibraryCategory;
+    JComboBox<String> myLibraryCategory;
     JTextField myLibraryDirectory;
     JTextField myLibraryDisplayName;
     JTextField myAuthorName;
@@ -45,7 +45,7 @@ public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSetting
     private JLabel myLibraryTypeLabel;
     private JLabel myAuthorNameLabel;
     private JLabel myAuthorEMailLabel;
-    JComboBox myBaudRate;
+    JComboBox<String> myBaudRate;
     private JLabel myLibraryDisplayNameLabel;
 
     final Set<Object> myPendingUpdates;
@@ -95,7 +95,6 @@ public class NewProjectSettingsForm extends FormParams<ArduinoApplicationSetting
         myUpdate = new Alarm(this);
         myPendingUpdates = new LinkedHashSet<>();
 
-        //noinspection unchecked
         components = new SettingsComponents<ArduinoApplicationSettings>(mySettings) {
             @Override
             protected Settable[] createComponents(ArduinoApplicationSettings i) {

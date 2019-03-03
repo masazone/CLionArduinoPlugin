@@ -4,7 +4,7 @@
 
 ### Version History
 - [TO DO](#to-do)
-- [1.4.5](#145)
+- [1.4.6](#146)
 - [1.4.4](#144)
 - [1.4.2](#142)
 - [1.4.0](#140)
@@ -36,7 +36,7 @@
   * [ ] [Support for ESP32 using Arduino libs]
   * [ ] [Include directories when setting up the library. Added Servo_RECURSE.]
 
-### 1.4.5
+### 1.4.6
 
 * Fix: update to latest libs
 * Fix: templates 

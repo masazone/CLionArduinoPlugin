@@ -27,6 +27,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.ValidationInfo;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.jetbrains.cidr.cpp.cmake.workspace.CMakeWorkspace;
@@ -68,7 +69,7 @@ public class ProjectBuildSettingsDialog extends DialogWrapper {
     final ArduinoApplicationSettingsProxy myResetSettings;
     //final Alarm myAlarm;
 
-    public ProjectBuildSettingsDialog(Project project, ArduinoApplicationSettingsProxy settings, final VirtualFile file) {
+    private ProjectBuildSettingsDialog(Project project, ArduinoApplicationSettingsProxy settings, final VirtualFile file) {
         super(project, false);
         myProject = project;
         mySettings = settings;
@@ -316,8 +317,11 @@ public class ProjectBuildSettingsDialog extends DialogWrapper {
                         }
 
                         ArduinoProjectGenerator.Companion.reloadCMakeLists(dialog.myProject);
+                        Disposer.dispose(dialog.myNewProjectSettingsForm);
                     }
                 });
+            } else {
+                Disposer.dispose(dialog.myNewProjectSettingsForm);
             }
             return true;
         }

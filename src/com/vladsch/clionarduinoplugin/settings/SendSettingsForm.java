@@ -15,7 +15,7 @@ import java.awt.event.ActionListener;
 public class SendSettingsForm implements Disposable {
 
     private JPanel myMainPanel;
-    JComboBox mySerialEndOfLineTypes;
+    JComboBox<String> mySerialEndOfLineTypes;
     JBCheckBox myLogSentText;
     JBCheckBox myImmediateSend;
     JBCheckBox myLogExceptions;

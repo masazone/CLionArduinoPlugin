@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Version" pattern="file[CLionArduinoPlugin]:VERSION.md" />
+</component>

@@ -4,6 +4,7 @@ import com.vladsch.plugin.util.ui.ComboBoxAdapter;
 import com.vladsch.plugin.util.ui.ComboBoxAdapterImpl;
 import com.vladsch.plugin.util.ui.DynamicListAdaptable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComboBox;
 import java.util.List;
@@ -17,7 +18,7 @@ public class LibraryTypeNames extends DynamicListAdaptable<LibraryTypeNames> {
     public static DynamicListAdaptable[] values = new DynamicListAdaptable[0];
     final public static Static<DynamicListAdaptable<LibraryTypeNames>> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(EMPTY));
 
-    public static void updateValues(JComboBox comboBox, LibraryTypeNames... exclude) {
+    public static void updateValues(@Nullable JComboBox<String> comboBox, LibraryTypeNames... exclude) {
         values = DynamicListAdaptable.updateValues(EMPTY, asList(ArduinoProjectFileSettings.LIBRARY_TYPES), false, LibraryTypeNames::new);
         //noinspection unchecked
         ADAPTER.setDefaultValue(values[0]);
@@ -37,6 +38,7 @@ public class LibraryTypeNames extends DynamicListAdaptable<LibraryTypeNames> {
         return displayName;
     }
 
+    @NotNull
     @Override
     public String name() {
         return displayName;
@@ -47,11 +49,13 @@ public class LibraryTypeNames extends DynamicListAdaptable<LibraryTypeNames> {
         return intValue;
     }
 
+    @NotNull
     @Override
     public ComboBoxAdapter<DynamicListAdaptable<LibraryTypeNames>> getAdapter() {
         return ADAPTER;
     }
 
+    @NotNull
     @Override
     public DynamicListAdaptable<LibraryTypeNames>[] getValues() {
         //noinspection unchecked

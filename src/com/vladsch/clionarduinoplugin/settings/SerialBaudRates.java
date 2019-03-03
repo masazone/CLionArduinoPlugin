@@ -34,6 +34,7 @@ public enum SerialBaudRates implements ComboBoxAdaptable<SerialBaudRates> {
 
     public static Static<SerialBaudRates> ADAPTER = new Static<>(new ComboBoxAdapterImpl<>(DEFAULT));
 
+    @NotNull
     @Override
     public ComboBoxAdapter<SerialBaudRates> getAdapter() {
         return ADAPTER;
