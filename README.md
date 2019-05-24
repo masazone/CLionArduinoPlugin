@@ -40,6 +40,15 @@ communications with the integrated serial monitor tool window.
 Both plugins use [jSSC-2.8.0] serial library and only one plugin can load the native libraries.
 Please uninstall or disable `Serial Port Monitor` plugin before installing `Arduino Support`.
 
+## Uploading a sketch
+Select the upload configuration from the dropdown. The type (debug/release) does not matter.
+
+![select upload from dropdown](/assets/images/Screenshot_RunDebugConfiguration.png)
+
+Use the build action to upload your sketch. Do __not__ use the run action.
+
+![Use build action, not run](/assets/images/Screenshot_BuildNotRun.png)
+
 ## Settings (Preferences on Mac)
 
 Some settings can also be changed in settings under Languages & Frameworks > Arduino, for
